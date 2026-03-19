@@ -1,4 +1,4 @@
-import * as FileSystem from 'expo-file-system'
+import * as FileSystem from 'expo-file-system/legacy'
 import * as Sharing from 'expo-sharing'
 import { ServiceResult } from '../types'
 import { STORAGE_KEYS } from '../constants/storageKeys'

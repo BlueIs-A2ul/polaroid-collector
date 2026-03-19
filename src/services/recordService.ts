@@ -414,4 +414,11 @@ export const getAllIdolNames = async (): Promise<
       error: null,
     }
   } catch (error) {
-    console.error('获取偶像名称列表失败:', error
+    console.error('获取偶像名称列表失败:', error)
+    return {
+      success: false,
+      data: [],
+      error: error instanceof Error ? error.message : String(error),
+    }
+  }
+}
