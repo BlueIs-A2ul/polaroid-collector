@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   Image,
+  RefreshControl,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { StackNavigationProp } from '@react-navigation/stack'
@@ -36,6 +37,13 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
   const { idolName } = route.params
   const { detail, loading, error, ascending, toggleSort, refreshDetail } =
     useIdolDetail(idolName)
+  const [refreshing, setRefreshing] = React.useState(false)
+
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true)
+    await refreshDetail()
+    setRefreshing(false)
+  }, [refreshDetail])
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -66,7 +74,17 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
   }
 
   return (
-    <ScrollView style={styles.container}>
+    <ScrollView
+      style={styles.container}
+      refreshControl={
+        <RefreshControl
+          refreshing={refreshing}
+          onRefresh={onRefresh}
+          colors={[COLORS.PRIMARY]}
+          tintColor={COLORS.PRIMARY}
+        />
+      }
+    >
       {/* 头部信息 */}
       <View style={styles.header}>
         <Text style={styles.idolName}>{detail.idolName}</Text>

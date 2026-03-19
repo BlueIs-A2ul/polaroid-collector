@@ -8,6 +8,7 @@ import {
   Alert,
   ActionSheetIOS,
   Platform,
+  RefreshControl,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { StackNavigationProp } from '@react-navigation/stack'
@@ -46,6 +47,7 @@ interface HomeScreenProps {
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const { ranking, statistics, loading, error, refreshAll } = useRecords()
   const [searchQuery, setSearchQuery] = React.useState('')
+  const [refreshing, setRefreshing] = React.useState(false)
 
   // 根据搜索关键词过滤排名列表（使用 useMemo 优化性能）
   const filteredRanking = React.useMemo(
@@ -119,6 +121,15 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       Alert.alert('导出失败', err || '未知错误')
     }
   }
+
+  /**
+   * 下拉刷新
+   */
+  const onRefresh = React.useCallback(async () => {
+    setRefreshing(true)
+    await refreshAll()
+    setRefreshing(false)
+  }, [refreshAll])
 
   /**
    * 显示更多选项
@@ -288,6 +299,14 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       <ScrollView
         style={styles.list}
         contentContainerStyle={styles.listContent}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[COLORS.PRIMARY]}
+            tintColor={COLORS.PRIMARY}
+          />
+        }
       >
         {filteredRanking.length === 0 && searchQuery.length > 0 ? (
           <EmptyState
