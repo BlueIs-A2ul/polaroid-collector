@@ -12,33 +12,36 @@ interface EmptyStateProps {
 /**
  * 空状态组件
  */
-const EmptyState: React.FC<EmptyStateProps> = ({ icon, title, message }) => {
-  return (
-    <View style={styles.container}>
-      <Ionicons name={icon} size={64} color={COLORS.GRAY[400]} />
-      <Text style={styles.title}>{title}</Text>
-      <Text style={styles.message}>{message}</Text>
-    </View>
-  )
-}
+const EmptyState: React.FC<EmptyStateProps> = React.memo(
+  ({ icon, title, message }) => {
+    return (
+      <View style={styles.container}>
+        <Ionicons name={icon} size={64} color={COLORS.GRAY[400]} />
+        <Text style={styles.title}>{title}</Text>
+        <Text style={styles.message}>{message}</Text>
+      </View>
+    )
+  },
+)
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    padding: 32,
+    paddingHorizontal: 32,
+    backgroundColor: COLORS.SECONDARY,
   },
   title: {
     fontSize: 20,
     fontWeight: 'bold',
-    color: COLORS.GRAY[600],
+    color: COLORS.BLACK,
     marginTop: 16,
+    marginBottom: 8,
   },
   message: {
     fontSize: 14,
-    color: COLORS.GRAY[500],
-    marginTop: 8,
+    color: COLORS.GRAY[600],
     textAlign: 'center',
   },
 })

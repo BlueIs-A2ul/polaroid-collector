@@ -15,46 +15,42 @@ interface IdolCardProps {
  * 偶像卡片组件
  * 显示偶像信息和拍立得统计数据
  */
-const IdolCard: React.FC<IdolCardProps> = ({
-  idolName,
-  totalCount,
-  latestPhoto,
-  onPress,
-  index = 0,
-}) => {
-  return (
-    <TouchableOpacity
-      style={[styles.container, styles.shadow]}
-      onPress={onPress}
-      activeOpacity={0.7}
-    >
-      {/* 偶像信息 */}
-      <View style={styles.infoContainer}>
-        <View style={styles.avatar}>
-          <Ionicons name='person' size={24} color={COLORS.PRIMARY} />
-        </View>
-        <View style={styles.textContainer}>
-          <Text style={styles.idolName} numberOfLines={1}>
-            {idolName}
-          </Text>
-          <View style={styles.metaContainer}>
-            <Ionicons name='camera' size={14} color={COLORS.GRAY[500]} />
-            <Text style={styles.photoCount}>{totalCount} 张</Text>
+const IdolCard: React.FC<IdolCardProps> = React.memo(
+  ({ idolName, totalCount, latestPhoto, onPress }) => {
+    return (
+      <TouchableOpacity
+        style={[styles.container, styles.shadow]}
+        onPress={onPress}
+        activeOpacity={0.7}
+      >
+        {/* 偶像信息 */}
+        <View style={styles.infoContainer}>
+          <View style={styles.avatar}>
+            <Ionicons name='person' size={24} color={COLORS.PRIMARY} />
+          </View>
+          <View style={styles.textContainer}>
+            <Text style={styles.idolName} numberOfLines={1}>
+              {idolName}
+            </Text>
+            <View style={styles.metaContainer}>
+              <Ionicons name='camera' size={14} color={COLORS.GRAY[500]} />
+              <Text style={styles.photoCount}>{totalCount} 张</Text>
+            </View>
           </View>
         </View>
-      </View>
 
-      {/* 最新照片预览 */}
-      {latestPhoto ? (
-        <View style={styles.photoPreview}>
-          <Ionicons name='image' size={20} color={COLORS.PRIMARY} />
-        </View>
-      ) : (
-        <Ionicons name='chevron-forward' size={20} color={COLORS.GRAY[400]} />
-      )}
-    </TouchableOpacity>
-  )
-}
+        {/* 最新照片预览 */}
+        {latestPhoto ? (
+          <View style={styles.photoPreview}>
+            <Ionicons name='image' size={20} color={COLORS.PRIMARY} />
+          </View>
+        ) : (
+          <Ionicons name='chevron-forward' size={20} color={COLORS.GRAY[400]} />
+        )}
+      </TouchableOpacity>
+    )
+  },
+)
 
 const styles = StyleSheet.create({
   container: {

@@ -47,6 +47,15 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const { ranking, statistics, loading, error, refreshAll } = useRecords()
   const [searchQuery, setSearchQuery] = React.useState('')
 
+  // 根据搜索关键词过滤排名列表（使用 useMemo 优化性能）
+  const filteredRanking = React.useMemo(
+    () =>
+      ranking.filter(item =>
+        item.idolName.toLowerCase().includes(searchQuery.toLowerCase()),
+      ),
+    [ranking, searchQuery],
+  )
+
   /**
    * 显示导出选项
    */
@@ -198,11 +207,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       },
     ])
   }
-
-  // 根据搜索关键词过滤排名列表
-  const filteredRanking = ranking.filter(item =>
-    item.idolName.toLowerCase().includes(searchQuery.toLowerCase()),
-  )
 
   if (loading) {
     return <LoadingSpinner />

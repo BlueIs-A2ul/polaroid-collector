@@ -1,31 +1,24 @@
 import React from 'react'
-import { ActivityIndicator, View, StyleSheet } from 'react-native'
+import { View, ActivityIndicator, StyleSheet } from 'react-native'
 import { COLORS } from '../../constants/themeColors'
 
-interface LoadingSpinnerProps {
-  size?: 'small' | 'large'
-  color?: string
-}
-
 /**
- * 加载指示器组件
+ * 加载中旋转器组件
  */
-const LoadingSpinner: React.FC<LoadingSpinnerProps> = ({
-  size = 'large',
-  color = COLORS.PRIMARY,
-}) => {
+const LoadingSpinner: React.FC = React.memo(() => {
   return (
     <View style={styles.container}>
-      <ActivityIndicator size={size} color={color} />
+      <ActivityIndicator size='large' color={COLORS.PRIMARY} />
     </View>
   )
-}
+})
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
+    backgroundColor: COLORS.SECONDARY,
   },
 })
 
