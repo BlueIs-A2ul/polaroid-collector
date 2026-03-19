@@ -1,5 +1,5 @@
 import React from 'react'
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { COLORS } from '../../constants/themeColors'
 
@@ -41,11 +41,11 @@ const IdolCard: React.FC<IdolCardProps> = React.memo(
 
         {/* 最新照片预览 */}
         {latestPhoto ? (
-          <View style={styles.photoPreview}>
-            <Ionicons name='image' size={20} color={COLORS.PRIMARY} />
-          </View>
+          <Image source={{ uri: latestPhoto }} style={styles.thumbnail} />
         ) : (
-          <Ionicons name='chevron-forward' size={20} color={COLORS.GRAY[400]} />
+          <View style={styles.thumbnailPlaceholder}>
+            <Ionicons name='person' size={20} color={COLORS.GRAY[400]} />
+          </View>
         )}
       </TouchableOpacity>
     )
@@ -104,10 +104,19 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.GRAY[600],
   },
-  photoPreview: {
-    padding: 8,
-    backgroundColor: COLORS.SECONDARY,
+  thumbnail: {
+    width: 48,
+    height: 48,
     borderRadius: 8,
+    resizeMode: 'cover',
+  },
+  thumbnailPlaceholder: {
+    width: 48,
+    height: 48,
+    borderRadius: 8,
+    backgroundColor: COLORS.GRAY[100],
+    justifyContent: 'center',
+    alignItems: 'center',
   },
 })
 
