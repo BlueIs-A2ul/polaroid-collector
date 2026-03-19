@@ -23,6 +23,12 @@ import {
   exportToCSV,
   shareExportedFile,
 } from '../services/exportService'
+import {
+  createBackup,
+  restoreFromBackup,
+  shareBackupFile,
+} from '../services/backupService'
+import * as DocumentPicker from 'expo-document-picker'
 
 type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>
 type HomeScreenRouteProp = RouteProp<RootStackParamList, 'Home'>
@@ -103,6 +109,94 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     }
   }
 
+  /**
+   * 显示更多选项
+   */
+  const showMoreOptions = () => {
+    if (Platform.OS === 'ios') {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          title: '更多选项',
+          options: ['创建备份', '恢复备份', '取消'],
+          cancelButtonIndex: 2,
+        },
+        async buttonIndex => {
+          if (buttonIndex === 0) {
+            await handleCreateBackup()
+          } else if (buttonIndex === 1) {
+            await handleRestoreBackup()
+          }
+        },
+      )
+    } else {
+      Alert.alert('更多选项', '请选择操作', [
+        { text: '创建备份', onPress: handleCreateBackup },
+        { text: '恢复备份', onPress: handleRestoreBackup },
+        { text: '取消', style: 'cancel' },
+      ])
+    }
+  }
+
+  /**
+   * 创建备份
+   */
+  const handleCreateBackup = async () => {
+    const { success, data: fileUri, error: err } = await createBackup()
+    if (success && fileUri) {
+      Alert.alert('备份成功', '备份文件已生成，是否分享？', [
+        { text: '取消', style: 'cancel' },
+        {
+          text: '分享',
+          onPress: () => shareBackupFile(fileUri),
+        },
+      ])
+    } else {
+      Alert.alert('备份失败', err || '未知错误')
+    }
+  }
+
+  /**
+   * 恢复备份
+   */
+  const handleRestoreBackup = async () => {
+    Alert.alert('恢复备份', '这将清除当前所有数据并从备份恢复，是否继续？', [
+      { text: '取消', style: 'cancel' },
+      {
+        text: '继续',
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            const result = await DocumentPicker.getDocumentAsync({
+              type: 'application/json',
+            })
+
+            if (!result.canceled && result.assets && result.assets.length > 0) {
+              const { success, error: err } = await restoreFromBackup(
+                result.assets[0].uri,
+              )
+
+              if (success) {
+                Alert.alert('恢复成功', '数据已恢复', [
+                  {
+                    text: '确定',
+                    onPress: () => refreshAll(),
+                  },
+                ])
+              } else {
+                Alert.alert('恢复失败', err || '未知错误')
+              }
+            }
+          } catch (error) {
+            Alert.alert(
+              '恢复失败',
+              error instanceof Error ? error.message : String(error),
+            )
+          }
+        },
+      },
+    ])
+  }
+
   if (loading) {
     return <LoadingSpinner />
   }
@@ -128,6 +222,9 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             onPress={showExportOptions}
           >
             <Ionicons name='download-outline' size={24} color={COLORS.WHITE} />
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.iconButton} onPress={showMoreOptions}>
+            <Ionicons name='settings-outline' size={24} color={COLORS.WHITE} />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.addButton}
