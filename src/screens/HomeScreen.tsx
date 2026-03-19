@@ -18,6 +18,7 @@ import { useRecords } from '../hooks/useRecords'
 import IdolCard from '../components/features/IdolCard'
 import LoadingSpinner from '../components/common/LoadingSpinner'
 import EmptyState from '../components/common/EmptyState'
+import SearchBar from '../components/common/SearchBar'
 import {
   exportToJSON,
   exportToCSV,
@@ -44,6 +45,7 @@ interface HomeScreenProps {
  */
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const { ranking, statistics, loading, error, refreshAll } = useRecords()
+  const [searchQuery, setSearchQuery] = React.useState('')
 
   /**
    * 显示导出选项
@@ -197,6 +199,11 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     ])
   }
 
+  // 根据搜索关键词过滤排名列表
+  const filteredRanking = ranking.filter(item =>
+    item.idolName.toLowerCase().includes(searchQuery.toLowerCase()),
+  )
+
   if (loading) {
     return <LoadingSpinner />
   }
@@ -256,6 +263,15 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         </View>
       )}
 
+      {/* 搜索栏 */}
+      {ranking.length > 0 && (
+        <SearchBar
+          value={searchQuery}
+          onChangeText={setSearchQuery}
+          placeholder='搜索偶像...'
+        />
+      )}
+
       {/* 排行榜标题 */}
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>偶像排行榜</Text>
@@ -269,14 +285,20 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         style={styles.list}
         contentContainerStyle={styles.listContent}
       >
-        {ranking.length === 0 ? (
+        {filteredRanking.length === 0 && searchQuery.length > 0 ? (
+          <EmptyState
+            icon='search-outline'
+            title='未找到相关偶像'
+            message='试试其他关键词'
+          />
+        ) : filteredRanking.length === 0 ? (
           <EmptyState
             icon='camera-outline'
             title='还没有拍立得记录'
             message='点击右上角的 + 号开始添加'
           />
         ) : (
-          ranking.map((item, index) => (
+          filteredRanking.map((item, index) => (
             <IdolCard
               key={item.idolName}
               idolName={item.idolName}
