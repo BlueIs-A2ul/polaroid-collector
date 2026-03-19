@@ -5,6 +5,9 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
+  Alert,
+  ActionSheetIOS,
+  Platform,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { StackNavigationProp } from '@react-navigation/stack'
@@ -15,6 +18,11 @@ import { useRecords } from '../hooks/useRecords'
 import IdolCard from '../components/features/IdolCard'
 import LoadingSpinner from '../components/common/LoadingSpinner'
 import EmptyState from '../components/common/EmptyState'
+import {
+  exportToJSON,
+  exportToCSV,
+  shareExportedFile,
+} from '../services/exportService'
 
 type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>
 type HomeScreenRouteProp = RouteProp<RootStackParamList, 'Home'>
@@ -30,6 +38,70 @@ interface HomeScreenProps {
  */
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const { ranking, statistics, loading, error, refreshAll } = useRecords()
+
+  /**
+   * 显示导出选项
+   */
+  const showExportOptions = () => {
+    if (Platform.OS === 'ios') {
+      ActionSheetIOS.showActionSheetWithOptions(
+        {
+          title: '导出数据',
+          options: ['导出为 JSON', '导出为 CSV', '取消'],
+          cancelButtonIndex: 2,
+        },
+        async buttonIndex => {
+          if (buttonIndex === 0) {
+            await handleExportJSON()
+          } else if (buttonIndex === 1) {
+            await handleExportCSV()
+          }
+        },
+      )
+    } else {
+      Alert.alert('导出数据', '请选择导出格式', [
+        { text: '导出为 JSON', onPress: handleExportJSON },
+        { text: '导出为 CSV', onPress: handleExportCSV },
+        { text: '取消', style: 'cancel' },
+      ])
+    }
+  }
+
+  /**
+   * 导出为 JSON
+   */
+  const handleExportJSON = async () => {
+    const { success, data: fileUri, error: err } = await exportToJSON()
+    if (success && fileUri) {
+      Alert.alert('导出成功', 'JSON 文件已生成，是否分享？', [
+        { text: '取消', style: 'cancel' },
+        {
+          text: '分享',
+          onPress: () => shareExportedFile(fileUri),
+        },
+      ])
+    } else {
+      Alert.alert('导出失败', err || '未知错误')
+    }
+  }
+
+  /**
+   * 导出为 CSV
+   */
+  const handleExportCSV = async () => {
+    const { success, data: fileUri, error: err } = await exportToCSV()
+    if (success && fileUri) {
+      Alert.alert('导出成功', 'CSV 文件已生成，是否分享？', [
+        { text: '取消', style: 'cancel' },
+        {
+          text: '分享',
+          onPress: () => shareExportedFile(fileUri),
+        },
+      ])
+    } else {
+      Alert.alert('导出失败', err || '未知错误')
+    }
+  }
 
   if (loading) {
     return <LoadingSpinner />
@@ -50,12 +122,20 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       {/* 头部 */}
       <View style={styles.header}>
         <Text style={styles.title}>我的拍立得收藏</Text>
-        <TouchableOpacity
-          style={styles.addButton}
-          onPress={() => navigation.navigate('Upload')}
-        >
-          <Ionicons name='add' size={24} color={COLORS.WHITE} />
-        </TouchableOpacity>
+        <View style={styles.headerButtons}>
+          <TouchableOpacity
+            style={styles.iconButton}
+            onPress={showExportOptions}
+          >
+            <Ionicons name='download-outline' size={24} color={COLORS.WHITE} />
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.addButton}
+            onPress={() => navigation.navigate('Upload')}
+          >
+            <Ionicons name='add' size={24} color={COLORS.WHITE} />
+          </TouchableOpacity>
+        </View>
       </View>
 
       {/* 统计信息 */}
@@ -133,6 +213,13 @@ const styles = StyleSheet.create({
     fontSize: 24,
     fontWeight: 'bold',
     color: COLORS.WHITE,
+  },
+  headerButtons: {
+    flexDirection: 'row',
+    gap: 12,
+  },
+  iconButton: {
+    padding: 8,
   },
   addButton: {
     width: 40,
