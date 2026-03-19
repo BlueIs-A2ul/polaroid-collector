@@ -1,5 +1,6 @@
-import * as FileSystem from 'expo-file-system'
+import * as FileSystem from 'expo-file-system/legacy'
 import * as ImagePicker from 'expo-image-picker'
+import * as ImageManipulator from 'expo-image-manipulator'
 import { ServiceResult } from '../types'
 
 /**
@@ -48,13 +49,13 @@ export const pickPhoto = async (
             mediaTypes: ['images'],
             allowsEditing: true,
             aspect: [4, 3],
-            quality: 0.8,
+            quality: 0.6,
           })
         : await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ['images'],
             allowsEditing: true,
             aspect: [4, 3],
-            quality: 0.8,
+            quality: 0.6,
           })
 
     if (result.canceled) {
@@ -65,9 +66,20 @@ export const pickPhoto = async (
       }
     }
 
+    const originalUri = result.assets[0].uri
+    const compressResult = await compressPhoto(originalUri)
+
+    if (compressResult.success && compressResult.data) {
+      return {
+        success: true,
+        data: compressResult.data,
+        error: null,
+      }
+    }
+
     return {
       success: true,
-      data: result.assets[0].uri,
+      data: originalUri,
       error: null,
     }
   } catch (error) {
@@ -238,6 +250,40 @@ export const clearAllPhotos = async (): Promise<ServiceResult<null>> => {
     }
   } catch (error) {
     console.error('清空照片失败:', error)
+    return {
+      success: false,
+      data: null,
+      error: error instanceof Error ? error.message : String(error),
+    }
+  }
+}
+
+/**
+ * 压缩照片
+ * @param uri - 照片URI
+ * @param maxWidth - 最大宽度，默认1024
+ * @param quality - 压缩质量，默认0.6
+ * @returns 压缩后的照片URI
+ */
+export const compressPhoto = async (
+  uri: string,
+  maxWidth = 1024,
+  quality = 0.6,
+): Promise<ServiceResult<string>> => {
+  try {
+    const result = await ImageManipulator.manipulateAsync(
+      uri,
+      [{ resize: { width: maxWidth } }],
+      { compress: quality, format: ImageManipulator.SaveFormat.JPEG },
+    )
+
+    return {
+      success: true,
+      data: result.uri,
+      error: null,
+    }
+  } catch (error) {
+    console.error('压缩照片失败:', error)
     return {
       success: false,
       data: null,
