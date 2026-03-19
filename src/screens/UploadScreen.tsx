@@ -17,8 +17,9 @@ import { RouteProp } from '@react-navigation/native'
 import { COLORS, CARD_SHADOW } from '../constants/themeColors'
 import { RootStackParamList } from '../navigation/AppNavigator'
 import { pickPhoto } from '../services/photoService'
-import { createRecord, getTodayDateString } from '../services/recordService'
+import { createRecord } from '../services/recordService'
 import LoadingSpinner from '../components/common/LoadingSpinner'
+import IdolSelector from '../components/features/IdolSelector'
 
 type UploadScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -38,11 +39,14 @@ interface UploadScreenProps {
 const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
   const [idolName, setIdolName] = useState<string>('')
   const [photoCount, setPhotoCount] = useState<string>('')
-  const [photoDate, setPhotoDate] = useState<string>(getTodayDateString())
+  const [photoDate, setPhotoDate] = useState<string>(
+    new Date().toISOString().split('T')[0],
+  )
   const [photoUri, setPhotoUri] = useState<string | null>(null)
   const [loading, setLoading] = useState<boolean>(false)
   const [showDatePicker, setShowDatePicker] = useState<boolean>(false)
   const [selectedDate, setSelectedDate] = useState<Date>(new Date())
+  const [showIdolSelector, setShowIdolSelector] = useState<boolean>(false)
 
   /**
    * 格式化日期为 YYYY-MM-DD
@@ -95,6 +99,20 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
     } else {
       Alert.alert('错误', error || '选择照片失败')
     }
+  }
+
+  /**
+   * 打开偶像选择器
+   */
+  const handleOpenIdolSelector = () => {
+    setShowIdolSelector(true)
+  }
+
+  /**
+   * 选择偶像
+   */
+  const handleSelectIdol = (selectedIdolName: string) => {
+    setIdolName(selectedIdolName)
   }
 
   /**
@@ -175,12 +193,20 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
         {/* 偶像名称 */}
         <View style={styles.formGroup}>
           <Text style={styles.label}>偶像名称</Text>
-          <TextInput
-            style={styles.input}
-            placeholder='请输入偶像名称'
-            value={idolName}
-            onChangeText={setIdolName}
-          />
+          <View style={styles.idolNameContainer}>
+            <TextInput
+              style={styles.idolNameInput}
+              placeholder='请输入偶像名称'
+              value={idolName}
+              onChangeText={setIdolName}
+            />
+            <TouchableOpacity
+              style={styles.selectIdolButton}
+              onPress={handleOpenIdolSelector}
+            >
+              <Ionicons name='list' size={24} color={COLORS.PRIMARY} />
+            </TouchableOpacity>
+          </View>
         </View>
 
         {/* 拍立得数量 */}
@@ -256,6 +282,14 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
           <Text style={styles.saveButtonText}>保存</Text>
         </TouchableOpacity>
       </View>
+
+      {/* 偶像选择器 */}
+      <IdolSelector
+        visible={showIdolSelector}
+        onClose={() => setShowIdolSelector(false)}
+        onSelectIdol={handleSelectIdol}
+        currentIdolName={idolName}
+      />
     </ScrollView>
   )
 }
@@ -301,6 +335,28 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     padding: 12,
     fontSize: 16,
+    ...CARD_SHADOW,
+  },
+  idolNameContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  idolNameInput: {
+    flex: 1,
+    backgroundColor: COLORS.WHITE,
+    borderTopLeftRadius: 8,
+    borderBottomLeftRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    ...CARD_SHADOW,
+  },
+  selectIdolButton: {
+    backgroundColor: COLORS.WHITE,
+    borderTopRightRadius: 8,
+    borderBottomRightRadius: 8,
+    padding: 12,
+    borderLeftWidth: 1,
+    borderLeftColor: COLORS.GRAY[200],
     ...CARD_SHADOW,
   },
   dateInput: {

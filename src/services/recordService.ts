@@ -387,5 +387,31 @@ export const getStatistics = async (): Promise<ServiceResult<Statistics>> => {
   }
 }
 
-// 导出工具函数
-export { getTodayDateString, formatDate }
+/**
+ * 获取所有偶像名称列表
+ * @returns 偶像名称列表
+ */
+export const getAllIdolNames = async (): Promise<
+  ServiceResult<string[]>
+> => {
+  try {
+    const { success, data: records, error } = await getAllRecords()
+
+    if (!success || !records) {
+      return {
+        success: false,
+        data: [],
+        error,
+      }
+    }
+
+    // 提取所有偶像名称并去重
+    const idolNames = Array.from(new Set(records.map(r => r.idolName))).sort()
+
+    return {
+      success: true,
+      data: idolNames,
+      error: null,
+    }
+  } catch (error) {
+    console.error('获取偶像名称列表失败:', error
