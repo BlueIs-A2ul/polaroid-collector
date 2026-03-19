@@ -8,7 +8,9 @@ import {
   Alert,
   ScrollView,
   Image,
+  Platform,
 } from 'react-native'
+import DateTimePicker from '@react-native-community/datetimepicker'
 import { Ionicons } from '@expo/vector-icons'
 import { StackNavigationProp } from '@react-navigation/stack'
 import { RouteProp } from '@react-navigation/native'
@@ -40,6 +42,48 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
   const [originalPhotoUri, setOriginalPhotoUri] = useState<string | null>(null)
   const [loading, setLoading] = useState<boolean>(true)
   const [saving, setSaving] = useState<boolean>(false)
+  const [showDatePicker, setShowDatePicker] = useState<boolean>(false)
+  const [selectedDate, setSelectedDate] = useState<Date>(new Date())
+
+  /**
+   * 格式化日期为 YYYY-MM-DD
+   */
+  const formatDateToString = (date: Date): string => {
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+  }
+
+  /**
+   * 解析日期字符串为 Date 对象
+   */
+  const parseDateFromString = (dateString: string): Date => {
+    const [year, month, day] = dateString.split('-').map(Number)
+    return new Date(year, month - 1, day)
+  }
+
+  /**
+   * 处理日期选择
+   */
+  const handleDateChange = (event: any, selectedDate?: Date) => {
+    if (Platform.OS === 'android') {
+      setShowDatePicker(false)
+    }
+
+    if (selectedDate) {
+      setSelectedDate(selectedDate)
+      setPhotoDate(formatDateToString(selectedDate))
+    }
+  }
+
+  /**
+   * 显示日期选择器
+   */
+  const showDatePickerModal = () => {
+    setSelectedDate(parseDateFromString(photoDate))
+    setShowDatePicker(true)
+  }
 
   /**
    * 加载记录数据
@@ -207,12 +251,23 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
         {/* 拍摄日期 */}
         <View style={styles.formGroup}>
           <Text style={styles.label}>拍摄日期</Text>
-          <TextInput
-            style={styles.input}
-            placeholder='YYYY-MM-DD'
-            value={photoDate}
-            onChangeText={setPhotoDate}
-          />
+          <TouchableOpacity
+            style={styles.dateInput}
+            onPress={showDatePickerModal}
+          >
+            <Text style={styles.dateInputText}>
+              {photoDate || '请选择日期'}
+            </Text>
+            <Ionicons name='calendar' size={20} color={COLORS.PRIMARY} />
+          </TouchableOpacity>
+          {showDatePicker && (
+            <DateTimePicker
+              value={selectedDate}
+              mode='date'
+              display='default'
+              onChange={handleDateChange}
+            />
+          )}
         </View>
 
         {/* 照片 */}
@@ -324,6 +379,20 @@ const styles = StyleSheet.create({
     padding: 12,
     fontSize: 16,
     ...CARD_SHADOW,
+  },
+  dateInput: {
+    backgroundColor: COLORS.WHITE,
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    ...CARD_SHADOW,
+  },
+  dateInputText: {
+    fontSize: 16,
+    color: COLORS.BLACK,
   },
   photoPreviewContainer: {
     position: 'relative',
