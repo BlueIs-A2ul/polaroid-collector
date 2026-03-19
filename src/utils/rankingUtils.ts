@@ -2,14 +2,15 @@
  * 排行榜计算工具
  * 用于计算偶像的拍立得排行榜数据
  */
+import { PolaroidRecord, RankingItem } from '../types'
 
 /**
  * 计算偶像排行榜
- * @param {Array} records - 所有拍立得记录
- * @returns {Array} 排行榜数据
+ * @param records - 所有拍立得记录
+ * @returns 排行榜数据
  */
-export const calculateRanking = records => {
-  const idolStats = {}
+export const calculateRanking = (records: PolaroidRecord[]): RankingItem[] => {
+  const idolStats: Record<string, RankingItem> = {}
 
   records.forEach(record => {
     if (!idolStats[record.idolName]) {
@@ -30,7 +31,7 @@ export const calculateRanking = records => {
     // 更新最新照片和日期
     if (
       !idolStats[record.idolName].latestPhoto ||
-      record.photoDate > idolStats[record.idolName].latestDate
+      record.photoDate > idolStats[record.idolName].latestDate!
     ) {
       idolStats[record.idolName].latestPhoto = record.photoUri
       idolStats[record.idolName].latestDate = record.photoDate
@@ -43,24 +44,29 @@ export const calculateRanking = records => {
 
 /**
  * 按日期排序记录
- * @param {Array} records - 记录数组
- * @param {boolean} ascending - 是否升序，默认为 true
- * @returns {Array} 排序后的记录
+ * @param records - 记录数组
+ * @param ascending - 是否升序，默认为 true
+ * @returns 排序后的记录
  */
-export const sortRecordsByDate = (records, ascending = true) => {
+export const sortRecordsByDate = (
+  records: PolaroidRecord[],
+  ascending = true,
+): PolaroidRecord[] => {
   return [...records].sort((a, b) => {
     const dateA = new Date(a.photoDate)
     const dateB = new Date(b.photoDate)
-    return ascending ? dateA - dateB : dateB - dateA
+    return ascending
+      ? dateA.getTime() - dateB.getTime()
+      : dateB.getTime() - dateA.getTime()
   })
 }
 
 /**
  * 格式化日期
- * @param {string} dateString - 日期字符串 (YYYY-MM-DD)
- * @returns {string} 格式化后的日期
+ * @param dateString - 日期字符串 (YYYY-MM-DD)
+ * @returns 格式化后的日期
  */
-export const formatDate = dateString => {
+export const formatDate = (dateString: string): string => {
   const date = new Date(dateString)
   const year = date.getFullYear()
   const month = String(date.getMonth() + 1).padStart(2, '0')
@@ -71,9 +77,9 @@ export const formatDate = dateString => {
 
 /**
  * 获取今日日期字符串
- * @returns {string} 今日日期字符串 (YYYY-MM-DD)
+ * @returns 今日日期字符串 (YYYY-MM-DD)
  */
-export const getTodayDateString = () => {
+export const getTodayDateString = (): string => {
   const today = new Date()
   const year = today.getFullYear()
   const month = String(today.getMonth() + 1).padStart(2, '0')
@@ -84,8 +90,8 @@ export const getTodayDateString = () => {
 
 /**
  * 生成唯一ID
- * @returns {string} 唯一ID
+ * @returns 唯一ID
  */
-export const generateId = () => {
+export const generateId = (): string => {
   return `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`
 }
