@@ -40,6 +40,9 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
   const [photoDate, setPhotoDate] = useState<string>('')
   const [photoUri, setPhotoUri] = useState<string | null>(null)
   const [originalPhotoUri, setOriginalPhotoUri] = useState<string | null>(null)
+  const [originalIdolName, setOriginalIdolName] = useState<string>('')
+  const [originalPhotoCount, setOriginalPhotoCount] = useState<string>('')
+  const [originalPhotoDate, setOriginalPhotoDate] = useState<string>('')
   const [loading, setLoading] = useState<boolean>(true)
   const [saving, setSaving] = useState<boolean>(false)
   const [showDatePicker, setShowDatePicker] = useState<boolean>(false)
@@ -101,6 +104,9 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
       setPhotoDate(data.photoDate)
       setPhotoUri(data.photoUri)
       setOriginalPhotoUri(data.photoUri)
+      setOriginalIdolName(data.idolName)
+      setOriginalPhotoCount(data.photoCount.toString())
+      setOriginalPhotoDate(data.photoDate)
       setLoading(false)
     } else {
       setLoading(false)
@@ -199,6 +205,44 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
     ])
   }
 
+  /**
+   * 取消编辑并恢复原始数据
+   */
+  const handleCancel = () => {
+    const hasChanges =
+      idolName !== originalIdolName ||
+      photoCount !== originalPhotoCount ||
+      photoDate !== originalPhotoDate ||
+      photoUri !== originalPhotoUri
+
+    if (hasChanges) {
+      Alert.alert('放弃修改', '确定要放弃所有修改吗？', [
+        { text: '继续编辑', style: 'cancel' },
+        {
+          text: '放弃',
+          style: 'destructive',
+          onPress: () => navigation.goBack(),
+        },
+      ])
+    } else {
+      navigation.goBack()
+    }
+  }
+
+  /**
+   * 删除照片（带确认）
+   */
+  const handleRemovePhoto = () => {
+    Alert.alert('删除照片', '确定要删除当前照片吗？删除后需要重新选择。', [
+      { text: '取消', style: 'cancel' },
+      {
+        text: '删除',
+        style: 'destructive',
+        onPress: () => setPhotoUri(null),
+      },
+    ])
+  }
+
   if (loading) {
     return <LoadingSpinner />
   }
@@ -213,7 +257,7 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
-          onPress={() => navigation.goBack()}
+          onPress={handleCancel}
         >
           <Ionicons name='arrow-back' size={24} color={COLORS.WHITE} />
         </TouchableOpacity>
@@ -279,9 +323,7 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
                 <Image source={{ uri: photoUri }} style={styles.photoPreview} />
                 <TouchableOpacity
                   style={styles.removePhotoButton}
-                  onPress={() => {
-                    setPhotoUri(null)
-                  }}
+                  onPress={handleRemovePhoto}
                 >
                   <Ionicons
                     name='close-circle'
