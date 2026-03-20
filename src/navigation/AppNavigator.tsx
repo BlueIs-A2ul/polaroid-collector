@@ -3,18 +3,18 @@ import { NavigationContainer } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack'
 import { COLORS } from '../constants/themeColors'
 
-// Screens
 import HomeScreen from '../screens/HomeScreen'
 import UploadScreen from '../screens/UploadScreen'
 import DetailScreen from '../screens/DetailScreen'
 import EditScreen from '../screens/EditScreen'
+import StatisticsScreen from '../screens/StatisticsScreen'
 
-// 定义导航参数类型
 export type RootStackParamList = {
   Home: undefined
   Upload: undefined
   Detail: { idolName: string }
   Edit: { recordId: string }
+  Statistics: undefined
 }
 
 const Stack = createStackNavigator<RootStackParamList>()
@@ -57,6 +57,11 @@ const AppNavigator = () => {
           name='Edit'
           component={EditScreen}
           options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name='Statistics'
+          component={StatisticsScreen}
+          options={{ title: '统计' }}
         />
       </Stack.Navigator>
     </NavigationContainer>

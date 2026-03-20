@@ -271,7 +271,10 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
       {/* 统计信息 */}
       {statistics && (
-        <View style={styles.statsContainer}>
+        <TouchableOpacity
+          style={styles.statsContainer}
+          onPress={() => navigation.navigate('Statistics')}
+        >
           <View style={styles.statItem}>
             <Ionicons name='camera' size={24} color={COLORS.PRIMARY} />
             <Text style={styles.statValue}>{statistics.totalPhotos}</Text>
@@ -287,7 +290,10 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             <Text style={styles.statValue}>¥{statistics.totalPrice}</Text>
             <Text style={styles.statLabel}>总花费</Text>
           </View>
-        </View>
+          <View style={styles.statMoreHint}>
+            <Ionicons name='chevron-forward' size={20} color={COLORS.GRAY[400]} />
+          </View>
+        </TouchableOpacity>
       )}
 
       {/* 搜索栏 */}
@@ -389,6 +395,9 @@ const styles = StyleSheet.create({
   },
   statItem: {
     alignItems: 'center',
+  },
+  statMoreHint: {
+    justifyContent: 'center',
   },
   statValue: {
     fontSize: 28,
