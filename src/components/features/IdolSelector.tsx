@@ -44,16 +44,19 @@ const IdolSelector: React.FC<IdolSelectorProps> = ({
     try {
       const { success, data, error } = await getAllIdolNames()
 
+      console.log('偶像选择器 - 加载结果:', { success, data, error })
+
       if (success && data) {
         setIdolNames(data)
         setFilteredIdolNames(data)
+        console.log('偶像选择器 - 加载成功，共', data.length, '个偶像')
       } else {
-        console.error('加载偶像列表失败:', error)
-        Alert.alert('错误', '加载偶像列表失败')
+        console.error('偶像选择器 - 加载失败:', error)
+        Alert.alert('错误', `加载偶像列表失败: ${error}`)
       }
     } catch (error) {
-      console.error('加载偶像列表失败:', error)
-      Alert.alert('错误', '加载偶像列表失败')
+      console.error('偶像选择器 - 加载异常:', error)
+      Alert.alert('错误', `加载偶像列表失败: ${error}`)
     } finally {
       setLoading(false)
     }
