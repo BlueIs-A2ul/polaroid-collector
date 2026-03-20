@@ -299,15 +299,16 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
         transparent={true}
         animationType='fade'
         onRequestClose={closePhotoModal}
+        statusBarTranslucent={true}
       >
         <View style={styles.modalContainer}>
           <TouchableOpacity style={styles.modalCloseButton} onPress={closePhotoModal}>
             <Ionicons name='close' size={28} color={COLORS.WHITE} />
           </TouchableOpacity>
 
-          {selectedRecord && (
+          {selectedRecord && selectedRecord.photoUri ? (
             <View style={styles.modalContent}>
-              <TouchableOpacity onPress={togglePhoto} activeOpacity={0.9}>
+              <TouchableOpacity onPress={togglePhoto} activeOpacity={0.9} style={styles.modalImageContainer}>
                 <Image
                   source={{ uri: showingBack && selectedRecord.backPhotoUri ? selectedRecord.backPhotoUri : selectedRecord.photoUri }}
                   style={styles.modalImage}
@@ -343,6 +344,10 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
                 <Ionicons name='create-outline' size={16} color={COLORS.WHITE} />
                 <Text style={styles.editButtonText}>编辑</Text>
               </TouchableOpacity>
+            </View>
+          ) : (
+            <View style={styles.loadingContainer}>
+              <Text style={styles.loadingText}>加载中...</Text>
             </View>
           )}
         </View>
@@ -537,12 +542,24 @@ const styles = StyleSheet.create({
     width: '90%',
     alignItems: 'center',
   },
+  modalImageContainer: {
+    width: '100%',
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
   modalImage: {
     width: '100%',
-    height: 400,
-    borderRadius: 12,
+    aspectRatio: 1,
     resizeMode: 'contain',
     backgroundColor: COLORS.GRAY[100],
+  },
+  loadingContainer: {
+    padding: 40,
+    alignItems: 'center',
+  },
+  loadingText: {
+    fontSize: 16,
+    color: COLORS.WHITE,
   },
   modalInfo: {
     flexDirection: 'row',
