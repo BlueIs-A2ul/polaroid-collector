@@ -187,8 +187,14 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
             </View>
             <View style={styles.stat}>
               <Ionicons name='calendar' size={20} color={COLORS.PRIMARY} />
-              <Text style={styles.statText}>{detail.totalRecords} 次记录</Text>
+              <Text style={styles.statText}>{detail.totalRecords} 次</Text>
             </View>
+            {detail.totalPrice > 0 && (
+              <View style={styles.stat}>
+                <Ionicons name='wallet' size={20} color={COLORS.PRIMARY} />
+                <Text style={styles.statText}>¥{detail.totalPrice}</Text>
+              </View>
+            )}
           </View>
         </View>
 
@@ -230,15 +236,22 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
                   <Text style={styles.recordDate}>
                     {formatDate(record.photoDate)}
                   </Text>
-                  <View style={styles.recordCountBadge}>
-                    <Ionicons
-                      name='camera-outline'
-                      size={14}
-                      color={COLORS.PRIMARY}
-                    />
-                    <Text style={styles.recordCountText}>
-                      {record.photoCount}
-                    </Text>
+                  <View style={styles.recordHeaderRight}>
+                    {record.price !== undefined && record.price > 0 && (
+                      <View style={styles.recordPriceBadge}>
+                        <Text style={styles.recordPriceText}>¥{record.price}</Text>
+                      </View>
+                    )}
+                    <View style={styles.recordCountBadge}>
+                      <Ionicons
+                        name='camera-outline'
+                        size={14}
+                        color={COLORS.PRIMARY}
+                      />
+                      <Text style={styles.recordCountText}>
+                        {record.photoCount}
+                      </Text>
+                    </View>
                   </View>
                 </View>
                 <View style={styles.recordFooter}>
@@ -430,6 +443,22 @@ const styles = StyleSheet.create({
     fontSize: 16,
     fontWeight: 'bold',
     color: COLORS.BLACK,
+  },
+  recordHeaderRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  recordPriceBadge: {
+    backgroundColor: `${COLORS.PRIMARY}20`,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  recordPriceText: {
+    fontSize: 12,
+    fontWeight: 'bold',
+    color: COLORS.PRIMARY,
   },
   recordCountBadge: {
     flexDirection: 'row',

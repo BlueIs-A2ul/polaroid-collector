@@ -17,6 +17,7 @@ export const calculateRanking = (records: PolaroidRecord[]): RankingItem[] => {
       idolStats[record.idolName] = {
         idolName: record.idolName,
         totalCount: 0,
+        totalPrice: 0,
         records: [],
         latestPhoto: null,
         latestDate: null,
@@ -25,10 +26,10 @@ export const calculateRanking = (records: PolaroidRecord[]): RankingItem[] => {
     }
 
     idolStats[record.idolName].totalCount += record.photoCount
+    idolStats[record.idolName].totalPrice += record.price || 0
     idolStats[record.idolName].records.push(record)
     idolStats[record.idolName].dates.push(record.photoDate)
 
-    // 更新最新照片和日期
     if (
       !idolStats[record.idolName].latestPhoto ||
       record.photoDate > idolStats[record.idolName].latestDate!
@@ -38,7 +39,6 @@ export const calculateRanking = (records: PolaroidRecord[]): RankingItem[] => {
     }
   })
 
-  // 按总数降序排列
   return Object.values(idolStats).sort((a, b) => b.totalCount - a.totalCount)
 }
 

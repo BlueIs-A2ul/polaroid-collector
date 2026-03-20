@@ -134,6 +134,10 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
     setPhotos(photos.map(p => (p.uri === uri ? { ...p, count: Math.max(1, count) } : p)))
   }
 
+  const updatePhotoPrice = (uri: string, price: number) => {
+    setPhotos(photos.map(p => (p.uri === uri ? { ...p, price: price > 0 ? price : undefined } : p)))
+  }
+
   const removePhoto = (uri: string) => {
     setPhotos(photos.filter(p => p.uri !== uri))
   }
@@ -156,6 +160,10 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
 
   const getTotalCount = (): number => {
     return photos.reduce((sum, p) => sum + p.count, 0)
+  }
+
+  const getTotalPrice = (): number => {
+    return photos.reduce((sum, p) => sum + (p.price || 0), 0)
   }
 
   const getBackPhotoCount = (): number => {
@@ -194,6 +202,7 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
       photoDate,
       photoUri: p.uri,
       backPhotoUri: p.backPhotoUri,
+      price: p.price,
     }))
 
     const { success, error: err } = await createMultipleRecords(recordsData)
@@ -319,7 +328,12 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
           <View style={styles.formGroup}>
             <View style={styles.photoListHeader}>
               <Text style={styles.label}>已选照片 ({photos.length})</Text>
-              <Text style={styles.totalCount}>共 {getTotalCount()} 张</Text>
+              <View style={styles.photoListSummary}>
+                <Text style={styles.totalCount}>共 {getTotalCount()} 张</Text>
+                {getTotalPrice() > 0 && (
+                  <Text style={styles.totalPrice}> · ¥{getTotalPrice()}</Text>
+                )}
+              </View>
             </View>
             {photos.map((photo, index) => (
               <View key={photo.uri} style={styles.photoItem}>
@@ -348,6 +362,16 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
                       value={String(photo.count)}
                       onChangeText={text => updatePhotoCount(photo.uri, parseInt(text) || 1)}
                       keyboardType='number-pad'
+                    />
+                  </View>
+                  <View style={styles.countInputContainer}>
+                    <Text style={styles.countLabel}>价格:</Text>
+                    <TextInput
+                      style={styles.countInput}
+                      value={photo.price ? String(photo.price) : ''}
+                      onChangeText={text => updatePhotoPrice(photo.uri, parseFloat(text) || 0)}
+                      keyboardType='decimal-pad'
+                      placeholder='选填'
                     />
                   </View>
                   <View style={styles.photoActions}>
@@ -577,9 +601,17 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginBottom: 8,
   },
+  photoListSummary: {
+    flexDirection: 'row',
+  },
   totalCount: {
     fontSize: 14,
     color: COLORS.GRAY[600],
+  },
+  totalPrice: {
+    fontSize: 14,
+    color: COLORS.PRIMARY,
+    fontWeight: 'bold',
   },
   photoItem: {
     flexDirection: 'row',

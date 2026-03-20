@@ -196,6 +196,7 @@ export const getIdolDetail = async (
 
     // 计算总数
     const totalCount = records.reduce((sum, r) => sum + r.photoCount, 0)
+    const totalPrice = records.reduce((sum, r) => sum + (r.price || 0), 0)
 
     // 获取最新照片
     const sortedByDate = sortRecordsByDate(records, false)
@@ -209,6 +210,7 @@ export const getIdolDetail = async (
       data: {
         idolName,
         totalCount,
+        totalPrice,
         records: sortedRecords,
         latestPhoto,
         totalRecords: records.length,
@@ -399,6 +401,7 @@ export const getStatistics = async (): Promise<ServiceResult<Statistics>> => {
     const totalRecords = records.length
     const totalPhotos = records.reduce((sum, r) => sum + r.photoCount, 0)
     const uniqueIdols = new Set(records.map(r => r.idolName)).size
+    const totalPrice = records.reduce((sum, r) => sum + (r.price || 0), 0)
 
     return {
       success: true,
@@ -406,6 +409,7 @@ export const getStatistics = async (): Promise<ServiceResult<Statistics>> => {
         totalRecords,
         totalPhotos,
         uniqueIdols,
+        totalPrice,
       },
       error: null,
     }

@@ -283,9 +283,9 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             <Text style={styles.statLabel}>偶像</Text>
           </View>
           <View style={styles.statItem}>
-            <Ionicons name='images' size={24} color={COLORS.PRIMARY} />
-            <Text style={styles.statValue}>{statistics.totalRecords}</Text>
-            <Text style={styles.statLabel}>记录</Text>
+            <Ionicons name='wallet' size={24} color={COLORS.PRIMARY} />
+            <Text style={styles.statValue}>¥{statistics.totalPrice}</Text>
+            <Text style={styles.statLabel}>总花费</Text>
           </View>
         </View>
       )}

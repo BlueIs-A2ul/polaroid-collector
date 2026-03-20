@@ -38,11 +38,13 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
   const [photoDate, setPhotoDate] = useState<string>('')
   const [photoUri, setPhotoUri] = useState<string | null>(null)
   const [backPhotoUri, setBackPhotoUri] = useState<string | null>(null)
+  const [price, setPrice] = useState<string>('')
   const [originalPhotoUri, setOriginalPhotoUri] = useState<string | null>(null)
   const [originalBackPhotoUri, setOriginalBackPhotoUri] = useState<string | null>(null)
   const [originalIdolName, setOriginalIdolName] = useState<string>('')
   const [originalPhotoCount, setOriginalPhotoCount] = useState<string>('')
   const [originalPhotoDate, setOriginalPhotoDate] = useState<string>('')
+  const [originalPrice, setOriginalPrice] = useState<string>('')
   const [loading, setLoading] = useState<boolean>(true)
   const [saving, setSaving] = useState<boolean>(false)
   const [showDatePicker, setShowDatePicker] = useState<boolean>(false)
@@ -122,11 +124,13 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
       setPhotoDate(data.photoDate)
       setPhotoUri(data.photoUri)
       setBackPhotoUri(data.backPhotoUri || null)
+      setPrice(data.price ? String(data.price) : '')
       setOriginalPhotoUri(data.photoUri)
       setOriginalBackPhotoUri(data.backPhotoUri || null)
       setOriginalIdolName(data.idolName)
       setOriginalPhotoCount(data.photoCount.toString())
       setOriginalPhotoDate(data.photoDate)
+      setOriginalPrice(data.price ? String(data.price) : '')
       setLoading(false)
     } else {
       setLoading(false)
@@ -195,6 +199,7 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
       photoDate: string
       photoUri: string
       backPhotoUri?: string
+      price?: number
     } = {
       idolName: idolName.trim(),
       photoCount: parseInt(photoCount),
@@ -206,6 +211,12 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
       updateData.backPhotoUri = backPhotoUri
     } else if (originalBackPhotoUri) {
       updateData.backPhotoUri = ''
+    }
+
+    if (price) {
+      updateData.price = parseFloat(price)
+    } else if (originalPrice) {
+      updateData.price = 0
     }
 
     const { success, error: err } = await updateRecordData(recordId, updateData)
@@ -250,7 +261,8 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
       photoCount !== originalPhotoCount ||
       photoDate !== originalPhotoDate ||
       photoUri !== originalPhotoUri ||
-      backPhotoUri !== originalBackPhotoUri
+      backPhotoUri !== originalBackPhotoUri ||
+      price !== originalPrice
 
     if (hasChanges) {
       Alert.alert('放弃修改', '确定要放弃所有修改吗？', [
@@ -338,6 +350,17 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
               onChange={handleDateChange}
             />
           )}
+        </View>
+
+        <View style={styles.formGroup}>
+          <Text style={styles.label}>花费（选填）</Text>
+          <TextInput
+            style={styles.input}
+            placeholder='请输入花费金额'
+            value={price}
+            onChangeText={setPrice}
+            keyboardType='decimal-pad'
+          />
         </View>
 
         <View style={styles.formGroup}>
