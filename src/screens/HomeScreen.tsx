@@ -13,6 +13,7 @@ import {
 import { Ionicons } from '@expo/vector-icons'
 import { StackNavigationProp } from '@react-navigation/stack'
 import { RouteProp } from '@react-navigation/native'
+import { useFocusEffect } from '@react-navigation/native'
 import { COLORS } from '../constants/themeColors'
 import { RootStackParamList } from '../navigation/AppNavigator'
 import { useRecords } from '../hooks/useRecords'
@@ -49,7 +50,12 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = React.useState('')
   const [refreshing, setRefreshing] = React.useState(false)
 
-  // 根据搜索关键词过滤排名列表（使用 useMemo 优化性能）
+  useFocusEffect(
+    React.useCallback(() => {
+      refreshAll()
+    }, [refreshAll]),
+  )
+
   const filteredRanking = React.useMemo(
     () =>
       ranking.filter(item =>

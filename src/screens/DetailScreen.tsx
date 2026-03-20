@@ -11,6 +11,7 @@ import {
 import { Ionicons } from '@expo/vector-icons'
 import { StackNavigationProp } from '@react-navigation/stack'
 import { RouteProp } from '@react-navigation/native'
+import { useFocusEffect } from '@react-navigation/native'
 import { COLORS, CARD_SHADOW } from '../constants/themeColors'
 import { RootStackParamList } from '../navigation/AppNavigator'
 import { useIdolDetail } from '../hooks/useRecords'
@@ -38,6 +39,12 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
   const { detail, loading, error, ascending, toggleSort, refreshDetail } =
     useIdolDetail(idolName)
   const [refreshing, setRefreshing] = React.useState(false)
+
+  useFocusEffect(
+    React.useCallback(() => {
+      refreshDetail()
+    }, [refreshDetail]),
+  )
 
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true)
