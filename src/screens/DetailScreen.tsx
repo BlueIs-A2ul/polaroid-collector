@@ -8,6 +8,7 @@ import {
   Image,
   RefreshControl,
   Modal,
+  Alert,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { StackNavigationProp } from '@react-navigation/stack'
@@ -20,6 +21,7 @@ import { formatDate } from '../utils/rankingUtils'
 import LoadingSpinner from '../components/common/LoadingSpinner'
 import EmptyState from '../components/common/EmptyState'
 import { PolaroidRecord } from '../types'
+import { getAvatar, pickAndSetAvatar, removeAvatar } from '../services/avatarService'
 
 type DetailScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -40,18 +42,27 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
   const [photoModalVisible, setPhotoModalVisible] = React.useState(false)
   const [selectedRecord, setSelectedRecord] = React.useState<PolaroidRecord | null>(null)
   const [showingBack, setShowingBack] = React.useState(false)
+  const [avatarUri, setAvatarUri] = React.useState<string | null>(null)
+
+  const loadAvatar = React.useCallback(async () => {
+    const { success, data } = await getAvatar(idolName)
+    if (success) {
+      setAvatarUri(data)
+    }
+  }, [idolName])
 
   useFocusEffect(
     React.useCallback(() => {
       refreshDetail()
-    }, [refreshDetail]),
+      loadAvatar()
+    }, [refreshDetail, loadAvatar]),
   )
 
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true)
-    await refreshDetail()
+    await Promise.all([refreshDetail(), loadAvatar()])
     setRefreshing(false)
-  }, [refreshDetail])
+  }, [refreshDetail, loadAvatar])
 
   const openPhotoModal = (record: PolaroidRecord) => {
     setSelectedRecord(record)
@@ -68,6 +79,41 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
   const togglePhoto = () => {
     if (selectedRecord?.backPhotoUri) {
       setShowingBack(!showingBack)
+    }
+  }
+
+  const handleSetAvatar = async () => {
+    const { success, data } = await pickAndSetAvatar(idolName)
+    if (success && data) {
+      setAvatarUri(data)
+    }
+  }
+
+  const handleRemoveAvatar = () => {
+    Alert.alert('移除头像', '确定要移除当前头像吗？', [
+      { text: '取消', style: 'cancel' },
+      {
+        text: '移除',
+        style: 'destructive',
+        onPress: async () => {
+          const { success } = await removeAvatar(idolName)
+          if (success) {
+            setAvatarUri(null)
+          }
+        },
+      },
+    ])
+  }
+
+  const showAvatarOptions = () => {
+    if (avatarUri) {
+      Alert.alert('头像设置', '请选择操作', [
+        { text: '更换头像', onPress: handleSetAvatar },
+        { text: '移除头像', onPress: handleRemoveAvatar, style: 'destructive' },
+        { text: '取消', style: 'cancel' },
+      ])
+    } else {
+      handleSetAvatar()
     }
   }
 
@@ -113,6 +159,18 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
         }
       >
         <View style={styles.header}>
+          <TouchableOpacity style={styles.avatarContainer} onPress={showAvatarOptions}>
+            {avatarUri ? (
+              <Image source={{ uri: avatarUri }} style={styles.avatar} />
+            ) : (
+              <View style={styles.avatarPlaceholder}>
+                <Ionicons name='person' size={40} color={COLORS.WHITE} />
+              </View>
+            )}
+            <View style={styles.avatarEditBadge}>
+              <Ionicons name='camera' size={14} color={COLORS.WHITE} />
+            </View>
+          </TouchableOpacity>
           <Text style={styles.idolName}>{detail.idolName}</Text>
           <View style={styles.stats}>
             <View style={styles.stat}>
@@ -254,6 +312,37 @@ const styles = StyleSheet.create({
     padding: 20,
     paddingTop: 40,
     alignItems: 'center',
+  },
+  avatarContainer: {
+    position: 'relative',
+    marginBottom: 16,
+  },
+  avatar: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    borderWidth: 3,
+    borderColor: COLORS.WHITE,
+  },
+  avatarPlaceholder: {
+    width: 80,
+    height: 80,
+    borderRadius: 40,
+    backgroundColor: 'rgba(255, 255, 255, 0.3)',
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderWidth: 3,
+    borderColor: COLORS.WHITE,
+  },
+  avatarEditBadge: {
+    position: 'absolute',
+    bottom: 0,
+    right: 0,
+    backgroundColor: COLORS.PRIMARY,
+    borderRadius: 12,
+    padding: 4,
+    borderWidth: 2,
+    borderColor: COLORS.WHITE,
   },
   idolName: {
     fontSize: 28,

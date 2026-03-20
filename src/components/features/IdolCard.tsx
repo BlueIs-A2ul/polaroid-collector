@@ -7,26 +7,26 @@ interface IdolCardProps {
   idolName: string
   totalCount: number
   latestPhoto: string | null
+  avatarUri?: string | null
   onPress: () => void
   index?: number
 }
 
-/**
- * 偶像卡片组件
- * 显示偶像信息和拍立得统计数据
- */
 const IdolCard: React.FC<IdolCardProps> = React.memo(
-  ({ idolName, totalCount, latestPhoto, onPress }) => {
+  ({ idolName, totalCount, latestPhoto, avatarUri, onPress }) => {
     return (
       <TouchableOpacity
         style={[styles.container, styles.shadow]}
         onPress={onPress}
         activeOpacity={0.7}
       >
-        {/* 偶像信息 */}
         <View style={styles.infoContainer}>
           <View style={styles.avatar}>
-            <Ionicons name='person' size={24} color={COLORS.PRIMARY} />
+            {avatarUri ? (
+              <Image source={{ uri: avatarUri }} style={styles.avatarImage} />
+            ) : (
+              <Ionicons name='person' size={24} color={COLORS.PRIMARY} />
+            )}
           </View>
           <View style={styles.textContainer}>
             <Text style={styles.idolName} numberOfLines={1}>
@@ -39,7 +39,6 @@ const IdolCard: React.FC<IdolCardProps> = React.memo(
           </View>
         </View>
 
-        {/* 最新照片预览 */}
         {latestPhoto ? (
           <Image source={{ uri: latestPhoto }} style={styles.thumbnail} />
         ) : (
@@ -85,6 +84,12 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 12,
+    overflow: 'hidden',
+  },
+  avatarImage: {
+    width: 48,
+    height: 48,
+    borderRadius: 24,
   },
   textContainer: {
     flex: 1,

@@ -31,6 +31,7 @@ import {
   restoreFromBackup,
   shareBackupFile,
 } from '../services/backupService'
+import { getAllAvatars } from '../services/avatarService'
 import * as DocumentPicker from 'expo-document-picker'
 
 type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>
@@ -41,19 +42,24 @@ interface HomeScreenProps {
   route: HomeScreenRouteProp
 }
 
-/**
- * 首页
- * 显示偶像排行榜和统计信息
- */
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const { ranking, statistics, loading, error, refreshAll } = useRecords()
   const [searchQuery, setSearchQuery] = React.useState('')
   const [refreshing, setRefreshing] = React.useState(false)
+  const [avatarMap, setAvatarMap] = React.useState<Record<string, string>>({})
+
+  const loadAvatars = React.useCallback(async () => {
+    const { success, data } = await getAllAvatars()
+    if (success && data) {
+      setAvatarMap(data)
+    }
+  }, [])
 
   useFocusEffect(
     React.useCallback(() => {
       refreshAll()
-    }, [refreshAll]),
+      loadAvatars()
+    }, [refreshAll, loadAvatars]),
   )
 
   const filteredRanking = React.useMemo(
@@ -333,6 +339,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
               idolName={item.idolName}
               totalCount={item.totalCount}
               latestPhoto={item.latestPhoto}
+              avatarUri={avatarMap[item.idolName]}
               onPress={() =>
                 navigation.navigate('Detail', { idolName: item.idolName })
               }
