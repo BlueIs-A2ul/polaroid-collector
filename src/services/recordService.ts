@@ -463,3 +463,42 @@ export const getIdolListWithCount = async (): Promise<
     }
   }
 }
+
+/**
+ * 批量创建拍立得记录
+ * @param recordsData - 记录数据数组
+ * @returns 创建的记录数组
+ */
+export const createMultipleRecords = async (
+  recordsData: CreateRecordData[],
+): Promise<ServiceResult<PolaroidRecord[]>> => {
+  try {
+    const createdRecords: PolaroidRecord[] = []
+
+    for (const data of recordsData) {
+      const result = await createRecord(data)
+      if (result.success && result.data) {
+        createdRecords.push(result.data)
+      } else {
+        return {
+          success: false,
+          data: createdRecords,
+          error: `创建记录失败: ${result.error}`,
+        }
+      }
+    }
+
+    return {
+      success: true,
+      data: createdRecords,
+      error: null,
+    }
+  } catch (error) {
+    console.error('批量创建记录失败:', error)
+    return {
+      success: false,
+      data: null,
+      error: error instanceof Error ? error.message : String(error),
+    }
+  }
+}

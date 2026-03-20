@@ -18,10 +18,11 @@ import { StackNavigationProp } from '@react-navigation/stack'
 import { RouteProp } from '@react-navigation/native'
 import { COLORS, CARD_SHADOW } from '../constants/themeColors'
 import { RootStackParamList } from '../navigation/AppNavigator'
-import { pickPhoto } from '../services/photoService'
-import { createRecord } from '../services/recordService'
+import { pickPhoto, pickMultiplePhotos } from '../services/photoService'
+import { createMultipleRecords } from '../services/recordService'
 import LoadingSpinner from '../components/common/LoadingSpinner'
 import IdolSelector from '../components/features/IdolSelector'
+import { PhotoItem } from '../types'
 
 type UploadScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -34,17 +35,12 @@ interface UploadScreenProps {
   route: UploadScreenRouteProp
 }
 
-/**
- * 上传页面
- * 用于上传新的拍立得记录
- */
 const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
   const [idolName, setIdolName] = useState<string>('')
-  const [photoCount, setPhotoCount] = useState<string>('')
   const [photoDate, setPhotoDate] = useState<string>(
     new Date().toISOString().split('T')[0],
   )
-  const [photoUri, setPhotoUri] = useState<string | null>(null)
+  const [photos, setPhotos] = useState<PhotoItem[]>([])
   const [loading, setLoading] = useState<boolean>(false)
   const [showDatePicker, setShowDatePicker] = useState<boolean>(false)
   const [selectedDate, setSelectedDate] = useState<Date>(new Date())
@@ -53,13 +49,10 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
   const [allowCrop, setAllowCrop] = useState<boolean>(false)
   const [cropWidth, setCropWidth] = useState<number>(4)
   const [cropHeight, setCropHeight] = useState<number>(3)
-  const [pendingSource, setPendingSource] = useState<'camera' | 'library'>(
+  const [pendingSource, setPendingSource] = useState<'camera' | 'library' | 'multiple'>(
     'library',
   )
 
-  /**
-   * 格式化日期为 YYYY-MM-DD
-   */
   const formatDateToString = (date: Date): string => {
     const year = date.getFullYear()
     const month = String(date.getMonth() + 1).padStart(2, '0')
@@ -67,17 +60,11 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
     return `${year}-${month}-${day}`
   }
 
-  /**
-   * 解析日期字符串为 Date 对象
-   */
   const parseDateFromString = (dateString: string): Date => {
     const [year, month, day] = dateString.split('-').map(Number)
     return new Date(year, month - 1, day)
   }
 
-  /**
-   * 处理日期选择
-   */
   const handleDateChange = (event: any, selectedDate?: Date) => {
     if (Platform.OS === 'android') {
       setShowDatePicker(false)
@@ -89,72 +76,74 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
     }
   }
 
-  /**
-   * 显示日期选择器
-   */
   const showDatePickerModal = () => {
     setSelectedDate(parseDateFromString(photoDate))
     setShowDatePicker(true)
   }
 
-  /**
-   * 显示裁切选项
-   */
-  const handleShowCropOptions = (source: 'camera' | 'library') => {
+  const handleShowCropOptions = (source: 'camera' | 'library' | 'multiple') => {
     setPendingSource(source)
-    setShowCropOptions(true)
-  }
-
-  /**
-   * 确认裁切选项并选择照片
-   */
-  const handleConfirmCropOptions = async () => {
-    setShowCropOptions(false)
-    const { success, data, error } = await pickPhoto(pendingSource, {
-      allowCrop,
-      cropWidth,
-      cropHeight,
-    })
-
-    if (success) {
-      setPhotoUri(data)
+    if (source === 'multiple') {
+      handleConfirmCropOptions()
     } else {
-      Alert.alert('错误', error || '选择照片失败')
+      setShowCropOptions(true)
     }
   }
 
-  /**
-   * 选择照片（显示裁切选项）
-   */
-  const handlePickPhoto = (source: 'camera' | 'library') => {
-    handleShowCropOptions(source)
+  const handleConfirmCropOptions = async () => {
+    setShowCropOptions(false)
+
+    if (pendingSource === 'multiple') {
+      const { success, data, error } = await pickMultiplePhotos({
+        allowCrop,
+        cropWidth,
+        cropHeight,
+      })
+
+      if (success && data) {
+        const newPhotos: PhotoItem[] = data.map(uri => ({ uri, count: 1 }))
+        setPhotos([...photos, ...newPhotos])
+      } else if (error !== '用户取消选择') {
+        Alert.alert('错误', error || '选择照片失败')
+      }
+    } else {
+      const { success, data, error } = await pickPhoto(pendingSource, {
+        allowCrop,
+        cropWidth,
+        cropHeight,
+      })
+
+      if (success && data) {
+        setPhotos([...photos, { uri: data, count: 1 }])
+      } else if (error !== '用户取消选择') {
+        Alert.alert('错误', error || '选择照片失败')
+      }
+    }
   }
 
-  /**
-   * 打开偶像选择器
-   */
   const handleOpenIdolSelector = () => {
     setShowIdolSelector(true)
   }
 
-  /**
-   * 选择偶像
-   */
   const handleSelectIdol = (selectedIdolName: string) => {
     setIdolName(selectedIdolName)
   }
 
-  /**
-   * 验证表单
-   */
+  const updatePhotoCount = (uri: string, count: number) => {
+    setPhotos(photos.map(p => (p.uri === uri ? { ...p, count: Math.max(1, count) } : p)))
+  }
+
+  const removePhoto = (uri: string) => {
+    setPhotos(photos.filter(p => p.uri !== uri))
+  }
+
+  const getTotalCount = (): number => {
+    return photos.reduce((sum, p) => sum + p.count, 0)
+  }
+
   const validateForm = (): boolean => {
     if (!idolName.trim()) {
       Alert.alert('提示', '请输入偶像名称')
-      return false
-    }
-
-    if (!photoCount || parseInt(photoCount) <= 0) {
-      Alert.alert('提示', '请输入有效的拍立得数量')
       return false
     }
 
@@ -163,7 +152,7 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
       return false
     }
 
-    if (!photoUri) {
+    if (photos.length === 0) {
       Alert.alert('提示', '请选择或拍摄照片')
       return false
     }
@@ -171,9 +160,6 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
     return true
   }
 
-  /**
-   * 保存记录
-   */
   const handleSave = async () => {
     if (!validateForm()) {
       return
@@ -181,19 +167,31 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
 
     setLoading(true)
 
-    const { success, error: err } = await createRecord({
+    const recordsData = photos.map(p => ({
       idolName: idolName.trim(),
-      photoCount: parseInt(photoCount),
+      photoCount: p.count,
       photoDate,
-      photoUri: photoUri!,
-    })
+      photoUri: p.uri,
+    }))
+
+    const { success, error: err } = await createMultipleRecords(recordsData)
 
     setLoading(false)
 
     if (success) {
-      Alert.alert('成功', '拍立得记录已保存', [
-        { text: '确定', onPress: () => navigation.goBack() },
-      ])
+      Alert.alert(
+        '成功',
+        `已保存 ${photos.length} 条记录，共 ${getTotalCount()} 张拍立得`,
+        [
+          { text: '返回首页', onPress: () => navigation.goBack() },
+          {
+            text: '继续添加',
+            onPress: () => {
+              setPhotos([])
+            },
+          },
+        ],
+      )
     } else {
       Alert.alert('错误', err || '保存失败')
     }
@@ -205,7 +203,6 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
 
   return (
     <ScrollView style={styles.container}>
-      {/* 头部 */}
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
@@ -217,9 +214,7 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
         <View style={styles.placeholder} />
       </View>
 
-      {/* 表单 */}
       <View style={styles.form}>
-        {/* 偶像名称 */}
         <View style={styles.formGroup}>
           <Text style={styles.label}>偶像名称</Text>
           <View style={styles.idolNameContainer}>
@@ -249,19 +244,6 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
           </TouchableOpacity>
         </View>
 
-        {/* 拍立得数量 */}
-        <View style={styles.formGroup}>
-          <Text style={styles.label}>拍立得数量</Text>
-          <TextInput
-            style={styles.input}
-            placeholder='请输入拍立得数量'
-            value={photoCount}
-            onChangeText={setPhotoCount}
-            keyboardType='number-pad'
-          />
-        </View>
-
-        {/* 拍摄日期 */}
         <View style={styles.formGroup}>
           <Text style={styles.label}>拍摄日期</Text>
           <TouchableOpacity
@@ -283,47 +265,71 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
           )}
         </View>
 
-        {/* 照片选择 */}
         <View style={styles.formGroup}>
           <Text style={styles.label}>照片</Text>
-          {photoUri ? (
-            <View style={styles.photoPreviewContainer}>
-              <Image source={{ uri: photoUri }} style={styles.photoPreview} />
-              <TouchableOpacity
-                style={styles.removePhotoButton}
-                onPress={() => setPhotoUri(null)}
-              >
-                <Ionicons name='close-circle' size={24} color={COLORS.ERROR} />
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <View style={styles.photoButtons}>
-              <TouchableOpacity
-                style={styles.photoButton}
-                onPress={() => handlePickPhoto('camera')}
-              >
-                <Ionicons name='camera' size={32} color={COLORS.PRIMARY} />
-                <Text style={styles.photoButtonText}>拍照</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.photoButton}
-                onPress={() => handlePickPhoto('library')}
-              >
-                <Ionicons name='images' size={32} color={COLORS.PRIMARY} />
-                <Text style={styles.photoButtonText}>相册</Text>
-              </TouchableOpacity>
-            </View>
-          )}
+          <View style={styles.photoButtons}>
+            <TouchableOpacity
+              style={styles.photoButton}
+              onPress={() => handleShowCropOptions('camera')}
+            >
+              <Ionicons name='camera' size={28} color={COLORS.PRIMARY} />
+              <Text style={styles.photoButtonText}>拍照</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.photoButton}
+              onPress={() => handleShowCropOptions('library')}
+            >
+              <Ionicons name='image' size={28} color={COLORS.PRIMARY} />
+              <Text style={styles.photoButtonText}>单张</Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.photoButton}
+              onPress={() => handleShowCropOptions('multiple')}
+            >
+              <Ionicons name='images' size={28} color={COLORS.PRIMARY} />
+              <Text style={styles.photoButtonText}>多张</Text>
+            </TouchableOpacity>
+          </View>
         </View>
 
-        {/* 保存按钮 */}
+        {photos.length > 0 && (
+          <View style={styles.formGroup}>
+            <View style={styles.photoListHeader}>
+              <Text style={styles.label}>已选照片 ({photos.length})</Text>
+              <Text style={styles.totalCount}>共 {getTotalCount()} 张</Text>
+            </View>
+            {photos.map((photo, index) => (
+              <View key={photo.uri} style={styles.photoItem}>
+                <Image source={{ uri: photo.uri }} style={styles.photoThumbnail} />
+                <View style={styles.photoInfo}>
+                  <Text style={styles.photoIndex}>照片 {index + 1}</Text>
+                  <View style={styles.countInputContainer}>
+                    <Text style={styles.countLabel}>数量:</Text>
+                    <TextInput
+                      style={styles.countInput}
+                      value={String(photo.count)}
+                      onChangeText={text => updatePhotoCount(photo.uri, parseInt(text) || 1)}
+                      keyboardType='number-pad'
+                    />
+                  </View>
+                </View>
+                <TouchableOpacity
+                  style={styles.removePhotoButton}
+                  onPress={() => removePhoto(photo.uri)}
+                >
+                  <Ionicons name='close-circle' size={24} color={COLORS.ERROR} />
+                </TouchableOpacity>
+              </View>
+            ))}
+          </View>
+        )}
+
         <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
           <Ionicons name='checkmark' size={24} color={COLORS.WHITE} />
           <Text style={styles.saveButtonText}>保存</Text>
         </TouchableOpacity>
       </View>
 
-      {/* 偶像选择器 */}
       <IdolSelector
         visible={showIdolSelector}
         onClose={() => setShowIdolSelector(false)}
@@ -331,7 +337,6 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
         currentIdolName={idolName}
       />
 
-      {/* 裁切选项弹窗 */}
       <Modal
         visible={showCropOptions}
         transparent={true}
@@ -348,7 +353,6 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
             </View>
 
             <View style={styles.modalContent}>
-              {/* 是否裁切 */}
               <View style={styles.cropOption}>
                 <Text style={styles.cropLabel}>启用裁切</Text>
                 <Switch
@@ -362,7 +366,6 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
                 />
               </View>
 
-              {/* 裁切尺寸 */}
               {allowCrop && (
                 <View style={styles.cropDimensions}>
                   <Text style={styles.cropLabel}>裁切尺寸比例</Text>
@@ -389,7 +392,6 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
                 </View>
               )}
 
-              {/* 确认按钮 */}
               <TouchableOpacity
                 style={styles.confirmButton}
                 onPress={handleConfirmCropOptions}
@@ -496,37 +498,73 @@ const styles = StyleSheet.create({
   },
   photoButtons: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'space-between',
   },
   photoButton: {
     backgroundColor: COLORS.WHITE,
     borderRadius: 12,
-    padding: 20,
+    padding: 16,
     alignItems: 'center',
-    width: '45%',
+    width: '31%',
     ...CARD_SHADOW,
   },
   photoButtonText: {
-    marginTop: 8,
-    fontSize: 14,
+    marginTop: 6,
+    fontSize: 13,
     color: COLORS.PRIMARY,
     fontWeight: 'bold',
   },
-  photoPreviewContainer: {
-    position: 'relative',
+  photoListHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
   },
-  photoPreview: {
-    width: '100%',
-    height: 300,
+  totalCount: {
+    fontSize: 14,
+    color: COLORS.GRAY[600],
+  },
+  photoItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.WHITE,
     borderRadius: 8,
-    resizeMode: 'cover',
+    padding: 10,
+    marginBottom: 10,
+    ...CARD_SHADOW,
+  },
+  photoThumbnail: {
+    width: 60,
+    height: 60,
+    borderRadius: 6,
+  },
+  photoInfo: {
+    flex: 1,
+    marginLeft: 12,
+  },
+  photoIndex: {
+    fontSize: 14,
+    color: COLORS.BLACK,
+    marginBottom: 4,
+  },
+  countInputContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  countLabel: {
+    fontSize: 14,
+    color: COLORS.GRAY[600],
+    marginRight: 8,
+  },
+  countInput: {
+    backgroundColor: COLORS.GRAY[100],
+    borderRadius: 6,
+    padding: 6,
+    width: 60,
+    fontSize: 14,
+    textAlign: 'center',
   },
   removePhotoButton: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-    backgroundColor: COLORS.WHITE,
-    borderRadius: 12,
     padding: 4,
   },
   saveButton: {

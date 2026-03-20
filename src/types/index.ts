@@ -71,3 +71,11 @@ export interface UpdateRecordData {
   photoDate?: string
   photoUri?: string
 }
+
+/**
+ * 照片项（用于批量上传）
+ */
+export interface PhotoItem {
+  uri: string
+  count: number
+}

@@ -267,6 +267,68 @@ export const clearAllPhotos = async (): Promise<ServiceResult<null>> => {
 }
 
 /**
+ * 选择多张照片（仅支持相册）
+ * @param options - 裁切选项
+ * @returns 选择结果（照片URI数组）
+ */
+export const pickMultiplePhotos = async (
+  options?: {
+    allowCrop?: boolean
+    cropWidth?: number
+    cropHeight?: number
+  },
+): Promise<ServiceResult<string[]>> => {
+  try {
+    const { allowCrop = false } = options || {}
+
+    const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync()
+
+    if (!permissionResult.granted) {
+      return {
+        success: false,
+        data: null,
+        error: '需要相册权限',
+      }
+    }
+
+    const result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ['images'],
+      allowsMultipleSelection: true,
+      selectionLimit: 10,
+      allowsEditing: allowCrop,
+      quality: 0.6,
+    })
+
+    if (result.canceled) {
+      return {
+        success: false,
+        data: null,
+        error: '用户取消选择',
+      }
+    }
+
+    const uris: string[] = []
+    for (const asset of result.assets) {
+      const compressResult = await compressPhoto(asset.uri)
+      uris.push(compressResult.success && compressResult.data ? compressResult.data : asset.uri)
+    }
+
+    return {
+      success: true,
+      data: uris,
+      error: null,
+    }
+  } catch (error) {
+    console.error('选择多张照片失败:', error)
+    return {
+      success: false,
+      data: null,
+      error: error instanceof Error ? error.message : String(error),
+    }
+  }
+}
+
+/**
  * 压缩照片
  * @param uri - 照片URI
  * @param maxWidth - 最大宽度，默认1024
