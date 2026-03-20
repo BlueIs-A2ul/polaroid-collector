@@ -5,7 +5,7 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
-  Image,
+  Image as RNImage,
   RefreshControl,
   Modal,
   Alert,
@@ -20,6 +20,7 @@ import { useIdolDetail } from '../hooks/useRecords'
 import { formatDate } from '../utils/rankingUtils'
 import LoadingSpinner from '../components/common/LoadingSpinner'
 import EmptyState from '../components/common/EmptyState'
+import CachedImage from '../components/common/CachedImage'
 import { PolaroidRecord } from '../types'
 import { getAvatar, pickAndSetAvatar, removeAvatar } from '../services/avatarService'
 
@@ -204,7 +205,7 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
         <View style={styles.header}>
           <TouchableOpacity style={styles.avatarContainer} onPress={showAvatarOptions}>
             {avatarUri ? (
-              <Image source={{ uri: avatarUri }} style={styles.avatar} />
+              <RNImage source={{ uri: avatarUri }} style={styles.avatar} />
             ) : (
               <View style={styles.avatarPlaceholder}>
                 <Ionicons name='person' size={40} color={COLORS.WHITE} />
@@ -262,7 +263,7 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
                     onPress={() => openPhotoModal(record)}
                     onLongPress={() => navigation.navigate('Edit', { recordId: record.id })}
                   >
-                    <Image source={{ uri: record.photoUri }} style={styles.photoImage} />
+                    <CachedImage uri={record.photoUri} style={styles.photoImage} />
                     {record.backPhotoUri && (
                       <View style={styles.backPhotoBadge}>
                         <Ionicons name='document-text' size={10} color={COLORS.WHITE} />
@@ -309,9 +310,10 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
           {selectedRecord && selectedRecord.photoUri ? (
             <View style={styles.modalContent}>
               <TouchableOpacity onPress={togglePhoto} activeOpacity={0.9} style={styles.modalImageContainer}>
-                <Image
-                  source={{ uri: showingBack && selectedRecord.backPhotoUri ? selectedRecord.backPhotoUri : selectedRecord.photoUri }}
+                <CachedImage
+                  uri={showingBack && selectedRecord.backPhotoUri ? selectedRecord.backPhotoUri : selectedRecord.photoUri}
                   style={styles.modalImage}
+                  resizeMode='contain'
                 />
               </TouchableOpacity>
 
@@ -333,6 +335,13 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
                   </TouchableOpacity>
                 )}
               </View>
+
+              {selectedRecord.note && (
+                <View style={styles.noteContainer}>
+                  <Ionicons name='chatbubble-outline' size={14} color={COLORS.GRAY[400]} />
+                  <Text style={styles.noteText}>{selectedRecord.note}</Text>
+                </View>
+              )}
 
               <TouchableOpacity
                 style={styles.editButton}
@@ -584,6 +593,22 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: COLORS.WHITE,
     marginLeft: 6,
+  },
+  noteContainer: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 8,
+    marginTop: 12,
+    width: '100%',
+  },
+  noteText: {
+    fontSize: 13,
+    color: COLORS.WHITE,
+    marginLeft: 8,
+    flex: 1,
   },
   editButton: {
     flexDirection: 'row',

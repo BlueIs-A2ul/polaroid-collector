@@ -138,6 +138,10 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
     setPhotos(photos.map(p => (p.uri === uri ? { ...p, price: price > 0 ? price : undefined } : p)))
   }
 
+  const updatePhotoNote = (uri: string, note: string) => {
+    setPhotos(photos.map(p => (p.uri === uri ? { ...p, note: note.trim() || undefined } : p)))
+  }
+
   const removePhoto = (uri: string) => {
     setPhotos(photos.filter(p => p.uri !== uri))
   }
@@ -203,6 +207,7 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
       photoUri: p.uri,
       backPhotoUri: p.backPhotoUri,
       price: p.price,
+      note: p.note,
     }))
 
     const { success, error: err } = await createMultipleRecords(recordsData)
@@ -372,6 +377,16 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
                       onChangeText={text => updatePhotoPrice(photo.uri, parseFloat(text) || 0)}
                       keyboardType='decimal-pad'
                       placeholder='选填'
+                    />
+                  </View>
+                  <View style={styles.noteInputContainer}>
+                    <Text style={styles.countLabel}>备注:</Text>
+                    <TextInput
+                      style={styles.noteInput}
+                      value={photo.note || ''}
+                      onChangeText={text => updatePhotoNote(photo.uri, text)}
+                      placeholder='选填'
+                      multiline
                     />
                   </View>
                   <View style={styles.photoActions}>
@@ -682,6 +697,17 @@ const styles = StyleSheet.create({
     width: 60,
     fontSize: 14,
     textAlign: 'center',
+  },
+  noteInputContainer: {
+    marginBottom: 6,
+  },
+  noteInput: {
+    backgroundColor: COLORS.GRAY[100],
+    borderRadius: 6,
+    padding: 8,
+    fontSize: 14,
+    minHeight: 40,
+    textAlignVertical: 'top',
   },
   photoActions: {
     flexDirection: 'row',

@@ -1,7 +1,8 @@
 import React from 'react'
-import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native'
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { COLORS } from '../../constants/themeColors'
+import CachedImage from '../common/CachedImage'
 
 interface IdolCardProps {
   idolName: string
@@ -23,7 +24,7 @@ const IdolCard: React.FC<IdolCardProps> = React.memo(
         <View style={styles.infoContainer}>
           <View style={styles.avatar}>
             {avatarUri ? (
-              <Image source={{ uri: avatarUri }} style={styles.avatarImage} />
+              <CachedImage uri={avatarUri} style={styles.avatarImage} />
             ) : (
               <Ionicons name='person' size={24} color={COLORS.PRIMARY} />
             )}
@@ -40,7 +41,7 @@ const IdolCard: React.FC<IdolCardProps> = React.memo(
         </View>
 
         {latestPhoto ? (
-          <Image source={{ uri: latestPhoto }} style={styles.thumbnail} />
+          <CachedImage uri={latestPhoto} style={styles.thumbnail} />
         ) : (
           <View style={styles.thumbnailPlaceholder}>
             <Ionicons name='person' size={20} color={COLORS.GRAY[400]} />
@@ -113,7 +114,6 @@ const styles = StyleSheet.create({
     width: 48,
     height: 48,
     borderRadius: 8,
-    resizeMode: 'cover',
   },
   thumbnailPlaceholder: {
     width: 48,
