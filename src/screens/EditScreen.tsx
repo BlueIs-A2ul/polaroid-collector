@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, Fragment } from 'react'
 import {
   View,
   Text,
@@ -22,6 +22,7 @@ import { pickPhoto } from '../services/photoService'
 import { getRecordById } from '../services/storageService'
 import { updateRecordData, deleteRecordData } from '../services/recordService'
 import LoadingSpinner from '../components/common/LoadingSpinner'
+import FieldHistorySelector from '../components/features/FieldHistorySelector'
 import OptionsSelector from '../components/common/OptionsSelector'
 import { POLAROID_TYPE_OPTIONS, MEMBER_COUNT_OPTIONS } from '../constants/polaroidOptions'
 
@@ -71,6 +72,7 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
     'library',
   )
   const [pendingPhotoType, setPendingPhotoType] = useState<'front' | 'back'>('front')
+  const [showFieldSelector, setShowFieldSelector] = useState<'groupName' | 'city' | 'venue' | null>(null)
 
   const formatDateToString = (date: Date): string => {
     const year = date.getFullYear()
@@ -372,33 +374,34 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
   }
 
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity style={styles.backButton} onPress={handleCancel}>
-          <Ionicons name='arrow-back' size={24} color={COLORS.WHITE} />
-        </TouchableOpacity>
-        <Text style={styles.title}>编辑拍立得</Text>
-        <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
-          <Ionicons name='trash' size={24} color={COLORS.ERROR} />
-        </TouchableOpacity>
-      </View>
-
-      <View style={styles.form}>
-        <View style={styles.formGroup}>
-          <Text style={styles.label}>偶像名称</Text>
-          <TextInput
-            style={styles.input}
-            placeholder='请输入偶像名称'
-            value={idolName}
-            onChangeText={setIdolName}
-          />
+    <Fragment>
+      <ScrollView style={styles.container}>
+        <View style={styles.header}>
+          <TouchableOpacity style={styles.backButton} onPress={handleCancel}>
+            <Ionicons name='arrow-back' size={24} color={COLORS.WHITE} />
+          </TouchableOpacity>
+          <Text style={styles.title}>编辑拍立得</Text>
+          <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
+            <Ionicons name='trash' size={24} color={COLORS.ERROR} />
+          </TouchableOpacity>
         </View>
 
-        <View style={styles.formGroup}>
-          <Text style={styles.label}>拍立得数量</Text>
-          <TextInput
-            style={styles.input}
-            placeholder='请输入拍立得数量'
+        <View style={styles.form}>
+          <View style={styles.formGroup}>
+            <Text style={styles.label}>偶像名称</Text>
+            <TextInput
+              style={styles.input}
+              placeholder='请输入偶像名称'
+              value={idolName}
+              onChangeText={setIdolName}
+            />
+          </View>
+
+          <View style={styles.formGroup}>
+            <Text style={styles.label}>拍立得数量</Text>
+            <TextInput
+              style={styles.input}
+              placeholder='请输入拍立得数量'
             value={photoCount}
             onChangeText={setPhotoCount}
             keyboardType='number-pad'
@@ -456,21 +459,27 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
             <View style={styles.extraFieldRow}>
               <View style={styles.extraFieldHalf}>
                 <Text style={styles.extraFieldLabel}>团体</Text>
-                <TextInput
-                  style={styles.extraFieldInput}
-                  placeholder='选填'
-                  value={groupName}
-                  onChangeText={setGroupName}
-                />
+                <TouchableOpacity
+                  style={styles.extraFieldInputWrapper}
+                  onPress={() => setShowFieldSelector('groupName')}
+                >
+                  <Text style={[styles.extraFieldInputText, groupName ? null : styles.extraFieldPlaceholder]}>
+                    {groupName || '选填'}
+                  </Text>
+                  <Ionicons name='chevron-down' size={16} color={COLORS.GRAY[500]} />
+                </TouchableOpacity>
               </View>
               <View style={styles.extraFieldHalf}>
                 <Text style={styles.extraFieldLabel}>城市</Text>
-                <TextInput
-                  style={styles.extraFieldInput}
-                  placeholder='选填'
-                  value={city}
-                  onChangeText={setCity}
-                />
+                <TouchableOpacity
+                  style={styles.extraFieldInputWrapper}
+                  onPress={() => setShowFieldSelector('city')}
+                >
+                  <Text style={[styles.extraFieldInputText, city ? null : styles.extraFieldPlaceholder]}>
+                    {city || '选填'}
+                  </Text>
+                  <Ionicons name='chevron-down' size={16} color={COLORS.GRAY[500]} />
+                </TouchableOpacity>
               </View>
             </View>
             <View style={styles.extraFieldRow}>
@@ -495,12 +504,15 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
             </View>
             <View style={styles.extraFieldFull}>
               <Text style={styles.extraFieldLabel}>场馆</Text>
-              <TextInput
-                style={styles.extraFieldInput}
-                placeholder='选填'
-                value={venue}
-                onChangeText={setVenue}
-              />
+              <TouchableOpacity
+                style={styles.extraFieldInputWrapper}
+                onPress={() => setShowFieldSelector('venue')}
+              >
+                <Text style={[styles.extraFieldInputText, venue ? null : styles.extraFieldPlaceholder]}>
+                  {venue || '选填'}
+                </Text>
+                <Ionicons name='chevron-down' size={16} color={COLORS.GRAY[500]} />
+              </TouchableOpacity>
             </View>
           </View>
         </View>
@@ -681,6 +693,20 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
         </View>
       </Modal>
     </ScrollView>
+
+    <FieldHistorySelector
+      visible={showFieldSelector !== null}
+      field={showFieldSelector || 'groupName'}
+      title={showFieldSelector === 'groupName' ? '团体' : showFieldSelector === 'city' ? '城市' : '场馆'}
+      currentValue={showFieldSelector === 'groupName' ? groupName : showFieldSelector === 'city' ? city : venue}
+      onClose={() => setShowFieldSelector(null)}
+      onSelect={(value) => {
+        if (showFieldSelector === 'groupName') setGroupName(value)
+        else if (showFieldSelector === 'city') setCity(value)
+        else if (showFieldSelector === 'venue') setVenue(value)
+      }}
+    />
+  </Fragment>
   )
 }
 
@@ -769,6 +795,22 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     padding: 10,
     fontSize: 14,
+  },
+  extraFieldInputWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: COLORS.GRAY[100],
+    borderRadius: 6,
+    padding: 10,
+  },
+  extraFieldInputText: {
+    fontSize: 14,
+    color: COLORS.BLACK,
+    flex: 1,
+  },
+  extraFieldPlaceholder: {
+    color: COLORS.GRAY[400],
   },
   dateInput: {
     backgroundColor: COLORS.WHITE,

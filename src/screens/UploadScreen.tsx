@@ -22,6 +22,7 @@ import { pickPhoto, pickMultiplePhotos } from '../services/photoService'
 import { createMultipleRecords } from '../services/recordService'
 import LoadingSpinner from '../components/common/LoadingSpinner'
 import IdolSelector from '../components/features/IdolSelector'
+import FieldHistorySelector from '../components/features/FieldHistorySelector'
 import OptionsSelector from '../components/common/OptionsSelector'
 import { POLAROID_TYPE_OPTIONS, MEMBER_COUNT_OPTIONS } from '../constants/polaroidOptions'
 import { PhotoItem } from '../types'
@@ -55,6 +56,11 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
     'library',
   )
   const [pendingBackPhotoUri, setPendingBackPhotoUri] = useState<string | null>(null)
+  const [showFieldSelector, setShowFieldSelector] = useState<{
+    visible: boolean
+    field: 'groupName' | 'city' | 'venue'
+    photoUri: string
+  } | null>(null)
 
   const formatDateToString = (date: Date): string => {
     const year = date.getFullYear()
@@ -404,21 +410,27 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
                     <View style={styles.extraFieldRow}>
                       <View style={styles.extraFieldHalf}>
                         <Text style={styles.extraFieldLabel}>团体</Text>
-                        <TextInput
-                          style={styles.extraFieldInput}
-                          value={photo.groupName || ''}
-                          onChangeText={text => updatePhotoField(photo.uri, 'groupName', text)}
-                          placeholder='选填'
-                        />
+                        <TouchableOpacity
+                          style={styles.extraFieldInputWrapper}
+                          onPress={() => setShowFieldSelector({ visible: true, field: 'groupName', photoUri: photo.uri })}
+                        >
+                          <Text style={[styles.extraFieldInputText, photo.groupName ? null : styles.extraFieldPlaceholder]}>
+                            {photo.groupName || '选填'}
+                          </Text>
+                          <Ionicons name='chevron-down' size={16} color={COLORS.GRAY[500]} />
+                        </TouchableOpacity>
                       </View>
                       <View style={styles.extraFieldHalf}>
                         <Text style={styles.extraFieldLabel}>城市</Text>
-                        <TextInput
-                          style={styles.extraFieldInput}
-                          value={photo.city || ''}
-                          onChangeText={text => updatePhotoField(photo.uri, 'city', text)}
-                          placeholder='选填'
-                        />
+                        <TouchableOpacity
+                          style={styles.extraFieldInputWrapper}
+                          onPress={() => setShowFieldSelector({ visible: true, field: 'city', photoUri: photo.uri })}
+                        >
+                          <Text style={[styles.extraFieldInputText, photo.city ? null : styles.extraFieldPlaceholder]}>
+                            {photo.city || '选填'}
+                          </Text>
+                          <Ionicons name='chevron-down' size={16} color={COLORS.GRAY[500]} />
+                        </TouchableOpacity>
                       </View>
                     </View>
                     <View style={styles.extraFieldRow}>
@@ -443,12 +455,15 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
                     </View>
                     <View style={styles.extraFieldFull}>
                       <Text style={styles.extraFieldLabel}>场馆</Text>
-                      <TextInput
-                        style={styles.extraFieldInput}
-                        value={photo.venue || ''}
-                        onChangeText={text => updatePhotoField(photo.uri, 'venue', text)}
-                        placeholder='选填'
-                      />
+                      <TouchableOpacity
+                        style={styles.extraFieldInputWrapper}
+                        onPress={() => setShowFieldSelector({ visible: true, field: 'venue', photoUri: photo.uri })}
+                      >
+                        <Text style={[styles.extraFieldInputText, photo.venue ? null : styles.extraFieldPlaceholder]}>
+                          {photo.venue || '选填'}
+                        </Text>
+                        <Ionicons name='chevron-down' size={16} color={COLORS.GRAY[500]} />
+                      </TouchableOpacity>
                     </View>
                   </View>
                   <View style={styles.photoActions}>
@@ -493,6 +508,19 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
         onClose={() => setShowIdolSelector(false)}
         onSelectIdol={handleSelectIdol}
         currentIdolName={idolName}
+      />
+
+      <FieldHistorySelector
+        visible={showFieldSelector?.visible || false}
+        field={showFieldSelector?.field || 'groupName'}
+        title={showFieldSelector?.field === 'groupName' ? '团体' : showFieldSelector?.field === 'city' ? '城市' : '场馆'}
+        currentValue={showFieldSelector ? (photos.find(p => p.uri === showFieldSelector.photoUri)?.[showFieldSelector.field] as string) || '' : ''}
+        onClose={() => setShowFieldSelector(null)}
+        onSelect={(value) => {
+          if (showFieldSelector) {
+            updatePhotoField(showFieldSelector.photoUri, showFieldSelector.field, value)
+          }
+        }}
       />
 
       <Modal
@@ -798,6 +826,22 @@ const styles = StyleSheet.create({
     borderRadius: 6,
     padding: 8,
     fontSize: 14,
+  },
+  extraFieldInputWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: COLORS.GRAY[100],
+    borderRadius: 6,
+    padding: 8,
+  },
+  extraFieldInputText: {
+    fontSize: 14,
+    color: COLORS.BLACK,
+    flex: 1,
+  },
+  extraFieldPlaceholder: {
+    color: COLORS.GRAY[400],
   },
   photoActions: {
     flexDirection: 'row',
