@@ -40,6 +40,14 @@ export interface Statistics {
   totalPhotos: number
   uniqueIdols: number
   totalPrice: number
+  groupStats: FieldStat[]
+  cityStats: FieldStat[]
+  venueStats: FieldStat[]
+}
+
+export interface FieldStat {
+  name: string
+  count: number
 }
 
 export interface ServiceResult<T = any> {

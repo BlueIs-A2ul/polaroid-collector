@@ -403,6 +403,34 @@ export const getStatistics = async (): Promise<ServiceResult<Statistics>> => {
     const uniqueIdols = new Set(records.map(r => r.idolName)).size
     const totalPrice = records.reduce((sum, r) => sum + (r.price || 0), 0)
 
+    const groupMap: Record<string, number> = {}
+    const cityMap: Record<string, number> = {}
+    const venueMap: Record<string, number> = {}
+
+    records.forEach(r => {
+      if (r.groupName) {
+        groupMap[r.groupName] = (groupMap[r.groupName] || 0) + 1
+      }
+      if (r.city) {
+        cityMap[r.city] = (cityMap[r.city] || 0) + 1
+      }
+      if (r.venue) {
+        venueMap[r.venue] = (venueMap[r.venue] || 0) + 1
+      }
+    })
+
+    const groupStats = Object.entries(groupMap)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+
+    const cityStats = Object.entries(cityMap)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+
+    const venueStats = Object.entries(venueMap)
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+
     return {
       success: true,
       data: {
@@ -410,6 +438,9 @@ export const getStatistics = async (): Promise<ServiceResult<Statistics>> => {
         totalPhotos,
         uniqueIdols,
         totalPrice,
+        groupStats,
+        cityStats,
+        venueStats,
       },
       error: null,
     }
