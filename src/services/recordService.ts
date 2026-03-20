@@ -439,3 +439,48 @@ export const getAllIdolNames = async (): Promise<ServiceResult<string[]>> => {
     }
   }
 }
+
+/**
+ * 获取偶像列表（带数量，按数量排序）
+ * @returns 偶像列表
+ */
+export const getIdolListWithCount = async (): Promise<
+  ServiceResult<{ name: string; count: number }[]>
+> => {
+  try {
+    const { success, data: records, error } = await getAllRecords()
+
+    if (!success || !records) {
+      return {
+        success: false,
+        data: [],
+        error,
+      }
+    }
+
+    // 统计每个偶像的总数量
+    const idolMap = new Map<string, number>()
+    records.forEach(record => {
+      const currentCount = idolMap.get(record.idolName) || 0
+      idolMap.set(record.idolName, currentCount + record.photoCount)
+    })
+
+    // 转换为数组并按数量降序排序
+    const idolList = Array.from(idolMap.entries())
+      .map(([name, count]) => ({ name, count }))
+      .sort((a, b) => b.count - a.count)
+
+    return {
+      success: true,
+      data: idolList,
+      error: null,
+    }
+  } catch (error) {
+    console.error('获取偶像列表失败:', error)
+    return {
+      success: false,
+      data: [],
+      error: error instanceof Error ? error.message : String(error),
+    }
+  }
+}
