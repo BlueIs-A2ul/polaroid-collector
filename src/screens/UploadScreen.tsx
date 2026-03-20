@@ -22,6 +22,8 @@ import { pickPhoto, pickMultiplePhotos } from '../services/photoService'
 import { createMultipleRecords } from '../services/recordService'
 import LoadingSpinner from '../components/common/LoadingSpinner'
 import IdolSelector from '../components/features/IdolSelector'
+import OptionsSelector from '../components/common/OptionsSelector'
+import { POLAROID_TYPE_OPTIONS, MEMBER_COUNT_OPTIONS } from '../constants/polaroidOptions'
 import { PhotoItem } from '../types'
 
 type UploadScreenNavigationProp = StackNavigationProp<
@@ -142,6 +144,10 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
     setPhotos(photos.map(p => (p.uri === uri ? { ...p, note: note.trim() || undefined } : p)))
   }
 
+  const updatePhotoField = (uri: string, field: keyof PhotoItem, value: string | undefined) => {
+    setPhotos(photos.map(p => (p.uri === uri ? { ...p, [field]: value || undefined } : p)))
+  }
+
   const removePhoto = (uri: string) => {
     setPhotos(photos.filter(p => p.uri !== uri))
   }
@@ -208,6 +214,11 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
       backPhotoUri: p.backPhotoUri,
       price: p.price,
       note: p.note,
+      groupName: p.groupName,
+      city: p.city,
+      venue: p.venue,
+      polaroidType: p.polaroidType,
+      memberCount: p.memberCount,
     }))
 
     const { success, error: err } = await createMultipleRecords(recordsData)
@@ -388,6 +399,57 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
                       placeholder='选填'
                       multiline
                     />
+                  </View>
+                  <View style={styles.extraFieldsContainer}>
+                    <View style={styles.extraFieldRow}>
+                      <View style={styles.extraFieldHalf}>
+                        <Text style={styles.extraFieldLabel}>团体</Text>
+                        <TextInput
+                          style={styles.extraFieldInput}
+                          value={photo.groupName || ''}
+                          onChangeText={text => updatePhotoField(photo.uri, 'groupName', text)}
+                          placeholder='选填'
+                        />
+                      </View>
+                      <View style={styles.extraFieldHalf}>
+                        <Text style={styles.extraFieldLabel}>城市</Text>
+                        <TextInput
+                          style={styles.extraFieldInput}
+                          value={photo.city || ''}
+                          onChangeText={text => updatePhotoField(photo.uri, 'city', text)}
+                          placeholder='选填'
+                        />
+                      </View>
+                    </View>
+                    <View style={styles.extraFieldRow}>
+                      <View style={styles.extraFieldHalf}>
+                        <OptionsSelector
+                          label='类型'
+                          value={photo.polaroidType || ''}
+                          options={POLAROID_TYPE_OPTIONS}
+                          placeholder='选填'
+                          onChange={value => updatePhotoField(photo.uri, 'polaroidType', value)}
+                        />
+                      </View>
+                      <View style={styles.extraFieldHalf}>
+                        <OptionsSelector
+                          label='人数'
+                          value={photo.memberCount || ''}
+                          options={MEMBER_COUNT_OPTIONS}
+                          placeholder='选填'
+                          onChange={value => updatePhotoField(photo.uri, 'memberCount', value)}
+                        />
+                      </View>
+                    </View>
+                    <View style={styles.extraFieldFull}>
+                      <Text style={styles.extraFieldLabel}>场馆</Text>
+                      <TextInput
+                        style={styles.extraFieldInput}
+                        value={photo.venue || ''}
+                        onChangeText={text => updatePhotoField(photo.uri, 'venue', text)}
+                        placeholder='选填'
+                      />
+                    </View>
                   </View>
                   <View style={styles.photoActions}>
                     {photo.backPhotoUri ? (
@@ -708,6 +770,34 @@ const styles = StyleSheet.create({
     fontSize: 14,
     minHeight: 40,
     textAlignVertical: 'top',
+  },
+  extraFieldsContainer: {
+    marginTop: 8,
+    paddingTop: 8,
+    borderTopWidth: 1,
+    borderTopColor: COLORS.GRAY[200],
+  },
+  extraFieldRow: {
+    flexDirection: 'row',
+    gap: 8,
+    marginBottom: 6,
+  },
+  extraFieldHalf: {
+    flex: 1,
+  },
+  extraFieldFull: {
+    marginBottom: 6,
+  },
+  extraFieldLabel: {
+    fontSize: 13,
+    color: COLORS.GRAY[600],
+    marginBottom: 4,
+  },
+  extraFieldInput: {
+    backgroundColor: COLORS.GRAY[100],
+    borderRadius: 6,
+    padding: 8,
+    fontSize: 14,
   },
   photoActions: {
     flexDirection: 'row',

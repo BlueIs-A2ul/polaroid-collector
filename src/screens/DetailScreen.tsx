@@ -343,6 +343,41 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
                 </View>
               )}
 
+              {(selectedRecord.groupName || selectedRecord.city || selectedRecord.venue || selectedRecord.polaroidType || selectedRecord.memberCount) && (
+                <View style={styles.extraInfoContainer}>
+                  {selectedRecord.groupName && (
+                    <View style={styles.extraInfoItem}>
+                      <Text style={styles.extraInfoLabel}>团体</Text>
+                      <Text style={styles.extraInfoValue}>{selectedRecord.groupName}</Text>
+                    </View>
+                  )}
+                  {selectedRecord.city && (
+                    <View style={styles.extraInfoItem}>
+                      <Text style={styles.extraInfoLabel}>城市</Text>
+                      <Text style={styles.extraInfoValue}>{selectedRecord.city}</Text>
+                    </View>
+                  )}
+                  {selectedRecord.venue && (
+                    <View style={styles.extraInfoItem}>
+                      <Text style={styles.extraInfoLabel}>场馆</Text>
+                      <Text style={styles.extraInfoValue}>{selectedRecord.venue}</Text>
+                    </View>
+                  )}
+                  {selectedRecord.polaroidType && (
+                    <View style={styles.extraInfoItem}>
+                      <Text style={styles.extraInfoLabel}>类型</Text>
+                      <Text style={styles.extraInfoValue}>{selectedRecord.polaroidType}</Text>
+                    </View>
+                  )}
+                  {selectedRecord.memberCount && (
+                    <View style={styles.extraInfoItem}>
+                      <Text style={styles.extraInfoLabel}>人数</Text>
+                      <Text style={styles.extraInfoValue}>{selectedRecord.memberCount}</Text>
+                    </View>
+                  )}
+                </View>
+              )}
+
               <TouchableOpacity
                 style={styles.editButton}
                 onPress={() => {
@@ -609,6 +644,31 @@ const styles = StyleSheet.create({
     color: COLORS.WHITE,
     marginLeft: 8,
     flex: 1,
+  },
+  extraInfoContainer: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    marginTop: 12,
+    width: '100%',
+    gap: 8,
+  },
+  extraInfoItem: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
+    paddingHorizontal: 10,
+    paddingVertical: 6,
+    borderRadius: 6,
+  },
+  extraInfoLabel: {
+    fontSize: 12,
+    color: COLORS.GRAY[400],
+    marginRight: 4,
+  },
+  extraInfoValue: {
+    fontSize: 12,
+    color: COLORS.WHITE,
+    fontWeight: '500',
   },
   editButton: {
     flexDirection: 'row',

@@ -22,6 +22,8 @@ import { pickPhoto } from '../services/photoService'
 import { getRecordById } from '../services/storageService'
 import { updateRecordData, deleteRecordData } from '../services/recordService'
 import LoadingSpinner from '../components/common/LoadingSpinner'
+import OptionsSelector from '../components/common/OptionsSelector'
+import { POLAROID_TYPE_OPTIONS, MEMBER_COUNT_OPTIONS } from '../constants/polaroidOptions'
 
 type EditScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Edit'>
 type EditScreenRouteProp = RouteProp<RootStackParamList, 'Edit'>
@@ -40,6 +42,11 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
   const [backPhotoUri, setBackPhotoUri] = useState<string | null>(null)
   const [price, setPrice] = useState<string>('')
   const [note, setNote] = useState<string>('')
+  const [groupName, setGroupName] = useState<string>('')
+  const [city, setCity] = useState<string>('')
+  const [venue, setVenue] = useState<string>('')
+  const [polaroidType, setPolaroidType] = useState<string>('')
+  const [memberCount, setMemberCount] = useState<string>('')
   const [originalPhotoUri, setOriginalPhotoUri] = useState<string | null>(null)
   const [originalBackPhotoUri, setOriginalBackPhotoUri] = useState<string | null>(null)
   const [originalIdolName, setOriginalIdolName] = useState<string>('')
@@ -47,6 +54,11 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
   const [originalPhotoDate, setOriginalPhotoDate] = useState<string>('')
   const [originalPrice, setOriginalPrice] = useState<string>('')
   const [originalNote, setOriginalNote] = useState<string>('')
+  const [originalGroupName, setOriginalGroupName] = useState<string>('')
+  const [originalCity, setOriginalCity] = useState<string>('')
+  const [originalVenue, setOriginalVenue] = useState<string>('')
+  const [originalPolaroidType, setOriginalPolaroidType] = useState<string>('')
+  const [originalMemberCount, setOriginalMemberCount] = useState<string>('')
   const [loading, setLoading] = useState<boolean>(true)
   const [saving, setSaving] = useState<boolean>(false)
   const [showDatePicker, setShowDatePicker] = useState<boolean>(false)
@@ -128,6 +140,11 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
       setBackPhotoUri(data.backPhotoUri || null)
       setPrice(data.price ? String(data.price) : '')
       setNote(data.note || '')
+      setGroupName(data.groupName || '')
+      setCity(data.city || '')
+      setVenue(data.venue || '')
+      setPolaroidType(data.polaroidType || '')
+      setMemberCount(data.memberCount || '')
       setOriginalPhotoUri(data.photoUri)
       setOriginalBackPhotoUri(data.backPhotoUri || null)
       setOriginalIdolName(data.idolName)
@@ -135,6 +152,11 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
       setOriginalPhotoDate(data.photoDate)
       setOriginalPrice(data.price ? String(data.price) : '')
       setOriginalNote(data.note || '')
+      setOriginalGroupName(data.groupName || '')
+      setOriginalCity(data.city || '')
+      setOriginalVenue(data.venue || '')
+      setOriginalPolaroidType(data.polaroidType || '')
+      setOriginalMemberCount(data.memberCount || '')
       setLoading(false)
     } else {
       setLoading(false)
@@ -205,6 +227,11 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
       backPhotoUri?: string
       price?: number
       note?: string
+      groupName?: string
+      city?: string
+      venue?: string
+      polaroidType?: string
+      memberCount?: string
     } = {
       idolName: idolName.trim(),
       photoCount: parseInt(photoCount),
@@ -228,6 +255,36 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
       updateData.note = note.trim()
     } else if (originalNote) {
       updateData.note = ''
+    }
+
+    if (groupName.trim()) {
+      updateData.groupName = groupName.trim()
+    } else if (originalGroupName) {
+      updateData.groupName = ''
+    }
+
+    if (city.trim()) {
+      updateData.city = city.trim()
+    } else if (originalCity) {
+      updateData.city = ''
+    }
+
+    if (venue.trim()) {
+      updateData.venue = venue.trim()
+    } else if (originalVenue) {
+      updateData.venue = ''
+    }
+
+    if (polaroidType) {
+      updateData.polaroidType = polaroidType
+    } else if (originalPolaroidType) {
+      updateData.polaroidType = ''
+    }
+
+    if (memberCount) {
+      updateData.memberCount = memberCount
+    } else if (originalMemberCount) {
+      updateData.memberCount = ''
     }
 
     const { success, error: err } = await updateRecordData(recordId, updateData)
@@ -274,7 +331,12 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
       photoUri !== originalPhotoUri ||
       backPhotoUri !== originalBackPhotoUri ||
       price !== originalPrice ||
-      note !== originalNote
+      note !== originalNote ||
+      groupName !== originalGroupName ||
+      city !== originalCity ||
+      venue !== originalVenue ||
+      polaroidType !== originalPolaroidType ||
+      memberCount !== originalMemberCount
 
     if (hasChanges) {
       Alert.alert('放弃修改', '确定要放弃所有修改吗？', [
@@ -386,6 +448,61 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
             numberOfLines={3}
             textAlignVertical='top'
           />
+        </View>
+
+        <View style={styles.formGroup}>
+          <Text style={styles.sectionTitle}>扩展信息</Text>
+          <View style={styles.extraFieldsContainer}>
+            <View style={styles.extraFieldRow}>
+              <View style={styles.extraFieldHalf}>
+                <Text style={styles.extraFieldLabel}>团体</Text>
+                <TextInput
+                  style={styles.extraFieldInput}
+                  placeholder='选填'
+                  value={groupName}
+                  onChangeText={setGroupName}
+                />
+              </View>
+              <View style={styles.extraFieldHalf}>
+                <Text style={styles.extraFieldLabel}>城市</Text>
+                <TextInput
+                  style={styles.extraFieldInput}
+                  placeholder='选填'
+                  value={city}
+                  onChangeText={setCity}
+                />
+              </View>
+            </View>
+            <View style={styles.extraFieldRow}>
+              <View style={styles.extraFieldHalf}>
+                <OptionsSelector
+                  label='类型'
+                  value={polaroidType}
+                  options={POLAROID_TYPE_OPTIONS}
+                  placeholder='选填'
+                  onChange={setPolaroidType}
+                />
+              </View>
+              <View style={styles.extraFieldHalf}>
+                <OptionsSelector
+                  label='人数'
+                  value={memberCount}
+                  options={MEMBER_COUNT_OPTIONS}
+                  placeholder='选填'
+                  onChange={setMemberCount}
+                />
+              </View>
+            </View>
+            <View style={styles.extraFieldFull}>
+              <Text style={styles.extraFieldLabel}>场馆</Text>
+              <TextInput
+                style={styles.extraFieldInput}
+                placeholder='选填'
+                value={venue}
+                onChangeText={setVenue}
+              />
+            </View>
+          </View>
         </View>
 
         <View style={styles.formGroup}>
@@ -618,6 +735,40 @@ const styles = StyleSheet.create({
     minHeight: 80,
     textAlignVertical: 'top',
     ...CARD_SHADOW,
+  },
+  sectionTitle: {
+    fontSize: 16,
+    fontWeight: 'bold',
+    color: COLORS.BLACK,
+    marginBottom: 12,
+  },
+  extraFieldsContainer: {
+    backgroundColor: COLORS.WHITE,
+    borderRadius: 8,
+    padding: 12,
+    ...CARD_SHADOW,
+  },
+  extraFieldRow: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 12,
+  },
+  extraFieldHalf: {
+    flex: 1,
+  },
+  extraFieldFull: {
+    marginBottom: 0,
+  },
+  extraFieldLabel: {
+    fontSize: 13,
+    color: COLORS.GRAY[600],
+    marginBottom: 6,
+  },
+  extraFieldInput: {
+    backgroundColor: COLORS.GRAY[100],
+    borderRadius: 6,
+    padding: 10,
+    fontSize: 14,
   },
   dateInput: {
     backgroundColor: COLORS.WHITE,

@@ -7,6 +7,11 @@ export interface PolaroidRecord {
   backPhotoUri?: string
   price?: number
   note?: string
+  groupName?: string
+  city?: string
+  venue?: string
+  polaroidType?: string
+  memberCount?: string
   createdAt: number
   updatedAt: number
 }
@@ -51,6 +56,11 @@ export interface CreateRecordData {
   backPhotoUri?: string
   price?: number
   note?: string
+  groupName?: string
+  city?: string
+  venue?: string
+  polaroidType?: string
+  memberCount?: string
 }
 
 export interface UpdateRecordData {
@@ -61,6 +71,11 @@ export interface UpdateRecordData {
   backPhotoUri?: string
   price?: number
   note?: string
+  groupName?: string
+  city?: string
+  venue?: string
+  polaroidType?: string
+  memberCount?: string
 }
 
 export interface PhotoItem {
@@ -69,4 +84,9 @@ export interface PhotoItem {
   backPhotoUri?: string
   price?: number
   note?: string
+  groupName?: string
+  city?: string
+  venue?: string
+  polaroidType?: string
+  memberCount?: string
 }
