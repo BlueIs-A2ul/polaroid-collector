@@ -34,6 +34,13 @@ interface DetailScreenProps {
   route: DetailScreenRouteProp
 }
 
+interface DateGroup {
+  date: string
+  records: PolaroidRecord[]
+  totalCount: number
+  totalPrice: number
+}
+
 const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
   const { idolName } = route.params
   const { detail, loading, error, ascending, toggleSort, refreshDetail } =
@@ -125,6 +132,34 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
     }
   }
 
+  const groupedRecords = React.useMemo(() => {
+    if (!detail?.records) return []
+
+    const groups: Record<string, DateGroup> = {}
+
+    detail.records.forEach(record => {
+      if (!groups[record.photoDate]) {
+        groups[record.photoDate] = {
+          date: record.photoDate,
+          records: [],
+          totalCount: 0,
+          totalPrice: 0,
+        }
+      }
+      groups[record.photoDate].records.push(record)
+      groups[record.photoDate].totalCount += record.photoCount
+      groups[record.photoDate].totalPrice += record.price || 0
+    })
+
+    const sortedGroups = Object.values(groups).sort((a, b) => {
+      const dateA = new Date(a.date)
+      const dateB = new Date(b.date)
+      return ascending ? dateA.getTime() - dateB.getTime() : dateB.getTime() - dateA.getTime()
+    })
+
+    return sortedGroups
+  }, [detail?.records, ascending])
+
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
@@ -198,83 +233,64 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
           </View>
         </View>
 
-        {detail.latestPhoto && (
-          <View style={styles.latestPhotoContainer}>
-            <Text style={styles.sectionTitle}>最新照片</Text>
-            <Image
-              source={{ uri: detail.latestPhoto }}
-              style={styles.latestPhoto}
-            />
-          </View>
-        )}
-
         <View style={styles.recordsContainer}>
-          <Text style={styles.sectionTitle}>
-            记录列表 ({ascending ? '从旧到新' : '从新到旧'})
-          </Text>
-          {detail.records.map(record => (
-            <TouchableOpacity
-              key={record.id}
-              style={styles.recordCard}
-              onPress={() => navigation.navigate('Edit', { recordId: record.id })}
-            >
-              <TouchableOpacity onPress={() => openPhotoModal(record)}>
-                <View style={styles.recordPhotoContainer}>
-                  <Image
-                    source={{ uri: record.photoUri }}
-                    style={styles.recordPhoto}
-                  />
-                  {record.backPhotoUri && (
-                    <View style={styles.backPhotoBadge}>
-                      <Ionicons name='document-text' size={12} color={COLORS.WHITE} />
-                    </View>
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>记录列表</Text>
+            <Text style={styles.sortHint}>{ascending ? '从旧到新' : '从新到旧'}</Text>
+          </View>
+
+          {groupedRecords.map(group => (
+            <View key={group.date} style={styles.dateGroup}>
+              <View style={styles.dateHeader}>
+                <View style={styles.dateInfo}>
+                  <Ionicons name='calendar' size={16} color={COLORS.PRIMARY} />
+                  <Text style={styles.dateText}>{formatDate(group.date)}</Text>
+                </View>
+                <View style={styles.dateStats}>
+                  <Text style={styles.dateStatText}>{group.totalCount} 张</Text>
+                  {group.totalPrice > 0 && (
+                    <Text style={styles.datePriceText}> · ¥{group.totalPrice}</Text>
                   )}
                 </View>
-              </TouchableOpacity>
-              <View style={styles.recordInfo}>
-                <View style={styles.recordHeader}>
-                  <Text style={styles.recordDate}>
-                    {formatDate(record.photoDate)}
-                  </Text>
-                  <View style={styles.recordHeaderRight}>
-                    {record.price !== undefined && record.price > 0 && (
-                      <View style={styles.recordPriceBadge}>
-                        <Text style={styles.recordPriceText}>¥{record.price}</Text>
-                      </View>
-                    )}
-                    <View style={styles.recordCountBadge}>
-                      <Ionicons
-                        name='camera-outline'
-                        size={14}
-                        color={COLORS.PRIMARY}
-                      />
-                      <Text style={styles.recordCountText}>
-                        {record.photoCount}
-                      </Text>
-                    </View>
-                  </View>
-                </View>
-                <View style={styles.recordFooter}>
-                  <View style={styles.recordFooterLeft}>
-                    <Text style={styles.recordTime}>
-                      {new Date(record.createdAt).toLocaleString('zh-CN')}
-                    </Text>
-                    {record.backPhotoUri && (
-                      <View style={styles.hasBackTag}>
-                        <Ionicons name='document-text' size={12} color={COLORS.SUCCESS} />
-                        <Text style={styles.hasBackText}>有背签</Text>
-                      </View>
-                    )}
-                  </View>
-                  <Ionicons
-                    name='chevron-forward'
-                    size={20}
-                    color={COLORS.GRAY[400]}
-                  />
-                </View>
               </View>
-            </TouchableOpacity>
+
+              <View style={styles.photoGrid}>
+                {group.records.map(record => (
+                  <TouchableOpacity
+                    key={record.id}
+                    style={styles.photoItem}
+                    onPress={() => openPhotoModal(record)}
+                    onLongPress={() => navigation.navigate('Edit', { recordId: record.id })}
+                  >
+                    <Image source={{ uri: record.photoUri }} style={styles.photoImage} />
+                    {record.backPhotoUri && (
+                      <View style={styles.backPhotoBadge}>
+                        <Ionicons name='document-text' size={10} color={COLORS.WHITE} />
+                      </View>
+                    )}
+                    {record.photoCount > 1 && (
+                      <View style={styles.countBadge}>
+                        <Text style={styles.countBadgeText}>×{record.photoCount}</Text>
+                      </View>
+                    )}
+                    {record.price !== undefined && record.price > 0 && (
+                      <View style={styles.priceBadge}>
+                        <Text style={styles.priceBadgeText}>¥{record.price}</Text>
+                      </View>
+                    )}
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
           ))}
+
+          {groupedRecords.length === 0 && (
+            <EmptyState
+              icon='camera-outline'
+              title='暂无记录'
+              message='点击右下角的 + 号添加拍立得'
+            />
+          )}
         </View>
       </ScrollView>
 
@@ -301,6 +317,7 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
               <View style={styles.modalInfo}>
                 <Text style={styles.modalDate}>
                   {formatDate(selectedRecord.photoDate)} · {selectedRecord.photoCount} 张
+                  {selectedRecord.price !== undefined && selectedRecord.price > 0 && ` · ¥${selectedRecord.price}`}
                 </Text>
                 {selectedRecord.backPhotoUri && (
                   <TouchableOpacity style={styles.toggleButton} onPress={togglePhoto}>
@@ -315,6 +332,17 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
                   </TouchableOpacity>
                 )}
               </View>
+
+              <TouchableOpacity
+                style={styles.editButton}
+                onPress={() => {
+                  closePhotoModal()
+                  navigation.navigate('Edit', { recordId: selectedRecord.id })
+                }}
+              >
+                <Ionicons name='create-outline' size={16} color={COLORS.WHITE} />
+                <Text style={styles.editButtonText}>编辑</Text>
+              </TouchableOpacity>
             </View>
           )}
         </View>
@@ -385,116 +413,112 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.WHITE,
   },
-  latestPhotoContainer: {
-    margin: 16,
+  recordsContainer: {
+    padding: 16,
+  },
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
   },
   sectionTitle: {
     fontSize: 18,
     fontWeight: 'bold',
     color: COLORS.BLACK,
-    marginBottom: 12,
   },
-  latestPhoto: {
-    width: '100%',
-    height: 400,
-    borderRadius: 12,
-    resizeMode: 'contain',
-    backgroundColor: COLORS.WHITE,
+  sortHint: {
+    fontSize: 12,
+    color: COLORS.GRAY[500],
   },
-  recordsContainer: {
-    padding: 16,
-  },
-  recordCard: {
-    flexDirection: 'row',
+  dateGroup: {
     backgroundColor: COLORS.WHITE,
     borderRadius: 12,
-    padding: 12,
-    marginBottom: 12,
+    marginBottom: 16,
     ...CARD_SHADOW,
   },
-  recordPhotoContainer: {
-    position: 'relative',
+  dateHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.GRAY[100],
   },
-  recordPhoto: {
+  dateInfo: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+  },
+  dateText: {
+    fontSize: 14,
+    fontWeight: 'bold',
+    color: COLORS.BLACK,
+  },
+  dateStats: {
+    flexDirection: 'row',
+  },
+  dateStatText: {
+    fontSize: 13,
+    color: COLORS.GRAY[600],
+  },
+  datePriceText: {
+    fontSize: 13,
+    color: COLORS.PRIMARY,
+    fontWeight: 'bold',
+  },
+  photoGrid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    padding: 8,
+    gap: 8,
+  },
+  photoItem: {
     width: 100,
     height: 100,
     borderRadius: 8,
+    overflow: 'hidden',
+  },
+  photoImage: {
+    width: '100%',
+    height: '100%',
     resizeMode: 'cover',
   },
   backPhotoBadge: {
     position: 'absolute',
     bottom: 4,
-    right: 4,
+    left: 4,
     backgroundColor: COLORS.SUCCESS,
-    borderRadius: 8,
-    padding: 3,
+    borderRadius: 6,
+    padding: 2,
   },
-  recordInfo: {
-    flex: 1,
-    marginLeft: 12,
-    justifyContent: 'space-between',
+  countBadge: {
+    position: 'absolute',
+    bottom: 4,
+    right: 4,
+    backgroundColor: 'rgba(0, 0, 0, 0.6)',
+    borderRadius: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
   },
-  recordHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  recordDate: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: COLORS.BLACK,
-  },
-  recordHeaderRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  recordPriceBadge: {
-    backgroundColor: `${COLORS.PRIMARY}20`,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  recordPriceText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: COLORS.PRIMARY,
-  },
-  recordCountBadge: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.GRAY[100],
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  recordCountText: {
-    marginLeft: 4,
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: COLORS.PRIMARY,
-  },
-  recordFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-  },
-  recordFooterLeft: {
-    flex: 1,
-  },
-  recordTime: {
-    fontSize: 12,
-    color: COLORS.GRAY[500],
-  },
-  hasBackTag: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 4,
-  },
-  hasBackText: {
+  countBadgeText: {
     fontSize: 11,
-    color: COLORS.SUCCESS,
-    marginLeft: 4,
+    color: COLORS.WHITE,
+    fontWeight: 'bold',
+  },
+  priceBadge: {
+    position: 'absolute',
+    top: 4,
+    right: 4,
+    backgroundColor: COLORS.PRIMARY,
+    borderRadius: 6,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+  },
+  priceBadgeText: {
+    fontSize: 11,
+    color: COLORS.WHITE,
+    fontWeight: 'bold',
   },
   modalContainer: {
     flex: 1,
@@ -539,6 +563,20 @@ const styles = StyleSheet.create({
     borderRadius: 16,
   },
   toggleButtonText: {
+    fontSize: 13,
+    color: COLORS.WHITE,
+    marginLeft: 6,
+  },
+  editButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.PRIMARY,
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 16,
+    marginTop: 12,
+  },
+  editButtonText: {
     fontSize: 13,
     color: COLORS.WHITE,
     marginLeft: 6,
