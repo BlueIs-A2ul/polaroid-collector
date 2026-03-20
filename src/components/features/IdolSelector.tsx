@@ -49,17 +49,12 @@ const IdolSelector: React.FC<IdolSelectorProps> = ({
     try {
       const { success, data, error } = await getIdolListWithCount()
 
-      console.log('偶像选择器 - 加载结果:', { success, data, error })
-
       if (success && data) {
         setIdolList(data)
-        console.log('偶像选择器 - 加载成功，共', data.length, '个偶像')
       } else {
-        console.error('偶像选择器 - 加载失败:', error)
         Alert.alert('错误', `加载偶像列表失败: ${error}`)
       }
     } catch (error) {
-      console.error('偶像选择器 - 加载异常:', error)
       Alert.alert('错误', `加载偶像列表失败: ${error}`)
     } finally {
       setLoading(false)
@@ -268,7 +263,7 @@ const styles = StyleSheet.create({
     color: COLORS.GRAY[600],
   },
   listContainer: {
-    flex: 1,
+    maxHeight: 400,
     paddingHorizontal: 15,
     paddingVertical: 10,
   },

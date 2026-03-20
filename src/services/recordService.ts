@@ -393,17 +393,9 @@ export const getStatistics = async (): Promise<ServiceResult<Statistics>> => {
  */
 export const getAllIdolNames = async (): Promise<ServiceResult<string[]>> => {
   try {
-    console.log('getAllIdolNames - 开始获取记录')
     const { success, data: records, error } = await getAllRecords()
 
-    console.log('getAllIdolNames - 获取记录结果:', {
-      success,
-      recordCount: records?.length,
-      error,
-    })
-
     if (!success || !records) {
-      console.error('getAllIdolNames - 获取记录失败:', error)
       return {
         success: false,
         data: [],
@@ -411,19 +403,7 @@ export const getAllIdolNames = async (): Promise<ServiceResult<string[]>> => {
       }
     }
 
-    console.log(
-      'getAllIdolNames - 原始记录:',
-      records.map(r => ({
-        id: r.id,
-        idolName: r.idolName,
-        photoCount: r.photoCount,
-      })),
-    )
-
-    // 提取所有偶像名称并去重
     const idolNames = Array.from(new Set(records.map(r => r.idolName))).sort()
-
-    console.log('getAllIdolNames - 提取的偶像名称:', idolNames)
 
     return {
       success: true,
@@ -431,7 +411,6 @@ export const getAllIdolNames = async (): Promise<ServiceResult<string[]>> => {
       error: null,
     }
   } catch (error) {
-    console.error('getAllIdolNames - 异常:', error)
     return {
       success: false,
       data: [],
