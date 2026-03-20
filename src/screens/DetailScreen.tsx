@@ -82,8 +82,8 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
     }
   }
 
-  const handleSetAvatar = async () => {
-    const { success, data } = await pickAndSetAvatar(idolName)
+  const handleSetAvatar = async (allowCrop: boolean) => {
+    const { success, data } = await pickAndSetAvatar(idolName, allowCrop)
     if (success && data) {
       setAvatarUri(data)
     }
@@ -105,15 +105,23 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
     ])
   }
 
+  const showCropOptions = () => {
+    Alert.alert('选择头像', '是否裁切为正方形？', [
+      { text: '不裁切', onPress: () => handleSetAvatar(false) },
+      { text: '裁切为正方形', onPress: () => handleSetAvatar(true) },
+      { text: '取消', style: 'cancel' },
+    ])
+  }
+
   const showAvatarOptions = () => {
     if (avatarUri) {
       Alert.alert('头像设置', '请选择操作', [
-        { text: '更换头像', onPress: handleSetAvatar },
+        { text: '更换头像', onPress: showCropOptions },
         { text: '移除头像', onPress: handleRemoveAvatar, style: 'destructive' },
         { text: '取消', style: 'cancel' },
       ])
     } else {
-      handleSetAvatar()
+      showCropOptions()
     }
   }
 

@@ -129,10 +129,11 @@ export const removeAvatar = async (
 
 export const pickAndSetAvatar = async (
   idolName: string,
+  allowCrop: boolean = false,
 ): Promise<ServiceResult<string>> => {
   try {
     const { success, data, error } = await pickPhoto('library', {
-      allowCrop: true,
+      allowCrop,
       cropWidth: 1,
       cropHeight: 1,
     })
