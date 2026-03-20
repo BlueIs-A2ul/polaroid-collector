@@ -2,6 +2,37 @@
 
 本文档记录项目的开发进度和重要变更，供 AI 助手在每次开始工作时阅读，了解项目当前状态。
 
+## 2026-03-20 开发记录（续）
+
+### 新增功能
+
+1. **照片备注功能**
+   - 每条记录可添加备注信息（选填）
+   - 上传页面：每张照片可输入备注
+   - 编辑页面：支持编辑备注
+   - 详情页面：全屏模式显示备注
+   - 数据结构：`PolaroidRecord` 添加 `note?: string`
+
+2. **照片缓存优化**
+   - 安装 `expo-image` 包
+   - 创建 `CachedImage` 组件，支持内存和磁盘缓存
+   - 在 DetailScreen、IdolCard 中使用 CachedImage
+   - 添加加载过渡效果，提升用户体验
+
+### 文件变更
+
+| 文件 | 变更类型 | 说明 |
+|------|----------|------|
+| `src/types/index.ts` | 修改 | 添加 note 字段 |
+| `src/screens/UploadScreen.tsx` | 修改 | 支持输入备注 |
+| `src/screens/EditScreen.tsx` | 修改 | 支持编辑备注 |
+| `src/screens/DetailScreen.tsx` | 修改 | 显示备注、使用 CachedImage |
+| `src/components/features/IdolCard.tsx` | 修改 | 使用 CachedImage |
+| `src/components/common/CachedImage.tsx` | 新增 | 缓存图片组件 |
+| `package.json` | 修改 | 添加 expo-image 依赖 |
+
+---
+
 ## 2026-03-20 开发记录
 
 ### 修复问题
