@@ -236,6 +236,17 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
               <Ionicons name='list' size={24} color={COLORS.PRIMARY} />
             </TouchableOpacity>
           </View>
+          <TouchableOpacity
+            style={styles.selectIdolHintButton}
+            onPress={handleOpenIdolSelector}
+          >
+            <Ionicons
+              name='people-circle-outline'
+              size={16}
+              color={COLORS.PRIMARY}
+            />
+            <Text style={styles.selectIdolHintText}>点击选择已有偶像</Text>
+          </TouchableOpacity>
         </View>
 
         {/* 拍立得数量 */}
@@ -457,6 +468,17 @@ const styles = StyleSheet.create({
     borderLeftWidth: 1,
     borderLeftColor: COLORS.GRAY[200],
     ...CARD_SHADOW,
+  },
+  selectIdolHintButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+    padding: 8,
+  },
+  selectIdolHintText: {
+    marginLeft: 6,
+    fontSize: 14,
+    color: COLORS.PRIMARY,
   },
   dateInput: {
     backgroundColor: COLORS.WHITE,
