@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import {
   getRanking,
   getIdolDetail,
@@ -6,20 +6,13 @@ import {
 } from '../services/recordService'
 import { RankingItem, IdolDetail, Statistics } from '../types'
 
-/**
- * 记录管理 Hook
- * 用于管理拍立得记录的状态和操作
- */
 export const useRecords = () => {
   const [ranking, setRanking] = useState<RankingItem[]>([])
   const [statistics, setStatistics] = useState<Statistics | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
-  /**
-   * 刷新排行榜数据
-   */
-  const refreshRanking = async () => {
+  const refreshRanking = useCallback(async () => {
     try {
       setLoading(true)
       setError(null)
@@ -35,12 +28,9 @@ export const useRecords = () => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [])
 
-  /**
-   * 刷新统计数据
-   */
-  const refreshStatistics = async () => {
+  const refreshStatistics = useCallback(async () => {
     try {
       const { success, data, error: err } = await getStatistics()
 
@@ -52,19 +42,15 @@ export const useRecords = () => {
     } catch (err) {
       console.error('获取统计数据失败:', err)
     }
-  }
+  }, [])
 
-  /**
-   * 刷新所有数据
-   */
-  const refreshAll = async () => {
+  const refreshAll = useCallback(async () => {
     await Promise.all([refreshRanking(), refreshStatistics()])
-  }
+  }, [refreshRanking, refreshStatistics])
 
-  // 初始化时加载数据
   useEffect(() => {
     refreshAll()
-  }, [])
+  }, [refreshAll])
 
   return {
     ranking,
@@ -77,20 +63,13 @@ export const useRecords = () => {
   }
 }
 
-/**
- * 偶像详情 Hook
- * @param idolName - 偶像名称
- */
 export const useIdolDetail = (idolName: string) => {
   const [detail, setDetail] = useState<IdolDetail | null>(null)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
   const [ascending, setAscending] = useState(true)
 
-  /**
-   * 刷新偶像详情
-   */
-  const refreshDetail = async () => {
+  const refreshDetail = useCallback(async () => {
     if (!idolName) return
 
     try {
@@ -112,19 +91,15 @@ export const useIdolDetail = (idolName: string) => {
     } finally {
       setLoading(false)
     }
-  }
+  }, [idolName, ascending])
 
-  /**
-   * 切换排序方式
-   */
-  const toggleSort = () => {
-    setAscending(!ascending)
-  }
+  const toggleSort = useCallback(() => {
+    setAscending(prev => !prev)
+  }, [])
 
-  // 当偶像名称或排序方式改变时刷新数据
   useEffect(() => {
     refreshDetail()
-  }, [idolName, ascending])
+  }, [refreshDetail])
 
   return {
     detail,
