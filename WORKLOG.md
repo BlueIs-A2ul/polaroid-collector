@@ -19,6 +19,13 @@
    - 在 DetailScreen、IdolCard 中使用 CachedImage
    - 添加加载过渡效果，提升用户体验
 
+3. **统计页面**
+   - 创建独立的 StatisticsScreen 页面
+   - 首页统计区域可点击进入统计页面
+   - 展示总拍立得数、偶像数、总花费概览
+   - 偶像占比排行，带进度条可视化
+   - 点击偶像可跳转到详情页
+
 ### 文件变更
 
 | 文件 | 变更类型 | 说明 |
@@ -27,6 +34,9 @@
 | `src/screens/UploadScreen.tsx` | 修改 | 支持输入备注 |
 | `src/screens/EditScreen.tsx` | 修改 | 支持编辑备注 |
 | `src/screens/DetailScreen.tsx` | 修改 | 显示备注、使用 CachedImage |
+| `src/screens/StatisticsScreen.tsx` | 新增 | 统计页面 |
+| `src/screens/HomeScreen.tsx` | 修改 | 统计区域添加点击跳转 |
+| `src/navigation/AppNavigator.tsx` | 修改 | 添加 Statistics 路由 |
 | `src/components/features/IdolCard.tsx` | 修改 | 使用 CachedImage |
 | `src/components/common/CachedImage.tsx` | 新增 | 缓存图片组件 |
 | `package.json` | 修改 | 添加 expo-image 依赖 |
