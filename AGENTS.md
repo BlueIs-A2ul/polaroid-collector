@@ -2,6 +2,8 @@
 
 Polaroid App - 拍立得记录管理应用，基于 React Native + Expo 开发的跨平台移动应用。
 
+> **重要提示**: 每次开始工作时，请先阅读 `WORKLOG.md` 了解项目当前状态和最近的开发进度。
+
 ## Build/Lint/Test Commands
 
 ```bash
