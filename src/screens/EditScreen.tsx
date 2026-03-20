@@ -31,17 +31,15 @@ interface EditScreenProps {
   route: EditScreenRouteProp
 }
 
-/**
- * 编辑页面
- * 用于编辑或删除拍立得记录
- */
 const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
   const { recordId } = route.params
   const [idolName, setIdolName] = useState<string>('')
   const [photoCount, setPhotoCount] = useState<string>('')
   const [photoDate, setPhotoDate] = useState<string>('')
   const [photoUri, setPhotoUri] = useState<string | null>(null)
+  const [backPhotoUri, setBackPhotoUri] = useState<string | null>(null)
   const [originalPhotoUri, setOriginalPhotoUri] = useState<string | null>(null)
+  const [originalBackPhotoUri, setOriginalBackPhotoUri] = useState<string | null>(null)
   const [originalIdolName, setOriginalIdolName] = useState<string>('')
   const [originalPhotoCount, setOriginalPhotoCount] = useState<string>('')
   const [originalPhotoDate, setOriginalPhotoDate] = useState<string>('')
@@ -56,10 +54,8 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
   const [pendingSource, setPendingSource] = useState<'camera' | 'library'>(
     'library',
   )
+  const [pendingPhotoType, setPendingPhotoType] = useState<'front' | 'back'>('front')
 
-  /**
-   * 格式化日期为 YYYY-MM-DD
-   */
   const formatDateToString = (date: Date): string => {
     const year = date.getFullYear()
     const month = String(date.getMonth() + 1).padStart(2, '0')
@@ -67,17 +63,11 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
     return `${year}-${month}-${day}`
   }
 
-  /**
-   * 解析日期字符串为 Date 对象
-   */
   const parseDateFromString = (dateString: string): Date => {
     const [year, month, day] = dateString.split('-').map(Number)
     return new Date(year, month - 1, day)
   }
 
-  /**
-   * 处理日期选择
-   */
   const handleDateChange = (event: any, selectedDate?: Date) => {
     if (Platform.OS === 'android') {
       setShowDatePicker(false)
@@ -89,25 +79,17 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
     }
   }
 
-  /**
-   * 显示日期选择器
-   */
   const showDatePickerModal = () => {
     setSelectedDate(parseDateFromString(photoDate))
     setShowDatePicker(true)
   }
 
-  /**
-   * 显示裁切选项
-   */
-  const handleShowCropOptions = (source: 'camera' | 'library') => {
+  const handleShowCropOptions = (source: 'camera' | 'library', photoType: 'front' | 'back') => {
     setPendingSource(source)
+    setPendingPhotoType(photoType)
     setShowCropOptions(true)
   }
 
-  /**
-   * 确认裁切选项并选择照片
-   */
   const handleConfirmCropOptions = async () => {
     setShowCropOptions(false)
     const { success, data, error } = await pickPhoto(pendingSource, {
@@ -116,16 +98,17 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
       cropHeight,
     })
 
-    if (success) {
-      setPhotoUri(data)
-    } else {
+    if (success && data) {
+      if (pendingPhotoType === 'front') {
+        setPhotoUri(data)
+      } else {
+        setBackPhotoUri(data)
+      }
+    } else if (error !== '用户取消选择') {
       Alert.alert('错误', error || '选择照片失败')
     }
   }
 
-  /**
-   * 加载记录数据
-   */
   useEffect(() => {
     loadRecord()
   }, [recordId])
@@ -138,7 +121,9 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
       setPhotoCount(data.photoCount.toString())
       setPhotoDate(data.photoDate)
       setPhotoUri(data.photoUri)
+      setBackPhotoUri(data.backPhotoUri || null)
       setOriginalPhotoUri(data.photoUri)
+      setOriginalBackPhotoUri(data.backPhotoUri || null)
       setOriginalIdolName(data.idolName)
       setOriginalPhotoCount(data.photoCount.toString())
       setOriginalPhotoDate(data.photoDate)
@@ -151,16 +136,33 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
     }
   }
 
-  /**
-   * 选择照片（显示裁切选项）
-   */
-  const handlePickPhoto = (source: 'camera' | 'library') => {
-    handleShowCropOptions(source)
+  const handlePickPhoto = (source: 'camera' | 'library', photoType: 'front' | 'back') => {
+    handleShowCropOptions(source, photoType)
   }
 
-  /**
-   * 验证表单
-   */
+  const handlePickBackPhoto = async () => {
+    const { success, data, error } = await pickPhoto('library', {
+      allowCrop: false,
+    })
+
+    if (success && data) {
+      setBackPhotoUri(data)
+    } else if (error !== '用户取消选择') {
+      Alert.alert('错误', error || '选择背签照片失败')
+    }
+  }
+
+  const handleRemoveBackPhoto = () => {
+    Alert.alert('删除背签', '确定要删除背签照片吗？', [
+      { text: '取消', style: 'cancel' },
+      {
+        text: '删除',
+        style: 'destructive',
+        onPress: () => setBackPhotoUri(null),
+      },
+    ])
+  }
+
   const validateForm = (): boolean => {
     if (!idolName.trim()) {
       Alert.alert('提示', '请输入偶像名称')
@@ -180,9 +182,6 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
     return true
   }
 
-  /**
-   * 保存修改
-   */
   const handleSave = async () => {
     if (!validateForm()) {
       return
@@ -190,12 +189,26 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
 
     setSaving(true)
 
-    const { success, error: err } = await updateRecordData(recordId, {
+    const updateData: {
+      idolName: string
+      photoCount: number
+      photoDate: string
+      photoUri: string
+      backPhotoUri?: string
+    } = {
       idolName: idolName.trim(),
       photoCount: parseInt(photoCount),
       photoDate,
       photoUri: photoUri!,
-    })
+    }
+
+    if (backPhotoUri) {
+      updateData.backPhotoUri = backPhotoUri
+    } else if (originalBackPhotoUri) {
+      updateData.backPhotoUri = ''
+    }
+
+    const { success, error: err } = await updateRecordData(recordId, updateData)
 
     setSaving(false)
 
@@ -208,9 +221,6 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
     }
   }
 
-  /**
-   * 删除记录
-   */
   const handleDelete = () => {
     Alert.alert('确认删除', '确定要删除这条记录吗？此操作无法撤销。', [
       { text: '取消', style: 'cancel' },
@@ -234,15 +244,13 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
     ])
   }
 
-  /**
-   * 取消编辑并恢复原始数据
-   */
   const handleCancel = () => {
     const hasChanges =
       idolName !== originalIdolName ||
       photoCount !== originalPhotoCount ||
       photoDate !== originalPhotoDate ||
-      photoUri !== originalPhotoUri
+      photoUri !== originalPhotoUri ||
+      backPhotoUri !== originalBackPhotoUri
 
     if (hasChanges) {
       Alert.alert('放弃修改', '确定要放弃所有修改吗？', [
@@ -258,9 +266,6 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
     }
   }
 
-  /**
-   * 删除照片（带确认）
-   */
   const handleRemovePhoto = () => {
     Alert.alert('删除照片', '确定要删除当前照片吗？删除后需要重新选择。', [
       { text: '取消', style: 'cancel' },
@@ -282,7 +287,6 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
 
   return (
     <ScrollView style={styles.container}>
-      {/* 头部 */}
       <View style={styles.header}>
         <TouchableOpacity style={styles.backButton} onPress={handleCancel}>
           <Ionicons name='arrow-back' size={24} color={COLORS.WHITE} />
@@ -293,9 +297,7 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
         </TouchableOpacity>
       </View>
 
-      {/* 表单 */}
       <View style={styles.form}>
-        {/* 偶像名称 */}
         <View style={styles.formGroup}>
           <Text style={styles.label}>偶像名称</Text>
           <TextInput
@@ -306,7 +308,6 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
           />
         </View>
 
-        {/* 拍立得数量 */}
         <View style={styles.formGroup}>
           <Text style={styles.label}>拍立得数量</Text>
           <TextInput
@@ -318,7 +319,6 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
           />
         </View>
 
-        {/* 拍摄日期 */}
         <View style={styles.formGroup}>
           <Text style={styles.label}>拍摄日期</Text>
           <TouchableOpacity
@@ -340,9 +340,8 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
           )}
         </View>
 
-        {/* 照片 */}
         <View style={styles.formGroup}>
-          <Text style={styles.label}>照片</Text>
+          <Text style={styles.label}>正面照片</Text>
           {photoUri ? (
             <>
               <View style={styles.photoPreviewContainer}>
@@ -361,14 +360,14 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
               <View style={styles.photoButtons}>
                 <TouchableOpacity
                   style={styles.photoButton}
-                  onPress={() => handlePickPhoto('camera')}
+                  onPress={() => handlePickPhoto('camera', 'front')}
                 >
                   <Ionicons name='camera' size={28} color={COLORS.PRIMARY} />
                   <Text style={styles.photoButtonText}>拍照</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.photoButton}
-                  onPress={() => handlePickPhoto('library')}
+                  onPress={() => handlePickPhoto('library', 'front')}
                 >
                   <Ionicons name='images' size={28} color={COLORS.PRIMARY} />
                   <Text style={styles.photoButtonText}>相册</Text>
@@ -379,14 +378,14 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
             <View style={styles.photoButtons}>
               <TouchableOpacity
                 style={styles.photoButton}
-                onPress={() => handlePickPhoto('camera')}
+                onPress={() => handlePickPhoto('camera', 'front')}
               >
                 <Ionicons name='camera' size={28} color={COLORS.PRIMARY} />
                 <Text style={styles.photoButtonText}>拍照</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.photoButton}
-                onPress={() => handlePickPhoto('library')}
+                onPress={() => handlePickPhoto('library', 'front')}
               >
                 <Ionicons name='images' size={28} color={COLORS.PRIMARY} />
                 <Text style={styles.photoButtonText}>相册</Text>
@@ -395,14 +394,62 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
           )}
         </View>
 
-        {/* 保存按钮 */}
+        <View style={styles.formGroup}>
+          <View style={styles.backPhotoHeader}>
+            <Text style={styles.label}>背签照片</Text>
+            {backPhotoUri && (
+              <View style={styles.hasBackTag}>
+                <Ionicons name='checkmark-circle' size={14} color={COLORS.SUCCESS} />
+                <Text style={styles.hasBackText}>已添加</Text>
+              </View>
+            )}
+          </View>
+          {backPhotoUri ? (
+            <View style={styles.photoPreviewContainer}>
+              <Image source={{ uri: backPhotoUri }} style={styles.photoPreview} />
+              <TouchableOpacity
+                style={styles.removePhotoButton}
+                onPress={handleRemoveBackPhoto}
+              >
+                <Ionicons
+                  name='close-circle'
+                  size={24}
+                  color={COLORS.ERROR}
+                />
+              </TouchableOpacity>
+              <View style={styles.backPhotoLabel}>
+                <Ionicons name='document-text' size={14} color={COLORS.WHITE} />
+                <Text style={styles.backPhotoLabelText}>背签</Text>
+              </View>
+            </View>
+          ) : null}
+          <View style={styles.backPhotoButtons}>
+            {backPhotoUri ? (
+              <TouchableOpacity
+                style={styles.changeBackPhotoButton}
+                onPress={handlePickBackPhoto}
+              >
+                <Ionicons name='sync' size={18} color={COLORS.PRIMARY} />
+                <Text style={styles.changeBackPhotoText}>更换背签</Text>
+              </TouchableOpacity>
+            ) : (
+              <TouchableOpacity
+                style={styles.addBackPhotoButton}
+                onPress={handlePickBackPhoto}
+              >
+                <Ionicons name='add-circle-outline' size={18} color={COLORS.PRIMARY} />
+                <Text style={styles.addBackPhotoText}>添加背签照片</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+        </View>
+
         <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
           <Ionicons name='checkmark' size={24} color={COLORS.WHITE} />
           <Text style={styles.saveButtonText}>保存修改</Text>
         </TouchableOpacity>
       </View>
 
-      {/* 裁切选项弹窗 */}
       <Modal
         visible={showCropOptions}
         transparent={true}
@@ -419,7 +466,6 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
             </View>
 
             <View style={styles.modalContent}>
-              {/* 是否裁切 */}
               <View style={styles.cropOption}>
                 <Text style={styles.cropLabel}>启用裁切</Text>
                 <Switch
@@ -433,7 +479,6 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
                 />
               </View>
 
-              {/* 裁切尺寸 */}
               {allowCrop && (
                 <View style={styles.cropDimensions}>
                   <Text style={styles.cropLabel}>裁切尺寸比例</Text>
@@ -460,7 +505,6 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
                 </View>
               )}
 
-              {/* 确认按钮 */}
               <TouchableOpacity
                 style={styles.confirmButton}
                 onPress={handleConfirmCropOptions}
@@ -532,6 +576,25 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: COLORS.BLACK,
   },
+  backPhotoHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  hasBackTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginLeft: 10,
+    backgroundColor: `${COLORS.SUCCESS}20`,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  hasBackText: {
+    fontSize: 12,
+    color: COLORS.SUCCESS,
+    marginLeft: 4,
+  },
   photoPreviewContainer: {
     position: 'relative',
     marginBottom: 12,
@@ -550,6 +613,22 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     padding: 4,
   },
+  backPhotoLabel: {
+    position: 'absolute',
+    bottom: 8,
+    left: 8,
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.SUCCESS,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 4,
+  },
+  backPhotoLabelText: {
+    fontSize: 12,
+    color: COLORS.WHITE,
+    marginLeft: 4,
+  },
   photoButtons: {
     flexDirection: 'row',
     justifyContent: 'space-around',
@@ -567,6 +646,39 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: COLORS.PRIMARY,
     fontWeight: 'bold',
+  },
+  backPhotoButtons: {
+    alignItems: 'center',
+  },
+  addBackPhotoButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: `${COLORS.PRIMARY}10`,
+    paddingVertical: 12,
+    paddingHorizontal: 20,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: COLORS.PRIMARY,
+    borderStyle: 'dashed',
+  },
+  addBackPhotoText: {
+    fontSize: 14,
+    color: COLORS.PRIMARY,
+    marginLeft: 8,
+  },
+  changeBackPhotoButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.WHITE,
+    paddingVertical: 10,
+    paddingHorizontal: 16,
+    borderRadius: 8,
+    ...CARD_SHADOW,
+  },
+  changeBackPhotoText: {
+    fontSize: 14,
+    color: COLORS.PRIMARY,
+    marginLeft: 8,
   },
   saveButton: {
     flexDirection: 'row',

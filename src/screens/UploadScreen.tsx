@@ -52,6 +52,7 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
   const [pendingSource, setPendingSource] = useState<'camera' | 'library' | 'multiple'>(
     'library',
   )
+  const [pendingBackPhotoUri, setPendingBackPhotoUri] = useState<string | null>(null)
 
   const formatDateToString = (date: Date): string => {
     const year = date.getFullYear()
@@ -137,8 +138,28 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
     setPhotos(photos.filter(p => p.uri !== uri))
   }
 
+  const handleAddBackPhoto = async (photoUri: string) => {
+    const { success, data, error } = await pickPhoto('library', {
+      allowCrop: false,
+    })
+
+    if (success && data) {
+      setPhotos(photos.map(p => (p.uri === photoUri ? { ...p, backPhotoUri: data } : p)))
+    } else if (error !== '用户取消选择') {
+      Alert.alert('错误', error || '选择背签照片失败')
+    }
+  }
+
+  const handleRemoveBackPhoto = (photoUri: string) => {
+    setPhotos(photos.map(p => (p.uri === photoUri ? { ...p, backPhotoUri: undefined } : p)))
+  }
+
   const getTotalCount = (): number => {
     return photos.reduce((sum, p) => sum + p.count, 0)
+  }
+
+  const getBackPhotoCount = (): number => {
+    return photos.filter(p => p.backPhotoUri).length
   }
 
   const validateForm = (): boolean => {
@@ -172,6 +193,7 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
       photoCount: p.count,
       photoDate,
       photoUri: p.uri,
+      backPhotoUri: p.backPhotoUri,
     }))
 
     const { success, error: err } = await createMultipleRecords(recordsData)
@@ -179,9 +201,10 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
     setLoading(false)
 
     if (success) {
+      const backPhotoMsg = getBackPhotoCount() > 0 ? `，其中 ${getBackPhotoCount()} 张有背签` : ''
       Alert.alert(
         '成功',
-        `已保存 ${photos.length} 条记录，共 ${getTotalCount()} 张拍立得`,
+        `已保存 ${photos.length} 条记录，共 ${getTotalCount()} 张拍立得${backPhotoMsg}`,
         [
           { text: '返回首页', onPress: () => navigation.goBack() },
           {
@@ -300,9 +323,24 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
             </View>
             {photos.map((photo, index) => (
               <View key={photo.uri} style={styles.photoItem}>
-                <Image source={{ uri: photo.uri }} style={styles.photoThumbnail} />
+                <View style={styles.photoThumbnailContainer}>
+                  <Image source={{ uri: photo.uri }} style={styles.photoThumbnail} />
+                  {photo.backPhotoUri && (
+                    <View style={styles.backPhotoBadge}>
+                      <Ionicons name='document-text' size={12} color={COLORS.WHITE} />
+                    </View>
+                  )}
+                </View>
                 <View style={styles.photoInfo}>
-                  <Text style={styles.photoIndex}>照片 {index + 1}</Text>
+                  <View style={styles.photoInfoHeader}>
+                    <Text style={styles.photoIndex}>照片 {index + 1}</Text>
+                    {photo.backPhotoUri && (
+                      <View style={styles.backPhotoTag}>
+                        <Ionicons name='document-text' size={12} color={COLORS.SUCCESS} />
+                        <Text style={styles.backPhotoTagText}>背签</Text>
+                      </View>
+                    )}
+                  </View>
                   <View style={styles.countInputContainer}>
                     <Text style={styles.countLabel}>数量:</Text>
                     <TextInput
@@ -311,6 +349,25 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
                       onChangeText={text => updatePhotoCount(photo.uri, parseInt(text) || 1)}
                       keyboardType='number-pad'
                     />
+                  </View>
+                  <View style={styles.photoActions}>
+                    {photo.backPhotoUri ? (
+                      <TouchableOpacity
+                        style={styles.removeBackPhotoButton}
+                        onPress={() => handleRemoveBackPhoto(photo.uri)}
+                      >
+                        <Ionicons name='document-text-outline' size={14} color={COLORS.ERROR} />
+                        <Text style={styles.removeBackPhotoText}>移除背签</Text>
+                      </TouchableOpacity>
+                    ) : (
+                      <TouchableOpacity
+                        style={styles.addBackPhotoButton}
+                        onPress={() => handleAddBackPhoto(photo.uri)}
+                      >
+                        <Ionicons name='add-circle-outline' size={14} color={COLORS.PRIMARY} />
+                        <Text style={styles.addBackPhotoText}>添加背签</Text>
+                      </TouchableOpacity>
+                    )}
                   </View>
                 </View>
                 <TouchableOpacity
@@ -533,23 +590,53 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     ...CARD_SHADOW,
   },
+  photoThumbnailContainer: {
+    position: 'relative',
+  },
   photoThumbnail: {
     width: 60,
     height: 60,
     borderRadius: 6,
   },
+  backPhotoBadge: {
+    position: 'absolute',
+    bottom: -4,
+    right: -4,
+    backgroundColor: COLORS.SUCCESS,
+    borderRadius: 8,
+    padding: 2,
+  },
   photoInfo: {
     flex: 1,
     marginLeft: 12,
   },
+  photoInfoHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+  },
   photoIndex: {
     fontSize: 14,
     color: COLORS.BLACK,
-    marginBottom: 4,
+    marginRight: 8,
+  },
+  backPhotoTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: `${COLORS.SUCCESS}20`,
+    paddingHorizontal: 6,
+    paddingVertical: 2,
+    borderRadius: 4,
+  },
+  backPhotoTagText: {
+    fontSize: 11,
+    color: COLORS.SUCCESS,
+    marginLeft: 2,
   },
   countInputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
+    marginBottom: 6,
   },
   countLabel: {
     fontSize: 14,
@@ -563,6 +650,35 @@ const styles = StyleSheet.create({
     width: 60,
     fontSize: 14,
     textAlign: 'center',
+  },
+  photoActions: {
+    flexDirection: 'row',
+  },
+  addBackPhotoButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    backgroundColor: `${COLORS.PRIMARY}10`,
+    borderRadius: 4,
+  },
+  addBackPhotoText: {
+    fontSize: 12,
+    color: COLORS.PRIMARY,
+    marginLeft: 4,
+  },
+  removeBackPhotoButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: 4,
+    paddingHorizontal: 8,
+    backgroundColor: `${COLORS.ERROR}10`,
+    borderRadius: 4,
+  },
+  removeBackPhotoText: {
+    fontSize: 12,
+    color: COLORS.ERROR,
+    marginLeft: 4,
   },
   removePhotoButton: {
     padding: 4,

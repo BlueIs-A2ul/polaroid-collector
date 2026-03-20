@@ -80,6 +80,15 @@ export const createRecord = async (
       }
     }
 
+    // 保存背签照片到本地（如果有）
+    let backPhotoUri: string | undefined
+    if (data.backPhotoUri) {
+      const backPhotoResult = await savePhoto(data.backPhotoUri)
+      if (backPhotoResult.success && backPhotoResult.data) {
+        backPhotoUri = backPhotoResult.data
+      }
+    }
+
     // 创建记录对象
     const record: PolaroidRecord = {
       id: generateId(),
@@ -87,6 +96,7 @@ export const createRecord = async (
       photoCount: data.photoCount,
       photoDate: data.photoDate,
       photoUri: photoResult.data,
+      backPhotoUri,
       createdAt: Date.now(),
       updatedAt: Date.now(),
     }
@@ -258,10 +268,32 @@ export const updateRecordData = async (
       newPhotoUri = photoResult.data
     }
 
+    // 处理背签照片
+    let newBackPhotoUri = oldRecord.backPhotoUri
+    if (data.backPhotoUri !== undefined) {
+      if (data.backPhotoUri === '') {
+        // 空字符串表示删除背签
+        if (oldRecord.backPhotoUri) {
+          await deletePhoto(oldRecord.backPhotoUri)
+        }
+        newBackPhotoUri = undefined
+      } else if (data.backPhotoUri !== oldRecord.backPhotoUri) {
+        // 新背签照片
+        const backPhotoResult = await savePhoto(data.backPhotoUri)
+        if (backPhotoResult.success && backPhotoResult.data) {
+          if (oldRecord.backPhotoUri) {
+            await deletePhoto(oldRecord.backPhotoUri)
+          }
+          newBackPhotoUri = backPhotoResult.data
+        }
+      }
+    }
+
     // 准备更新数据
     const updateData: Partial<PolaroidRecord> = {
       ...data,
       photoUri: newPhotoUri,
+      backPhotoUri: newBackPhotoUri,
     }
 
     // 更新记录

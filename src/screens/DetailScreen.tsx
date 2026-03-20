@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Image,
   RefreshControl,
+  Modal,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { StackNavigationProp } from '@react-navigation/stack'
@@ -18,6 +19,7 @@ import { useIdolDetail } from '../hooks/useRecords'
 import { formatDate } from '../utils/rankingUtils'
 import LoadingSpinner from '../components/common/LoadingSpinner'
 import EmptyState from '../components/common/EmptyState'
+import { PolaroidRecord } from '../types'
 
 type DetailScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -30,15 +32,14 @@ interface DetailScreenProps {
   route: DetailScreenRouteProp
 }
 
-/**
- * 详情页面
- * 显示偶像的详细拍立得记录
- */
 const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
   const { idolName } = route.params
   const { detail, loading, error, ascending, toggleSort, refreshDetail } =
     useIdolDetail(idolName)
   const [refreshing, setRefreshing] = React.useState(false)
+  const [photoModalVisible, setPhotoModalVisible] = React.useState(false)
+  const [selectedRecord, setSelectedRecord] = React.useState<PolaroidRecord | null>(null)
+  const [showingBack, setShowingBack] = React.useState(false)
 
   useFocusEffect(
     React.useCallback(() => {
@@ -51,6 +52,24 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
     await refreshDetail()
     setRefreshing(false)
   }, [refreshDetail])
+
+  const openPhotoModal = (record: PolaroidRecord) => {
+    setSelectedRecord(record)
+    setShowingBack(false)
+    setPhotoModalVisible(true)
+  }
+
+  const closePhotoModal = () => {
+    setPhotoModalVisible(false)
+    setSelectedRecord(null)
+    setShowingBack(false)
+  }
+
+  const togglePhoto = () => {
+    if (selectedRecord?.backPhotoUri) {
+      setShowingBack(!showingBack)
+    }
+  }
 
   React.useLayoutEffect(() => {
     navigation.setOptions({
@@ -81,89 +100,147 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
   }
 
   return (
-    <ScrollView
-      style={styles.container}
-      refreshControl={
-        <RefreshControl
-          refreshing={refreshing}
-          onRefresh={onRefresh}
-          colors={[COLORS.PRIMARY]}
-          tintColor={COLORS.PRIMARY}
-        />
-      }
-    >
-      {/* 头部信息 */}
-      <View style={styles.header}>
-        <Text style={styles.idolName}>{detail.idolName}</Text>
-        <View style={styles.stats}>
-          <View style={styles.stat}>
-            <Ionicons name='camera' size={20} color={COLORS.PRIMARY} />
-            <Text style={styles.statText}>{detail.totalCount} 张</Text>
-          </View>
-          <View style={styles.stat}>
-            <Ionicons name='calendar' size={20} color={COLORS.PRIMARY} />
-            <Text style={styles.statText}>{detail.totalRecords} 次记录</Text>
-          </View>
-        </View>
-      </View>
-
-      {/* 最新照片 */}
-      {detail.latestPhoto && (
-        <View style={styles.latestPhotoContainer}>
-          <Text style={styles.sectionTitle}>最新照片</Text>
-          <Image
-            source={{ uri: detail.latestPhoto }}
-            style={styles.latestPhoto}
+    <>
+      <ScrollView
+        style={styles.container}
+        refreshControl={
+          <RefreshControl
+            refreshing={refreshing}
+            onRefresh={onRefresh}
+            colors={[COLORS.PRIMARY]}
+            tintColor={COLORS.PRIMARY}
           />
+        }
+      >
+        <View style={styles.header}>
+          <Text style={styles.idolName}>{detail.idolName}</Text>
+          <View style={styles.stats}>
+            <View style={styles.stat}>
+              <Ionicons name='camera' size={20} color={COLORS.PRIMARY} />
+              <Text style={styles.statText}>{detail.totalCount} 张</Text>
+            </View>
+            <View style={styles.stat}>
+              <Ionicons name='calendar' size={20} color={COLORS.PRIMARY} />
+              <Text style={styles.statText}>{detail.totalRecords} 次记录</Text>
+            </View>
+          </View>
         </View>
-      )}
 
-      {/* 记录列表 */}
-      <View style={styles.recordsContainer}>
-        <Text style={styles.sectionTitle}>
-          记录列表 ({ascending ? '从旧到新' : '从新到旧'})
-        </Text>
-        {detail.records.map(record => (
-          <TouchableOpacity
-            key={record.id}
-            style={styles.recordCard}
-            onPress={() => navigation.navigate('Edit', { recordId: record.id })}
-          >
+        {detail.latestPhoto && (
+          <View style={styles.latestPhotoContainer}>
+            <Text style={styles.sectionTitle}>最新照片</Text>
             <Image
-              source={{ uri: record.photoUri }}
-              style={styles.recordPhoto}
+              source={{ uri: detail.latestPhoto }}
+              style={styles.latestPhoto}
             />
-            <View style={styles.recordInfo}>
-              <View style={styles.recordHeader}>
-                <Text style={styles.recordDate}>
-                  {formatDate(record.photoDate)}
-                </Text>
-                <View style={styles.recordCountBadge}>
-                  <Ionicons
-                    name='camera-outline'
-                    size={14}
-                    color={COLORS.PRIMARY}
+          </View>
+        )}
+
+        <View style={styles.recordsContainer}>
+          <Text style={styles.sectionTitle}>
+            记录列表 ({ascending ? '从旧到新' : '从新到旧'})
+          </Text>
+          {detail.records.map(record => (
+            <TouchableOpacity
+              key={record.id}
+              style={styles.recordCard}
+              onPress={() => navigation.navigate('Edit', { recordId: record.id })}
+            >
+              <TouchableOpacity onPress={() => openPhotoModal(record)}>
+                <View style={styles.recordPhotoContainer}>
+                  <Image
+                    source={{ uri: record.photoUri }}
+                    style={styles.recordPhoto}
                   />
-                  <Text style={styles.recordCountText}>
-                    {record.photoCount}
+                  {record.backPhotoUri && (
+                    <View style={styles.backPhotoBadge}>
+                      <Ionicons name='document-text' size={12} color={COLORS.WHITE} />
+                    </View>
+                  )}
+                </View>
+              </TouchableOpacity>
+              <View style={styles.recordInfo}>
+                <View style={styles.recordHeader}>
+                  <Text style={styles.recordDate}>
+                    {formatDate(record.photoDate)}
                   </Text>
+                  <View style={styles.recordCountBadge}>
+                    <Ionicons
+                      name='camera-outline'
+                      size={14}
+                      color={COLORS.PRIMARY}
+                    />
+                    <Text style={styles.recordCountText}>
+                      {record.photoCount}
+                    </Text>
+                  </View>
+                </View>
+                <View style={styles.recordFooter}>
+                  <View style={styles.recordFooterLeft}>
+                    <Text style={styles.recordTime}>
+                      {new Date(record.createdAt).toLocaleString('zh-CN')}
+                    </Text>
+                    {record.backPhotoUri && (
+                      <View style={styles.hasBackTag}>
+                        <Ionicons name='document-text' size={12} color={COLORS.SUCCESS} />
+                        <Text style={styles.hasBackText}>有背签</Text>
+                      </View>
+                    )}
+                  </View>
+                  <Ionicons
+                    name='chevron-forward'
+                    size={20}
+                    color={COLORS.GRAY[400]}
+                  />
                 </View>
               </View>
-              <View style={styles.recordFooter}>
-                <Text style={styles.recordTime}>
-                  {new Date(record.createdAt).toLocaleString('zh-CN')}
-                </Text>
-                <Ionicons
-                  name='chevron-forward'
-                  size={20}
-                  color={COLORS.GRAY[400]}
+            </TouchableOpacity>
+          ))}
+        </View>
+      </ScrollView>
+
+      <Modal
+        visible={photoModalVisible}
+        transparent={true}
+        animationType='fade'
+        onRequestClose={closePhotoModal}
+      >
+        <View style={styles.modalContainer}>
+          <TouchableOpacity style={styles.modalCloseButton} onPress={closePhotoModal}>
+            <Ionicons name='close' size={28} color={COLORS.WHITE} />
+          </TouchableOpacity>
+
+          {selectedRecord && (
+            <View style={styles.modalContent}>
+              <TouchableOpacity onPress={togglePhoto} activeOpacity={0.9}>
+                <Image
+                  source={{ uri: showingBack && selectedRecord.backPhotoUri ? selectedRecord.backPhotoUri : selectedRecord.photoUri }}
+                  style={styles.modalImage}
                 />
+              </TouchableOpacity>
+
+              <View style={styles.modalInfo}>
+                <Text style={styles.modalDate}>
+                  {formatDate(selectedRecord.photoDate)} · {selectedRecord.photoCount} 张
+                </Text>
+                {selectedRecord.backPhotoUri && (
+                  <TouchableOpacity style={styles.toggleButton} onPress={togglePhoto}>
+                    <Ionicons
+                      name={showingBack ? 'image-outline' : 'document-text-outline'}
+                      size={16}
+                      color={COLORS.PRIMARY}
+                    />
+                    <Text style={styles.toggleButtonText}>
+                      {showingBack ? '查看正面' : '查看背签'}
+                    </Text>
+                  </TouchableOpacity>
+                )}
               </View>
             </View>
-          </TouchableOpacity>
-        ))}
-      </View>
-    </ScrollView>
+          )}
+        </View>
+      </Modal>
+    </>
   )
 }
 
@@ -225,11 +302,22 @@ const styles = StyleSheet.create({
     marginBottom: 12,
     ...CARD_SHADOW,
   },
+  recordPhotoContainer: {
+    position: 'relative',
+  },
   recordPhoto: {
     width: 100,
     height: 100,
     borderRadius: 8,
     resizeMode: 'cover',
+  },
+  backPhotoBadge: {
+    position: 'absolute',
+    bottom: 4,
+    right: 4,
+    backgroundColor: COLORS.SUCCESS,
+    borderRadius: 8,
+    padding: 3,
   },
   recordInfo: {
     flex: 1,
@@ -265,9 +353,69 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
   },
+  recordFooterLeft: {
+    flex: 1,
+  },
   recordTime: {
     fontSize: 12,
     color: COLORS.GRAY[500],
+  },
+  hasBackTag: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 4,
+  },
+  hasBackText: {
+    fontSize: 11,
+    color: COLORS.SUCCESS,
+    marginLeft: 4,
+  },
+  modalContainer: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.95)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalCloseButton: {
+    position: 'absolute',
+    top: 50,
+    right: 20,
+    zIndex: 10,
+    padding: 8,
+  },
+  modalContent: {
+    width: '90%',
+    alignItems: 'center',
+  },
+  modalImage: {
+    width: '100%',
+    height: 400,
+    borderRadius: 12,
+    resizeMode: 'contain',
+  },
+  modalInfo: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginTop: 16,
+    width: '100%',
+  },
+  modalDate: {
+    fontSize: 14,
+    color: COLORS.WHITE,
+  },
+  toggleButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    borderRadius: 16,
+  },
+  toggleButtonText: {
+    fontSize: 13,
+    color: COLORS.WHITE,
+    marginLeft: 6,
   },
 })
 
