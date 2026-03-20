@@ -9,6 +9,8 @@ import {
   ScrollView,
   Image,
   Platform,
+  Modal,
+  Switch,
 } from 'react-native'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { Ionicons } from '@expo/vector-icons'
@@ -47,6 +49,13 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
   const [saving, setSaving] = useState<boolean>(false)
   const [showDatePicker, setShowDatePicker] = useState<boolean>(false)
   const [selectedDate, setSelectedDate] = useState<Date>(new Date())
+  const [showCropOptions, setShowCropOptions] = useState<boolean>(false)
+  const [allowCrop, setAllowCrop] = useState<boolean>(false)
+  const [cropWidth, setCropWidth] = useState<number>(4)
+  const [cropHeight, setCropHeight] = useState<number>(3)
+  const [pendingSource, setPendingSource] = useState<'camera' | 'library'>(
+    'library',
+  )
 
   /**
    * 格式化日期为 YYYY-MM-DD
@@ -89,6 +98,32 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
   }
 
   /**
+   * 显示裁切选项
+   */
+  const handleShowCropOptions = (source: 'camera' | 'library') => {
+    setPendingSource(source)
+    setShowCropOptions(true)
+  }
+
+  /**
+   * 确认裁切选项并选择照片
+   */
+  const handleConfirmCropOptions = async () => {
+    setShowCropOptions(false)
+    const { success, data, error } = await pickPhoto(pendingSource, {
+      allowCrop,
+      cropWidth,
+      cropHeight,
+    })
+
+    if (success) {
+      setPhotoUri(data)
+    } else {
+      Alert.alert('错误', error || '选择照片失败')
+    }
+  }
+
+  /**
    * 加载记录数据
    */
   useEffect(() => {
@@ -117,16 +152,10 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
   }
 
   /**
-   * 选择照片
+   * 选择照片（显示裁切选项）
    */
-  const handlePickPhoto = async (source: 'camera' | 'library') => {
-    const { success, data, error } = await pickPhoto(source)
-
-    if (success) {
-      setPhotoUri(data)
-    } else {
-      Alert.alert('错误', error || '选择照片失败')
-    }
+  const handlePickPhoto = (source: 'camera' | 'library') => {
+    handleShowCropOptions(source)
   }
 
   /**
@@ -255,10 +284,7 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
     <ScrollView style={styles.container}>
       {/* 头部 */}
       <View style={styles.header}>
-        <TouchableOpacity
-          style={styles.backButton}
-          onPress={handleCancel}
-        >
+        <TouchableOpacity style={styles.backButton} onPress={handleCancel}>
           <Ionicons name='arrow-back' size={24} color={COLORS.WHITE} />
         </TouchableOpacity>
         <Text style={styles.title}>编辑拍立得</Text>
@@ -375,6 +401,76 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
           <Text style={styles.saveButtonText}>保存修改</Text>
         </TouchableOpacity>
       </View>
+
+      {/* 裁切选项弹窗 */}
+      <Modal
+        visible={showCropOptions}
+        transparent={true}
+        animationType='slide'
+        onRequestClose={() => setShowCropOptions(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>裁切选项</Text>
+              <TouchableOpacity onPress={() => setShowCropOptions(false)}>
+                <Ionicons name='close' size={24} color={COLORS.BLACK} />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.modalContent}>
+              {/* 是否裁切 */}
+              <View style={styles.cropOption}>
+                <Text style={styles.cropLabel}>启用裁切</Text>
+                <Switch
+                  value={allowCrop}
+                  onValueChange={setAllowCrop}
+                  trackColor={{
+                    false: COLORS.GRAY[300],
+                    true: COLORS.PRIMARY,
+                  }}
+                  thumbColor={COLORS.WHITE}
+                />
+              </View>
+
+              {/* 裁切尺寸 */}
+              {allowCrop && (
+                <View style={styles.cropDimensions}>
+                  <Text style={styles.cropLabel}>裁切尺寸比例</Text>
+                  <View style={styles.dimensionInputs}>
+                    <TextInput
+                      style={styles.dimensionInput}
+                      value={String(cropWidth)}
+                      onChangeText={text => setCropWidth(Number(text) || 1)}
+                      keyboardType='number-pad'
+                      placeholder='宽'
+                    />
+                    <Text style={styles.dimensionSeparator}>:</Text>
+                    <TextInput
+                      style={styles.dimensionInput}
+                      value={String(cropHeight)}
+                      onChangeText={text => setCropHeight(Number(text) || 1)}
+                      keyboardType='number-pad'
+                      placeholder='高'
+                    />
+                  </View>
+                  <Text style={styles.cropHint}>
+                    例如：4:3 表示宽度为 4 份，高度为 3 份
+                  </Text>
+                </View>
+              )}
+
+              {/* 确认按钮 */}
+              <TouchableOpacity
+                style={styles.confirmButton}
+                onPress={handleConfirmCropOptions}
+              >
+                <Text style={styles.confirmButtonText}>确定</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </ScrollView>
   )
 }
@@ -485,6 +581,85 @@ const styles = StyleSheet.create({
   saveButtonText: {
     marginLeft: 8,
     fontSize: 18,
+    fontWeight: 'bold',
+    color: COLORS.WHITE,
+  },
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  modalContainer: {
+    backgroundColor: COLORS.WHITE,
+    borderRadius: 16,
+    width: '90%',
+    maxWidth: 400,
+    ...CARD_SHADOW,
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.GRAY[200],
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: COLORS.BLACK,
+  },
+  modalContent: {
+    padding: 16,
+  },
+  cropOption: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
+  },
+  cropLabel: {
+    fontSize: 16,
+    color: COLORS.BLACK,
+  },
+  cropDimensions: {
+    marginBottom: 24,
+  },
+  dimensionInputs: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 8,
+  },
+  dimensionInput: {
+    flex: 1,
+    backgroundColor: COLORS.GRAY[100],
+    borderRadius: 8,
+    padding: 12,
+    fontSize: 16,
+    textAlign: 'center',
+    ...CARD_SHADOW,
+  },
+  dimensionSeparator: {
+    marginHorizontal: 12,
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: COLORS.BLACK,
+  },
+  cropHint: {
+    fontSize: 12,
+    color: COLORS.GRAY[500],
+    marginTop: 8,
+  },
+  confirmButton: {
+    backgroundColor: COLORS.PRIMARY,
+    borderRadius: 8,
+    padding: 14,
+    alignItems: 'center',
+    ...CARD_SHADOW,
+  },
+  confirmButtonText: {
+    fontSize: 16,
     fontWeight: 'bold',
     color: COLORS.WHITE,
   },

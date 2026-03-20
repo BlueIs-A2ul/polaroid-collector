@@ -24,12 +24,20 @@ const ensurePhotoDir = async (): Promise<void> => {
 /**
  * 选择照片（相机或相册）
  * @param source - 照片来源 'camera' | 'library'
+ * @param options - 裁切选项
  * @returns 选择结果
  */
 export const pickPhoto = async (
   source: 'camera' | 'library',
+  options?: {
+    allowCrop?: boolean
+    cropWidth?: number
+    cropHeight?: number
+  },
 ): Promise<ServiceResult<string>> => {
   try {
+    const { allowCrop = true, cropWidth = 4, cropHeight = 3 } = options || {}
+
     const permissionResult =
       source === 'camera'
         ? await ImagePicker.requestCameraPermissionsAsync()
@@ -47,14 +55,14 @@ export const pickPhoto = async (
       source === 'camera'
         ? await ImagePicker.launchCameraAsync({
             mediaTypes: ['images'],
-            allowsEditing: true,
-            aspect: [4, 3],
+            allowsEditing: allowCrop,
+            aspect: allowCrop ? [cropWidth, cropHeight] : undefined,
             quality: 0.6,
           })
         : await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ['images'],
-            allowsEditing: true,
-            aspect: [4, 3],
+            allowsEditing: allowCrop,
+            aspect: allowCrop ? [cropWidth, cropHeight] : undefined,
             quality: 0.6,
           })
 
