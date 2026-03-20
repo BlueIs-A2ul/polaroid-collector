@@ -258,7 +258,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             style={styles.addButton}
             onPress={() => navigation.navigate('Upload')}
           >
-            <Ionicons name='add' size={24} color={COLORS.WHITE} />
+            <Ionicons name='add' size={24} color={COLORS.PRIMARY} />
           </TouchableOpacity>
         </View>
       </View>
@@ -376,6 +376,11 @@ const styles = StyleSheet.create({
     backgroundColor: COLORS.WHITE,
     justifyContent: 'center',
     alignItems: 'center',
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 4,
   },
   statsContainer: {
     flexDirection: 'row',
