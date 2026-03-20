@@ -26,14 +26,24 @@
    - 偶像占比排行，带进度条可视化
    - 点击偶像可跳转到详情页
 
+4. **拍立得上传扩展字段**
+   - 团体 (groupName): 小偶像所属团体
+   - 城市 (city): 拍摄城市
+   - 场馆 (venue): 拍摄场馆
+   - 拍立得类型 (polaroidType): 无签、带签、主题、宿题或自定义
+   - 拍立得人数 (memberCount): 单人、双人、团切或自定义
+   - 创建 OptionsSelector 组件：支持预设选项和自定义输入
+
 ### 文件变更
 
 | 文件 | 变更类型 | 说明 |
 |------|----------|------|
-| `src/types/index.ts` | 修改 | 添加 note 字段 |
-| `src/screens/UploadScreen.tsx` | 修改 | 支持输入备注 |
-| `src/screens/EditScreen.tsx` | 修改 | 支持编辑备注 |
-| `src/screens/DetailScreen.tsx` | 修改 | 显示备注、使用 CachedImage |
+| `src/types/index.ts` | 修改 | 添加 note、扩展字段类型 |
+| `src/constants/polaroidOptions.ts` | 新增 | 预设选项常量 |
+| `src/components/common/OptionsSelector.tsx` | 新增 | 选择器组件 |
+| `src/screens/UploadScreen.tsx` | 修改 | 支持输入备注和扩展字段 |
+| `src/screens/EditScreen.tsx` | 修改 | 支持编辑备注和扩展字段 |
+| `src/screens/DetailScreen.tsx` | 修改 | 显示备注、扩展信息、使用 CachedImage |
 | `src/screens/StatisticsScreen.tsx` | 新增 | 统计页面 |
 | `src/screens/HomeScreen.tsx` | 修改 | 统计区域添加点击跳转 |
 | `src/navigation/AppNavigator.tsx` | 修改 | 添加 Statistics 路由 |
