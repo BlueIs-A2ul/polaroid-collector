@@ -12,6 +12,13 @@
    - 主题配置持久化存储
    - 架构预留自定义主题扩展能力
 
+2. **主题自定义调整**
+   - 支持调整色相偏移（-180° ~ +180°）
+   - 支持调整饱和度（-50% ~ +50%）
+   - 支持调整亮度（-30% ~ +30%）
+   - 实时预览调整效果
+   - 一键重置为默认值
+
 ### 架构变更
 
 1. **主题系统架构**
@@ -19,6 +26,7 @@
    - 所有组件改用 `useTheme()` 获取动态主题颜色
    - 预设主题定义在 `constants/themes.ts`
    - 主题存储服务 `themeService.ts`
+   - 颜色处理工具 `utils/colorUtils.ts`（HEX/HSL 转换、调整）
 
 ### 文件变更
 
@@ -30,12 +38,14 @@
 | `src/services/themeService.ts` | 新增 | 主题存储服务 |
 | `src/contexts/ThemeContext.tsx` | 新增 | 主题 Context 和 Hook |
 | `src/screens/ThemeSettingsScreen.tsx` | 新增 | 主题设置页面 |
+| `src/utils/colorUtils.ts` | 新增 | 颜色处理工具函数 |
 | `App.tsx` | 修改 | 包装 ThemeProvider |
 | `src/navigation/AppNavigator.tsx` | 修改 | 动态主题色、添加主题设置路由 |
 | `src/screens/HomeScreen.tsx` | 修改 | 使用 useTheme、添加主题设置入口 |
 | `src/screens/*.tsx` | 修改 | 所有 Screen 使用 useTheme |
 | `src/components/**/*.tsx` | 修改 | 所有组件使用 useTheme |
 | `src/constants/themeColors.ts` | 废弃 | 由 themes.ts 替代 |
+| `package.json` | 修改 | 添加 @react-native-community/slider |
 
 ---
 

@@ -27,7 +27,14 @@ export interface Theme {
   colors: ThemeColors
 }
 
+export interface ThemeAdjustment {
+  hueShift: number
+  saturation: number
+  lightness: number
+}
+
 export interface ThemeConfig {
   currentThemeId: string
   customThemes: Theme[]
+  adjustment: ThemeAdjustment
 }

@@ -1,15 +1,20 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react'
-import { Theme, ThemeColors, ThemeConfig } from '../types/theme'
+import { Theme, ThemeColors, ThemeConfig, ThemeAdjustment } from '../types/theme'
 import { getThemeConfig, saveThemeConfig } from '../services/themeService'
 import { PRESET_THEMES, DEFAULT_THEME_ID, getThemeById } from '../constants/themes'
+import { adjustColor, DEFAULT_ADJUSTMENT } from '../utils/colorUtils'
 
 interface ThemeContextValue {
   theme: Theme
   colors: ThemeColors
+  originalColors: ThemeColors
   currentThemeId: string
   customThemes: Theme[]
   allThemes: Theme[]
+  adjustment: ThemeAdjustment
   setTheme: (themeId: string) => void
+  setAdjustment: (adjustment: ThemeAdjustment) => void
+  resetAdjustment: () => void
   addCustomTheme: (theme: Theme) => void
   removeCustomTheme: (themeId: string) => void
   isLoading: boolean
@@ -21,6 +26,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [config, setConfig] = useState<ThemeConfig>({
     currentThemeId: DEFAULT_THEME_ID,
     customThemes: [],
+    adjustment: DEFAULT_ADJUSTMENT,
   })
   const [isLoading, setIsLoading] = useState(true)
 
@@ -34,7 +40,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setIsLoading(false)
   }
 
-  const theme = useMemo(() => {
+  const baseTheme = useMemo(() => {
     let found = PRESET_THEMES.find(t => t.id === config.currentThemeId)
     if (!found) {
       found = config.customThemes.find(t => t.id === config.currentThemeId)
@@ -42,7 +48,24 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return found || getThemeById(DEFAULT_THEME_ID)
   }, [config.currentThemeId, config.customThemes])
 
-  const colors = theme.colors
+  const colors = useMemo(() => {
+    const base = baseTheme.colors
+    const adj = config.adjustment
+
+    if (adj.hueShift === 0 && adj.saturation === 0 && adj.lightness === 0) {
+      return base
+    }
+
+    return {
+      ...base,
+      PRIMARY: adjustColor(base.PRIMARY, adj),
+      SECONDARY: adjustColor(base.SECONDARY, adj),
+      SUCCESS: adjustColor(base.SUCCESS, adj),
+      ERROR: adjustColor(base.ERROR, adj),
+      WARNING: adjustColor(base.WARNING, adj),
+      INFO: adjustColor(base.INFO, adj),
+    }
+  }, [baseTheme, config.adjustment])
 
   const allThemes = useMemo(() => {
     return [...PRESET_THEMES, ...config.customThemes]
@@ -50,6 +73,18 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const setTheme = useCallback(async (themeId: string) => {
     const newConfig = { ...config, currentThemeId: themeId }
+    setConfig(newConfig)
+    await saveThemeConfig(newConfig)
+  }, [config])
+
+  const setAdjustment = useCallback(async (adjustment: ThemeAdjustment) => {
+    const newConfig = { ...config, adjustment }
+    setConfig(newConfig)
+    await saveThemeConfig(newConfig)
+  }, [config])
+
+  const resetAdjustment = useCallback(async () => {
+    const newConfig = { ...config, adjustment: DEFAULT_ADJUSTMENT }
     setConfig(newConfig)
     await saveThemeConfig(newConfig)
   }, [config])
@@ -69,6 +104,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       newCurrentThemeId = DEFAULT_THEME_ID
     }
     const newConfig = {
+      ...config,
       currentThemeId: newCurrentThemeId,
       customThemes: newCustomThemes,
     }
@@ -77,12 +113,16 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, [config])
 
   const value: ThemeContextValue = {
-    theme,
+    theme: baseTheme,
     colors,
+    originalColors: baseTheme.colors,
     currentThemeId: config.currentThemeId,
     customThemes: config.customThemes,
     allThemes,
+    adjustment: config.adjustment,
     setTheme,
+    setAdjustment,
+    resetAdjustment,
     addCustomTheme,
     removeCustomTheme,
     isLoading,
