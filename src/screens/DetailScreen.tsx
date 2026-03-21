@@ -9,6 +9,7 @@ import {
   RefreshControl,
   Modal,
   Alert,
+  TextInput,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { StackNavigationProp } from '@react-navigation/stack'
@@ -23,6 +24,8 @@ import EmptyState from '../components/common/EmptyState'
 import CachedImage from '../components/common/CachedImage'
 import { PolaroidRecord } from '../types'
 import { getAvatar, pickAndSetAvatar, removeAvatar } from '../services/avatarService'
+import { updateRecordData } from '../services/recordService'
+import FieldHistorySelector from '../components/features/FieldHistorySelector'
 
 type DetailScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -42,6 +45,15 @@ interface DateGroup {
   totalPrice: number
 }
 
+interface BatchEditState {
+  visible: boolean
+  date: string
+  recordIds: string[]
+  groupName: string
+  city: string
+  venue: string
+}
+
 const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
   const { idolName } = route.params
   const { detail, loading, error, ascending, toggleSort, refreshDetail } =
@@ -51,6 +63,16 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
   const [selectedRecord, setSelectedRecord] = React.useState<PolaroidRecord | null>(null)
   const [showingBack, setShowingBack] = React.useState(false)
   const [avatarUri, setAvatarUri] = React.useState<string | null>(null)
+  const [batchEdit, setBatchEdit] = React.useState<BatchEditState>({
+    visible: false,
+    date: '',
+    recordIds: [],
+    groupName: '',
+    city: '',
+    venue: '',
+  })
+  const [saving, setSaving] = React.useState(false)
+  const [showFieldSelector, setShowFieldSelector] = React.useState<'groupName' | 'city' | 'venue' | null>(null)
 
   const loadAvatar = React.useCallback(async () => {
     const { success, data } = await getAvatar(idolName)
@@ -130,6 +152,61 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
       ])
     } else {
       showCropOptions()
+    }
+  }
+
+  const openBatchEdit = (group: DateGroup) => {
+    const firstRecord = group.records[0]
+    setBatchEdit({
+      visible: true,
+      date: group.date,
+      recordIds: group.records.map(r => r.id),
+      groupName: firstRecord.groupName || '',
+      city: firstRecord.city || '',
+      venue: firstRecord.venue || '',
+    })
+  }
+
+  const closeBatchEdit = () => {
+    setBatchEdit({
+      visible: false,
+      date: '',
+      recordIds: [],
+      groupName: '',
+      city: '',
+      venue: '',
+    })
+  }
+
+  const handleBatchEdit = async () => {
+    if (batchEdit.recordIds.length === 0) return
+
+    setSaving(true)
+    let successCount = 0
+    let failCount = 0
+
+    for (const recordId of batchEdit.recordIds) {
+      const { success } = await updateRecordData(recordId, {
+        groupName: batchEdit.groupName || undefined,
+        city: batchEdit.city || undefined,
+        venue: batchEdit.venue || undefined,
+      })
+      if (success) {
+        successCount++
+      } else {
+        failCount++
+      }
+    }
+
+    setSaving(false)
+    closeBatchEdit()
+
+    if (failCount === 0) {
+      Alert.alert('成功', `已更新 ${successCount} 条记录`)
+      refreshDetail()
+    } else {
+      Alert.alert('部分成功', `成功 ${successCount} 条，失败 ${failCount} 条`)
+      refreshDetail()
     }
   }
 
@@ -247,11 +324,20 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
                   <Ionicons name='calendar' size={16} color={COLORS.PRIMARY} />
                   <Text style={styles.dateText}>{formatDate(group.date)}</Text>
                 </View>
-                <View style={styles.dateStats}>
-                  <Text style={styles.dateStatText}>{group.totalCount} 张</Text>
-                  {group.totalPrice > 0 && (
-                    <Text style={styles.datePriceText}> · ¥{group.totalPrice}</Text>
-                  )}
+                <View style={styles.dateHeaderRight}>
+                  <TouchableOpacity
+                    style={styles.batchEditButton}
+                    onPress={() => openBatchEdit(group)}
+                  >
+                    <Ionicons name='create-outline' size={16} color={COLORS.PRIMARY} />
+                    <Text style={styles.batchEditText}>编辑本日</Text>
+                  </TouchableOpacity>
+                  <View style={styles.dateStats}>
+                    <Text style={styles.dateStatText}>{group.totalCount} 张</Text>
+                    {group.totalPrice > 0 && (
+                      <Text style={styles.datePriceText}> · ¥{group.totalPrice}</Text>
+                    )}
+                  </View>
                 </View>
               </View>
 
@@ -396,6 +482,109 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
           )}
         </View>
       </Modal>
+
+      <Modal
+        visible={batchEdit.visible}
+        transparent={true}
+        animationType='slide'
+        onRequestClose={closeBatchEdit}
+      >
+        <View style={styles.batchEditModal}>
+          <View style={styles.batchEditContent}>
+            <View style={styles.batchEditHeader}>
+              <Text style={styles.batchEditTitle}>批量编辑</Text>
+              <TouchableOpacity onPress={closeBatchEdit}>
+                <Ionicons name='close' size={24} color={COLORS.BLACK} />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.batchEditBody}>
+              <Text style={styles.batchEditDate}>
+                {formatDate(batchEdit.date)}
+              </Text>
+
+              <View style={styles.batchEditField}>
+                <Text style={styles.batchEditLabel}>团体</Text>
+                <TouchableOpacity
+                  style={styles.batchEditInputWrapper}
+                  onPress={() => setShowFieldSelector('groupName')}
+                >
+                  <Text style={[styles.batchEditInputText, batchEdit.groupName ? null : styles.batchEditPlaceholder]}>
+                    {batchEdit.groupName || '选填'}
+                  </Text>
+                  <Ionicons name='chevron-down' size={16} color={COLORS.GRAY[500]} />
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.batchEditField}>
+                <Text style={styles.batchEditLabel}>城市</Text>
+                <TouchableOpacity
+                  style={styles.batchEditInputWrapper}
+                  onPress={() => setShowFieldSelector('city')}
+                >
+                  <Text style={[styles.batchEditInputText, batchEdit.city ? null : styles.batchEditPlaceholder]}>
+                    {batchEdit.city || '选填'}
+                  </Text>
+                  <Ionicons name='chevron-down' size={16} color={COLORS.GRAY[500]} />
+                </TouchableOpacity>
+              </View>
+
+              <View style={styles.batchEditField}>
+                <Text style={styles.batchEditLabel}>场馆</Text>
+                <TouchableOpacity
+                  style={styles.batchEditInputWrapper}
+                  onPress={() => setShowFieldSelector('venue')}
+                >
+                  <Text style={[styles.batchEditInputText, batchEdit.venue ? null : styles.batchEditPlaceholder]}>
+                    {batchEdit.venue || '选填'}
+                  </Text>
+                  <Ionicons name='chevron-down' size={16} color={COLORS.GRAY[500]} />
+                </TouchableOpacity>
+              </View>
+
+              <Text style={styles.batchEditCount}>
+                将同时更新 {batchEdit.recordIds.length} 条记录
+              </Text>
+
+              <View style={styles.batchEditButtons}>
+                <TouchableOpacity
+                  style={styles.batchEditCancelButton}
+                  onPress={closeBatchEdit}
+                  disabled={saving}
+                >
+                  <Text style={styles.batchEditCancelText}>取消</Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={styles.batchEditSaveButton}
+                  onPress={handleBatchEdit}
+                  disabled={saving}
+                >
+                  <Text style={styles.batchEditSaveText}>
+                    {saving ? '保存中...' : '保存'}
+                  </Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <FieldHistorySelector
+        visible={showFieldSelector !== null}
+        field={showFieldSelector || 'groupName'}
+        title={showFieldSelector === 'groupName' ? '团体' : showFieldSelector === 'city' ? '城市' : '场馆'}
+        currentValue={showFieldSelector === 'groupName' ? batchEdit.groupName : showFieldSelector === 'city' ? batchEdit.city : batchEdit.venue}
+        onClose={() => setShowFieldSelector(null)}
+        onSelect={(value) => {
+          if (showFieldSelector === 'groupName') {
+            setBatchEdit(prev => ({ ...prev, groupName: value }))
+          } else if (showFieldSelector === 'city') {
+            setBatchEdit(prev => ({ ...prev, city: value }))
+          } else if (showFieldSelector === 'venue') {
+            setBatchEdit(prev => ({ ...prev, venue: value }))
+          }
+        }}
+      />
     </>
   )
 }
@@ -683,6 +872,119 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: COLORS.WHITE,
     marginLeft: 6,
+  },
+  dateHeaderRight: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 12,
+  },
+  batchEditButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: `${COLORS.PRIMARY}15`,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderRadius: 12,
+  },
+  batchEditText: {
+    fontSize: 12,
+    color: COLORS.PRIMARY,
+    marginLeft: 4,
+  },
+  batchEditModal: {
+    flex: 1,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  batchEditContent: {
+    backgroundColor: COLORS.WHITE,
+    borderRadius: 16,
+    width: '90%',
+    maxWidth: 400,
+    ...CARD_SHADOW,
+  },
+  batchEditHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    padding: 16,
+    borderBottomWidth: 1,
+    borderBottomColor: COLORS.GRAY[200],
+  },
+  batchEditTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: COLORS.BLACK,
+  },
+  batchEditBody: {
+    padding: 16,
+  },
+  batchEditDate: {
+    fontSize: 14,
+    color: COLORS.GRAY[600],
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  batchEditField: {
+    marginBottom: 16,
+  },
+  batchEditLabel: {
+    fontSize: 14,
+    fontWeight: '500',
+    color: COLORS.BLACK,
+    marginBottom: 6,
+  },
+  batchEditInputWrapper: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: COLORS.GRAY[100],
+    borderRadius: 8,
+    padding: 12,
+  },
+  batchEditInputText: {
+    fontSize: 15,
+    color: COLORS.BLACK,
+    flex: 1,
+  },
+  batchEditPlaceholder: {
+    color: COLORS.GRAY[400],
+  },
+  batchEditCount: {
+    fontSize: 12,
+    color: COLORS.GRAY[500],
+    textAlign: 'center',
+    marginBottom: 16,
+  },
+  batchEditButtons: {
+    flexDirection: 'row',
+    gap: 12,
+    marginTop: 8,
+  },
+  batchEditCancelButton: {
+    flex: 1,
+    backgroundColor: COLORS.GRAY[200],
+    borderRadius: 8,
+    padding: 14,
+    alignItems: 'center',
+  },
+  batchEditCancelText: {
+    fontSize: 15,
+    color: COLORS.GRAY[700],
+    fontWeight: '500',
+  },
+  batchEditSaveButton: {
+    flex: 1,
+    backgroundColor: COLORS.PRIMARY,
+    borderRadius: 8,
+    padding: 14,
+    alignItems: 'center',
+  },
+  batchEditSaveText: {
+    fontSize: 15,
+    color: COLORS.WHITE,
+    fontWeight: 'bold',
   },
 })
 
