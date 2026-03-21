@@ -48,6 +48,20 @@
    - 按次数排序，显示百分比占比
    - 无数据时显示空状态提示
 
+7. **日历视图**
+   - 创建 Calendar 组件，支持月份切换
+   - 标记有拍摄记录的日期并显示数量
+   - 创建 CalendarScreen 页面，展示拍摄日历
+   - 点击日期查看当天拍摄记录
+   - 首页添加日历快捷入口
+
+8. **高级筛选**
+   - 创建 AdvancedFilter 组件
+   - 支持按团体、城市、场馆、拍立得类型筛选
+   - 多条件组合筛选
+   - 筛选状态高亮显示
+   - 一键清除所有筛选条件
+
 ### 文件变更
 
 | 文件 | 变更类型 | 说明 |
@@ -57,13 +71,16 @@
 | `src/constants/storageKeys.ts` | 修改 | 添加 FIELD_HISTORY 键 |
 | `src/components/common/OptionsSelector.tsx` | 新增 | 选择器组件 |
 | `src/components/features/FieldHistorySelector.tsx` | 新增 | 字段历史选择器 |
+| `src/components/features/Calendar.tsx` | 新增 | 日历组件 |
+| `src/components/features/AdvancedFilter.tsx` | 新增 | 高级筛选组件 |
 | `src/services/fieldHistoryService.ts` | 新增 | 字段历史管理服务 |
 | `src/screens/UploadScreen.tsx` | 修改 | 支持输入备注、扩展字段、历史选择 |
 | `src/screens/EditScreen.tsx` | 修改 | 支持编辑备注、扩展字段、历史选择 |
 | `src/screens/DetailScreen.tsx` | 修改 | 显示备注、扩展信息、使用 CachedImage |
 | `src/screens/StatisticsScreen.tsx` | 新增 | 统计页面（含扩展字段统计） |
-| `src/screens/HomeScreen.tsx` | 修改 | 统计区域添加点击跳转 |
-| `src/navigation/AppNavigator.tsx` | 修改 | 添加 Statistics 路由 |
+| `src/screens/CalendarScreen.tsx` | 新增 | 日历视图页面 |
+| `src/screens/HomeScreen.tsx` | 修改 | 添加日历入口、高级筛选 |
+| `src/navigation/AppNavigator.tsx` | 修改 | 添加 Statistics、Calendar 路由 |
 | `src/components/features/IdolCard.tsx` | 修改 | 使用 CachedImage |
 | `src/components/common/CachedImage.tsx` | 新增 | 缓存图片组件 |
 | `src/services/recordService.ts` | 修改 | 计算扩展字段统计 |
