@@ -4,7 +4,6 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  Dimensions,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { COLORS } from '../../constants/themeColors'
@@ -14,9 +13,6 @@ interface CalendarProps {
   onDateSelect: (date: string) => void
   selectedDate: string | null
 }
-
-const { width } = Dimensions.get('window')
-const CELL_SIZE = (width - 64) / 7
 
 const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六']
 const MONTHS = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
@@ -193,7 +189,7 @@ const styles = StyleSheet.create({
     marginBottom: 8,
   },
   weekdayCell: {
-    width: CELL_SIZE,
+    width: '14.28%',
     alignItems: 'center',
   },
   weekdayText: {
@@ -209,18 +205,18 @@ const styles = StyleSheet.create({
     flexWrap: 'wrap',
   },
   cell: {
-    width: CELL_SIZE,
-    height: CELL_SIZE,
+    width: '14.28%',
+    aspectRatio: 1,
     alignItems: 'center',
     justifyContent: 'center',
   },
   selectedCell: {
     backgroundColor: COLORS.PRIMARY,
-    borderRadius: CELL_SIZE / 2,
+    borderRadius: 100,
   },
   todayCell: {
     backgroundColor: COLORS.GRAY[100],
-    borderRadius: CELL_SIZE / 2,
+    borderRadius: 100,
   },
   dayText: {
     fontSize: 14,

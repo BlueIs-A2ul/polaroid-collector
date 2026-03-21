@@ -13,6 +13,12 @@
    - 使用纯 View 样式实现，无需额外图表库
    - 无花费记录时显示空状态提示
 
+### 修复问题
+
+1. **日历组件样式问题**
+   - 问题：使用固定像素计算单元格宽度，在不同屏幕尺寸下布局错乱
+   - 解决：改用百分比宽度（14.28%）和 aspectRatio，确保 7 列正确排列
+
 ### 文件变更
 
 | 文件 | 变更类型 | 说明 |
@@ -21,6 +27,7 @@
 | `src/services/recordService.ts` | 修改 | 添加 getMonthlySpending 函数 |
 | `src/components/common/SpendingChart.tsx` | 新增 | 花费趋势柱状图组件 |
 | `src/screens/StatisticsScreen.tsx` | 修改 | 集成花费趋势图表 |
+| `src/components/features/Calendar.tsx` | 修改 | 修复单元格宽度使用百分比 |
 
 ---
 
