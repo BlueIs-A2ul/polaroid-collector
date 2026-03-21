@@ -120,6 +120,7 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
         const firstDate = data[0]?.capturedDate
         if (firstDate && photoDate === today) {
           setPhotoDate(firstDate)
+          Alert.alert('提示', `已从照片读取拍摄日期：${firstDate}`)
         }
       } else if (error !== '用户取消选择') {
         Alert.alert('错误', error || '选择照片失败')
@@ -136,6 +137,7 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
 
         if (data.capturedDate && photoDate === today) {
           setPhotoDate(data.capturedDate)
+          Alert.alert('提示', `已从照片读取拍摄日期：${data.capturedDate}`)
         }
       } else if (error !== '用户取消选择') {
         Alert.alert('错误', error || '选择照片失败')
