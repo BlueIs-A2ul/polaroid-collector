@@ -203,10 +203,11 @@ const styles = StyleSheet.create({
   daysContainer: {
     flexDirection: 'row',
     flexWrap: 'wrap',
+    rowGap: 8,
   },
   cell: {
     width: '14.28%',
-    aspectRatio: 1,
+    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
   },
