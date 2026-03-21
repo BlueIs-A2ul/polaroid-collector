@@ -27,6 +27,8 @@ import { PolaroidRecord } from '../types'
 import { getAvatar, pickAndSetAvatar, removeAvatar } from '../services/avatarService'
 import { updateRecordData } from '../services/recordService'
 import FieldHistorySelector from '../components/features/FieldHistorySelector'
+import ShareCard from '../components/features/ShareCard'
+import { captureAndShare } from '../services/shareService'
 
 type DetailScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -75,6 +77,8 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
   })
   const [saving, setSaving] = React.useState(false)
   const [showFieldSelector, setShowFieldSelector] = React.useState<'groupName' | 'city' | 'venue' | null>(null)
+  const [shareModalVisible, setShareModalVisible] = React.useState(false)
+  const shareCardRef = React.useRef<View>(null)
 
   const styles = React.useMemo(() => StyleSheet.create({
     container: {
@@ -473,6 +477,48 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
       color: colors.WHITE,
       fontWeight: 'bold',
     },
+    shareModalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    shareModalContent: {
+      backgroundColor: colors.WHITE,
+      borderRadius: 20,
+      padding: 20,
+      width: '90%',
+      maxWidth: 400,
+    },
+    shareModalHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 20,
+    },
+    shareModalTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.BLACK,
+    },
+    shareCardContainer: {
+      alignItems: 'center',
+    },
+    shareButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.PRIMARY,
+      borderRadius: 12,
+      paddingVertical: 14,
+      marginTop: 20,
+      gap: 8,
+    },
+    shareButtonText: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      color: colors.WHITE,
+    },
   }), [colors])
 
   const loadAvatar = React.useCallback(async () => {
@@ -642,16 +688,25 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
   React.useLayoutEffect(() => {
     navigation.setOptions({
       headerRight: () => (
-        <TouchableOpacity onPress={toggleSort}>
-          <Ionicons
-            name={ascending ? 'arrow-up' : 'arrow-down'}
-            size={24}
-            color={colors.WHITE}
-          />
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', gap: 16 }}>
+          <TouchableOpacity onPress={toggleSort}>
+            <Ionicons
+              name={ascending ? 'arrow-up' : 'arrow-down'}
+              size={24}
+              color={colors.WHITE}
+            />
+          </TouchableOpacity>
+          <TouchableOpacity onPress={() => setShareModalVisible(true)}>
+            <Ionicons
+              name='share-outline'
+              size={24}
+              color={colors.WHITE}
+            />
+          </TouchableOpacity>
+        </View>
       ),
     })
-  }, [navigation, ascending])
+  }, [navigation, ascending, colors])
 
   if (loading) {
     return <LoadingSpinner />
@@ -986,6 +1041,47 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
           }
         }}
       />
+
+      <Modal
+        visible={shareModalVisible}
+        transparent={true}
+        animationType='fade'
+        onRequestClose={() => setShareModalVisible(false)}
+      >
+        <View style={styles.shareModalOverlay}>
+          <View style={styles.shareModalContent}>
+            <View style={styles.shareModalHeader}>
+              <Text style={styles.shareModalTitle}>分享卡片</Text>
+              <TouchableOpacity onPress={() => setShareModalVisible(false)}>
+                <Ionicons name='close' size={24} color={colors.BLACK} />
+              </TouchableOpacity>
+            </View>
+
+            <View style={styles.shareCardContainer} collapsable={false}>
+              <ShareCard
+                ref={shareCardRef}
+                idolName={idolName}
+                avatarUri={avatarUri}
+                totalCount={detail?.totalCount || 0}
+                totalRecords={detail?.totalRecords || 0}
+                totalPrice={detail?.totalPrice || 0}
+                records={detail?.records || []}
+                colors={colors}
+              />
+            </View>
+
+            <TouchableOpacity
+              style={styles.shareButton}
+              onPress={async () => {
+                await captureAndShare(shareCardRef)
+              }}
+            >
+              <Ionicons name='share' size={20} color={colors.WHITE} />
+              <Text style={styles.shareButtonText}>分享</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
     </>
   )
 }
