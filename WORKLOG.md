@@ -34,21 +34,39 @@
    - 拍立得人数 (memberCount): 单人、双人、团切或自定义
    - 创建 OptionsSelector 组件：支持预设选项和自定义输入
 
+5. **扩展字段历史记录**
+   - 团体、城市、场馆字段支持历史记录选择
+   - 创建 fieldHistoryService 管理字段历史
+   - 创建 FieldHistorySelector 组件显示历史记录
+   - 自动保存用户输入，最多保留 20 条历史
+   - 点击字段可快速选择历史记录或输入新值
+
+6. **扩展字段统计概览**
+   - 统计页面新增团体统计区块
+   - 统计页面新增城市统计区块
+   - 统计页面新增场馆统计区块
+   - 按次数排序，显示百分比占比
+   - 无数据时显示空状态提示
+
 ### 文件变更
 
 | 文件 | 变更类型 | 说明 |
 |------|----------|------|
-| `src/types/index.ts` | 修改 | 添加 note、扩展字段类型 |
+| `src/types/index.ts` | 修改 | 添加 note、扩展字段、FieldStat 类型 |
 | `src/constants/polaroidOptions.ts` | 新增 | 预设选项常量 |
+| `src/constants/storageKeys.ts` | 修改 | 添加 FIELD_HISTORY 键 |
 | `src/components/common/OptionsSelector.tsx` | 新增 | 选择器组件 |
-| `src/screens/UploadScreen.tsx` | 修改 | 支持输入备注和扩展字段 |
-| `src/screens/EditScreen.tsx` | 修改 | 支持编辑备注和扩展字段 |
+| `src/components/features/FieldHistorySelector.tsx` | 新增 | 字段历史选择器 |
+| `src/services/fieldHistoryService.ts` | 新增 | 字段历史管理服务 |
+| `src/screens/UploadScreen.tsx` | 修改 | 支持输入备注、扩展字段、历史选择 |
+| `src/screens/EditScreen.tsx` | 修改 | 支持编辑备注、扩展字段、历史选择 |
 | `src/screens/DetailScreen.tsx` | 修改 | 显示备注、扩展信息、使用 CachedImage |
-| `src/screens/StatisticsScreen.tsx` | 新增 | 统计页面 |
+| `src/screens/StatisticsScreen.tsx` | 新增 | 统计页面（含扩展字段统计） |
 | `src/screens/HomeScreen.tsx` | 修改 | 统计区域添加点击跳转 |
 | `src/navigation/AppNavigator.tsx` | 修改 | 添加 Statistics 路由 |
 | `src/components/features/IdolCard.tsx` | 修改 | 使用 CachedImage |
 | `src/components/common/CachedImage.tsx` | 新增 | 缓存图片组件 |
+| `src/services/recordService.ts` | 修改 | 计算扩展字段统计 |
 | `package.json` | 修改 | 添加 expo-image 依赖 |
 
 ---

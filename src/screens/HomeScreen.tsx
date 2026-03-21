@@ -21,6 +21,7 @@ import IdolCard from '../components/features/IdolCard'
 import LoadingSpinner from '../components/common/LoadingSpinner'
 import EmptyState from '../components/common/EmptyState'
 import SearchBar from '../components/common/SearchBar'
+import AdvancedFilter, { FilterOptions } from '../components/features/AdvancedFilter'
 import {
   exportToJSON,
   exportToCSV,
@@ -47,6 +48,13 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const [searchQuery, setSearchQuery] = React.useState('')
   const [refreshing, setRefreshing] = React.useState(false)
   const [avatarMap, setAvatarMap] = React.useState<Record<string, string>>({})
+  const [showFilter, setShowFilter] = React.useState(false)
+  const [filters, setFilters] = React.useState<FilterOptions>({
+    groupName: null,
+    city: null,
+    venue: null,
+    polaroidType: null,
+  })
 
   const loadAvatars = React.useCallback(async () => {
     const { success, data } = await getAllAvatars()
@@ -62,13 +70,26 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     }, [refreshAll, loadAvatars]),
   )
 
-  const filteredRanking = React.useMemo(
-    () =>
-      ranking.filter(item =>
-        item.idolName.toLowerCase().includes(searchQuery.toLowerCase()),
-      ),
-    [ranking, searchQuery],
-  )
+  const filteredRanking = React.useMemo(() => {
+    let result = ranking.filter(item =>
+      item.idolName.toLowerCase().includes(searchQuery.toLowerCase()),
+    )
+
+    if (filters.groupName || filters.city || filters.venue || filters.polaroidType) {
+      result = result.filter(item => {
+        const records = item.records
+        return records.some(r => {
+          if (filters.groupName && r.groupName !== filters.groupName) return false
+          if (filters.city && r.city !== filters.city) return false
+          if (filters.venue && r.venue !== filters.venue) return false
+          if (filters.polaroidType && r.polaroidType !== filters.polaroidType) return false
+          return true
+        })
+      })
+    }
+
+    return result
+  }, [ranking, searchQuery, filters])
 
   /**
    * 显示导出选项
@@ -296,6 +317,40 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         </TouchableOpacity>
       )}
 
+      {/* 快捷入口 */}
+      <View style={styles.quickActions}>
+        <TouchableOpacity
+          style={styles.quickActionButton}
+          onPress={() => navigation.navigate('Calendar')}
+        >
+          <Ionicons name='calendar' size={24} color={COLORS.PRIMARY} />
+          <Text style={styles.quickActionText}>日历</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.quickActionButton}
+          onPress={() => setShowFilter(true)}
+        >
+          <Ionicons
+            name={Object.values(filters).some(v => v) ? 'filter' : 'filter-outline'}
+            size={24}
+            color={Object.values(filters).some(v => v) ? COLORS.PRIMARY : COLORS.GRAY[500]}
+          />
+          <Text style={[
+            styles.quickActionText,
+            !Object.values(filters).some(v => v) && styles.quickActionTextInactive,
+          ]}>
+            筛选
+          </Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={styles.quickActionButton}
+          onPress={() => navigation.navigate('Upload')}
+        >
+          <Ionicons name='camera' size={24} color={COLORS.PRIMARY} />
+          <Text style={styles.quickActionText}>上传</Text>
+        </TouchableOpacity>
+      </View>
+
       {/* 搜索栏 */}
       {ranking.length > 0 && (
         <SearchBar
@@ -353,6 +408,13 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           ))
         )}
       </ScrollView>
+
+      <AdvancedFilter
+        visible={showFilter}
+        onClose={() => setShowFilter(false)}
+        currentFilters={filters}
+        onApply={setFilters}
+      />
     </View>
   )
 }
@@ -409,6 +471,35 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: COLORS.GRAY[600],
     marginTop: 4,
+  },
+  quickActions: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 16,
+    paddingHorizontal: 16,
+    marginBottom: 8,
+  },
+  quickActionButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: COLORS.WHITE,
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
+    gap: 8,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.1,
+    shadowRadius: 2,
+    elevation: 2,
+  },
+  quickActionText: {
+    fontSize: 14,
+    color: COLORS.PRIMARY,
+    fontWeight: '500',
+  },
+  quickActionTextInactive: {
+    color: COLORS.GRAY[500],
   },
   sectionHeader: {
     flexDirection: 'row',

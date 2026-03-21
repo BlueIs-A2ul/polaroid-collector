@@ -8,6 +8,7 @@ import UploadScreen from '../screens/UploadScreen'
 import DetailScreen from '../screens/DetailScreen'
 import EditScreen from '../screens/EditScreen'
 import StatisticsScreen from '../screens/StatisticsScreen'
+import CalendarScreen from '../screens/CalendarScreen'
 
 export type RootStackParamList = {
   Home: undefined
@@ -15,6 +16,7 @@ export type RootStackParamList = {
   Detail: { idolName: string }
   Edit: { recordId: string }
   Statistics: undefined
+  Calendar: undefined
 }
 
 const Stack = createStackNavigator<RootStackParamList>()
@@ -62,6 +64,11 @@ const AppNavigator = () => {
           name='Statistics'
           component={StatisticsScreen}
           options={{ title: '统计' }}
+        />
+        <Stack.Screen
+          name='Calendar'
+          component={CalendarScreen}
+          options={{ title: '日历' }}
         />
       </Stack.Navigator>
     </NavigationContainer>
