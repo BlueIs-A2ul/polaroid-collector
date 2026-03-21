@@ -32,6 +32,8 @@ interface StatisticsScreenProps {
   route: StatisticsScreenRouteProp
 }
 
+type RankingTab = 'count' | 'price'
+
 interface FieldStatSectionProps {
   title: string
   stats: FieldStat[]
@@ -183,6 +185,7 @@ const StatisticsScreen: React.FC<StatisticsScreenProps> = ({ navigation }) => {
   const [monthlySpending, setMonthlySpending] = React.useState<MonthlySpending[]>([])
   const [loading, setLoading] = React.useState(true)
   const [refreshing, setRefreshing] = React.useState(false)
+  const [rankingTab, setRankingTab] = React.useState<RankingTab>('count')
 
   const styles = useMemo(() => StyleSheet.create({
     container: {
@@ -291,6 +294,31 @@ const StatisticsScreen: React.FC<StatisticsScreenProps> = ({ navigation }) => {
       color: colors.GRAY[600],
       marginTop: 2,
     },
+    tabContainer: {
+      flexDirection: 'row',
+      marginHorizontal: 16,
+      marginBottom: 12,
+      backgroundColor: colors.WHITE,
+      borderRadius: 8,
+      padding: 4,
+    },
+    tab: {
+      flex: 1,
+      paddingVertical: 8,
+      alignItems: 'center',
+      borderRadius: 6,
+    },
+    tabActive: {
+      backgroundColor: colors.PRIMARY,
+    },
+    tabText: {
+      fontSize: 14,
+      color: colors.GRAY[600],
+      fontWeight: '500',
+    },
+    tabTextActive: {
+      color: colors.WHITE,
+    },
     bottomPadding: {
       height: 20,
     },
@@ -384,9 +412,35 @@ const StatisticsScreen: React.FC<StatisticsScreenProps> = ({ navigation }) => {
       )}
 
       <View style={styles.sectionContainer}>
-        <Text style={styles.sectionTitle}>偶像占比</Text>
-        {ranking.map((item, index) => {
-          const percentage = ((item.totalCount / statistics.totalPhotos) * 100).toFixed(1)
+        <Text style={styles.sectionTitle}>偶像排行</Text>
+
+        <View style={styles.tabContainer}>
+          <TouchableOpacity
+            style={[styles.tab, rankingTab === 'count' && styles.tabActive]}
+            onPress={() => setRankingTab('count')}
+          >
+            <Text style={[styles.tabText, rankingTab === 'count' && styles.tabTextActive]}>
+              数量排行
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.tab, rankingTab === 'price' && styles.tabActive]}
+            onPress={() => setRankingTab('price')}
+          >
+            <Text style={[styles.tabText, rankingTab === 'price' && styles.tabTextActive]}>
+              花费排行
+            </Text>
+          </TouchableOpacity>
+        </View>
+
+        {(rankingTab === 'count' ? ranking : [...ranking].sort((a, b) => b.totalPrice - a.totalPrice)).map((item, index) => {
+          const isCountTab = rankingTab === 'count'
+          const value = isCountTab ? item.totalCount : item.totalPrice
+          const total = isCountTab ? statistics.totalPhotos : statistics.totalPrice
+          const percentage = total > 0 ? ((value / total) * 100).toFixed(1) : '0'
+
+          if (!isCountTab && item.totalPrice === 0) return null
+
           return (
             <TouchableOpacity
               key={item.idolName}
@@ -408,7 +462,9 @@ const StatisticsScreen: React.FC<StatisticsScreenProps> = ({ navigation }) => {
                 </View>
               </View>
               <View style={styles.idolStats}>
-                <Text style={styles.idolCount}>{item.totalCount} 张</Text>
+                <Text style={styles.idolCount}>
+                  {isCountTab ? `${item.totalCount} 张` : `¥${item.totalPrice}`}
+                </Text>
                 <Text style={styles.idolPercent}>{percentage}%</Text>
               </View>
             </TouchableOpacity>
