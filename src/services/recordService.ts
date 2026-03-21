@@ -98,6 +98,13 @@ export const createRecord = async (
       photoDate: data.photoDate,
       photoUri: photoResult.data,
       backPhotoUri,
+      price: data.price,
+      note: data.note,
+      groupName: data.groupName,
+      city: data.city,
+      venue: data.venue,
+      polaroidType: data.polaroidType,
+      memberCount: data.memberCount,
       createdAt: Date.now(),
       updatedAt: Date.now(),
     }
