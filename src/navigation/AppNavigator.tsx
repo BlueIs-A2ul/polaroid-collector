@@ -10,6 +10,7 @@ import EditScreen from '../screens/EditScreen'
 import StatisticsScreen from '../screens/StatisticsScreen'
 import CalendarScreen from '../screens/CalendarScreen'
 import ThemeSettingsScreen from '../screens/ThemeSettingsScreen'
+import YearlyReportEntryScreen from '../screens/YearlyReportEntryScreen'
 
 export type RootStackParamList = {
   Home: undefined
@@ -19,6 +20,7 @@ export type RootStackParamList = {
   Statistics: undefined
   Calendar: undefined
   ThemeSettings: undefined
+  YearlyReport: undefined
 }
 
 const Stack = createStackNavigator<RootStackParamList>()
@@ -75,6 +77,11 @@ const AppNavigator = () => {
           name='ThemeSettings'
           component={ThemeSettingsScreen}
           options={{ title: '主题设置' }}
+        />
+        <Stack.Screen
+          name='YearlyReport'
+          component={YearlyReportEntryScreen}
+          options={{ headerShown: false }}
         />
       </Stack.Navigator>
     </NavigationContainer>

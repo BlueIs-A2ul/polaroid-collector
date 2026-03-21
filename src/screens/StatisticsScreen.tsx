@@ -319,6 +319,38 @@ const StatisticsScreen: React.FC<StatisticsScreenProps> = ({ navigation }) => {
     tabTextActive: {
       color: colors.WHITE,
     },
+    yearlyReportCard: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.WHITE,
+      marginHorizontal: 16,
+      marginTop: 16,
+      padding: 16,
+      borderRadius: 16,
+      ...CARD_SHADOW,
+    },
+    yearlyReportIcon: {
+      width: 48,
+      height: 48,
+      borderRadius: 24,
+      backgroundColor: colors.PRIMARY,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: 12,
+    },
+    yearlyReportContent: {
+      flex: 1,
+    },
+    yearlyReportTitle: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      color: colors.BLACK,
+    },
+    yearlyReportSubtitle: {
+      fontSize: 12,
+      color: colors.GRAY[500],
+      marginTop: 2,
+    },
     bottomPadding: {
       height: 20,
     },
@@ -403,6 +435,20 @@ const StatisticsScreen: React.FC<StatisticsScreenProps> = ({ navigation }) => {
           <Text style={styles.summaryLabel}>总花费</Text>
         </View>
       </View>
+
+      <TouchableOpacity
+        style={styles.yearlyReportCard}
+        onPress={() => navigation.navigate('YearlyReport')}
+      >
+        <View style={styles.yearlyReportIcon}>
+          <Ionicons name='sparkles' size={24} color={colors.WHITE} />
+        </View>
+        <View style={styles.yearlyReportContent}>
+          <Text style={styles.yearlyReportTitle}>年度报告</Text>
+          <Text style={styles.yearlyReportSubtitle}>回顾你的拍立得之旅</Text>
+        </View>
+        <Ionicons name='chevron-forward' size={24} color={colors.GRAY[400]} />
+      </TouchableOpacity>
 
       {statistics.totalPrice > 0 && (
         <View style={styles.sectionContainer}>
