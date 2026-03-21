@@ -3,19 +3,28 @@ import * as Sharing from 'expo-sharing'
 import { ServiceResult } from '../types'
 import { STORAGE_KEYS } from '../constants/storageKeys'
 import { saveRecord, getAllRecords, clearAllRecords } from './storageService'
+import { getPhotoBase64 } from './photoService'
+import { getAllAvatars } from './avatarService'
+import AsyncStorage from '@react-native-async-storage/async-storage'
 
-/**
- * 备份服务
- * 负责数据备份和恢复
- */
+const PHOTO_DIR = `${(FileSystem as any).documentDirectory}photos/`
 
-/**
- * 创建数据备份
- * @returns 备份结果
- */
+interface PhotoBackup {
+  originalUri: string
+  base64: string
+}
+
+interface BackupData {
+  version: '2.0.0'
+  backupDate: string
+  records: any[]
+  photos: PhotoBackup[]
+  avatars: Record<string, string>
+  fieldHistory: Record<string, string[]>
+}
+
 export const createBackup = async (): Promise<ServiceResult<string>> => {
   try {
-    // 读取所有存储的数据
     const { success, data: records, error } = await getAllRecords()
 
     if (!success) {
@@ -26,16 +35,52 @@ export const createBackup = async (): Promise<ServiceResult<string>> => {
       }
     }
 
-    // 创建备份数据
-    const backupData = {
-      version: '1.0.0',
-      backupDate: new Date().toISOString(),
-      data: {
-        records: records || [],
-      },
+    const photos: PhotoBackup[] = []
+    const photoUris = new Set<string>()
+
+    records?.forEach(record => {
+      if (record.photoUri) photoUris.add(record.photoUri)
+      if (record.backPhotoUri) photoUris.add(record.backPhotoUri)
+    })
+
+    const { success: avatarSuccess, data: avatarMap } = await getAllAvatars()
+    if (avatarSuccess && avatarMap) {
+      Object.values(avatarMap).forEach(uri => {
+        if (uri) photoUris.add(uri)
+      })
     }
 
-    const jsonString = JSON.stringify(backupData, null, 2)
+    for (const uri of photoUris) {
+      try {
+        const { success: base64Success, data: base64 } = await getPhotoBase64(uri)
+        if (base64Success && base64) {
+          photos.push({ originalUri: uri, base64 })
+        }
+      } catch (e) {
+        console.error('读取照片失败:', uri, e)
+      }
+    }
+
+    let fieldHistory: Record<string, string[]> = {}
+    try {
+      const fieldHistoryData = await AsyncStorage.getItem(STORAGE_KEYS.FIELD_HISTORY)
+      if (fieldHistoryData) {
+        fieldHistory = JSON.parse(fieldHistoryData)
+      }
+    } catch (e) {
+      console.error('读取字段历史失败:', e)
+    }
+
+    const backupData: BackupData = {
+      version: '2.0.0',
+      backupDate: new Date().toISOString(),
+      records: records || [],
+      photos,
+      avatars: avatarMap || {},
+      fieldHistory,
+    }
+
+    const jsonString = JSON.stringify(backupData)
     const fileName = `polaroid_backup_${Date.now()}.json`
     const fileUri = `${(FileSystem as any).documentDirectory}${fileName}`
 
@@ -56,21 +101,14 @@ export const createBackup = async (): Promise<ServiceResult<string>> => {
   }
 }
 
-/**
- * 从备份恢复数据
- * @param backupUri - 备份文件 URI
- * @returns 恢复结果
- */
 export const restoreFromBackup = async (
   backupUri: string,
 ): Promise<ServiceResult<void>> => {
   try {
-    // 读取备份文件
     const fileContent = await FileSystem.readAsStringAsync(backupUri)
-    const backupData = JSON.parse(fileContent)
+    const backupData: BackupData = JSON.parse(fileContent)
 
-    // 验证备份格式
-    if (!backupData.version || !backupData.data) {
+    if (!backupData.version) {
       return {
         success: false,
         data: null,
@@ -78,7 +116,7 @@ export const restoreFromBackup = async (
       }
     }
 
-    const { records } = backupData.data
+    const { records, photos, avatars, fieldHistory } = backupData
 
     if (!Array.isArray(records)) {
       return {
@@ -88,15 +126,59 @@ export const restoreFromBackup = async (
       }
     }
 
-    // 清除现有数据
     await clearAllRecords()
 
-    // 恢复数据
-    for (const record of records) {
-      const { error: saveError } = await saveRecord(record)
-      if (saveError) {
-        console.error('恢复记录失败:', saveError)
+    const uriMapping: Record<string, string> = {}
+
+    if (photos && photos.length > 0) {
+      try {
+        const dirInfo = await FileSystem.getInfoAsync(PHOTO_DIR)
+        if (!dirInfo.exists) {
+          await FileSystem.makeDirectoryAsync(PHOTO_DIR, { intermediates: true })
+        }
+      } catch {
+        await FileSystem.makeDirectoryAsync(PHOTO_DIR, { intermediates: true })
       }
+
+      for (const photo of photos) {
+        try {
+          const filename = `${Date.now()}_${Math.random().toString(36).substr(2, 9)}.jpg`
+          const newUri = `${PHOTO_DIR}${filename}`
+
+          await FileSystem.writeAsStringAsync(newUri, photo.base64, {
+            encoding: (FileSystem as any).EncodingType.Base64,
+          })
+
+          uriMapping[photo.originalUri] = newUri
+        } catch (e) {
+          console.error('恢复照片失败:', e)
+        }
+      }
+    }
+
+    const newAvatars: Record<string, string> = {}
+    for (const record of records) {
+      if (record.photoUri && uriMapping[record.photoUri]) {
+        record.photoUri = uriMapping[record.photoUri]
+      }
+      if (record.backPhotoUri && uriMapping[record.backPhotoUri]) {
+        record.backPhotoUri = uriMapping[record.backPhotoUri]
+      }
+
+      await saveRecord(record)
+    }
+
+    if (avatars) {
+      for (const [idolName, oldUri] of Object.entries(avatars)) {
+        if (oldUri && uriMapping[oldUri]) {
+          newAvatars[idolName] = uriMapping[oldUri]
+        }
+      }
+      await AsyncStorage.setItem(STORAGE_KEYS.AVATARS, JSON.stringify(newAvatars))
+    }
+
+    if (fieldHistory) {
+      await AsyncStorage.setItem(STORAGE_KEYS.FIELD_HISTORY, JSON.stringify(fieldHistory))
     }
 
     return {
@@ -114,10 +196,6 @@ export const restoreFromBackup = async (
   }
 }
 
-/**
- * 分享备份文件
- * @param fileUri - 文件 URI
- */
 export const shareBackupFile = async (fileUri: string): Promise<void> => {
   try {
     const isAvailable = await Sharing.isAvailableAsync()

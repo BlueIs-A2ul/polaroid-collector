@@ -26,8 +26,12 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
-    "plugins": [
-      "expo-image"
-    ]
+    "plugins": ["expo-image"],
+    "extra": {
+      "eas": {
+        "projectId": "434b646d-4c51-43b4-a392-4566476be3eb"
+      }
+    },
+    "owner": "lizhiyu"
   }
 }
