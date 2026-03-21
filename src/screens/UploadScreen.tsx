@@ -104,6 +104,8 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
   const handleConfirmCropOptions = async () => {
     setShowCropOptions(false)
 
+    const today = new Date().toISOString().split('T')[0]
+
     if (pendingSource === 'multiple') {
       const { success, data, error } = await pickMultiplePhotos({
         allowCrop,
@@ -116,7 +118,7 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
         setPhotos([...photos, ...newPhotos])
 
         const firstDate = data[0]?.capturedDate
-        if (firstDate && !photos.length) {
+        if (firstDate && photoDate === today) {
           setPhotoDate(firstDate)
         }
       } else if (error !== '用户取消选择') {
@@ -132,7 +134,7 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
       if (success && data) {
         setPhotos([...photos, { uri: data.uri, count: 1 }])
 
-        if (data.capturedDate && !photos.length) {
+        if (data.capturedDate && photoDate === today) {
           setPhotoDate(data.capturedDate)
         }
       } else if (error !== '用户取消选择') {

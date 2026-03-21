@@ -12,17 +12,28 @@ export interface PhotoWithDate {
 const PHOTO_DIR = `${(FileSystem as any).documentDirectory}photos/`
 
 const extractDateFromExif = (exif: any): string | undefined => {
-  if (!exif) return undefined
+  if (!exif) {
+    return undefined
+  }
 
-  const dateStr = exif.DateTimeOriginal || exif.DateTime || exif.CreateDate
-  if (!dateStr) return undefined
+  const dateStr = exif.DateTimeOriginal || exif.DateTime || exif.CreateDate || exif.ModifyDate
+  if (!dateStr) {
+    return undefined
+  }
 
   try {
     if (typeof dateStr === 'string') {
-      const cleaned = dateStr.replace(/:/g, '-')
-      const match = cleaned.match(/(\d{4})-(\d{2})-(\d{2})/)
-      if (match) {
-        return `${match[1]}-${match[2]}-${match[3]}`
+      const formats = [
+        /(\d{4}):(\d{2}):(\d{2})/,
+        /(\d{4})-(\d{2})-(\d{2})/,
+        /(\d{4})\/(\d{2})\/(\d{2})/,
+      ]
+
+      for (const regex of formats) {
+        const match = dateStr.match(regex)
+        if (match) {
+          return `${match[1]}-${match[2]}-${match[3]}`
+        }
       }
     }
     if (typeof dateStr === 'number') {
@@ -35,22 +46,27 @@ const extractDateFromExif = (exif: any): string | undefined => {
   return undefined
 }
 
-const getPhotoDateFromAsset = async (assetUri: string): Promise<string | undefined> => {
+const getPhotoDateFromAsset = async (assetUri: string, asset?: any): Promise<string | undefined> => {
   try {
+    if (asset?.creationTime || asset?.modificationTime) {
+      const time = asset.creationTime || asset.modificationTime
+      const date = new Date(time)
+      return date.toISOString().split('T')[0]
+    }
+
     const { status } = await MediaLibrary.requestPermissionsAsync()
     if (status !== 'granted') return undefined
 
-    const assetId = assetUri.replace('ph://', '').split('/')[0]
-    const assets = await MediaLibrary.getAssetsAsync({
-      first: 1,
-      after: assetId,
-      sortBy: [MediaLibrary.SortBy.creationTime],
-    })
+    if (assetUri.startsWith('ph://')) {
+      const localUri = assetUri.replace('ph://', '')
+      const parts = localUri.split('/')
+      const assetId = parts[0]
 
-    if (assets.assets.length > 0) {
-      const creationTime = assets.assets[0].creationTime
-      const date = new Date(creationTime)
-      return date.toISOString().split('T')[0]
+      const assetInfo = await MediaLibrary.getAssetInfoAsync(assetId)
+      if (assetInfo?.creationTime) {
+        const date = new Date(assetInfo.creationTime)
+        return date.toISOString().split('T')[0]
+      }
     }
   } catch {
     return undefined
@@ -133,7 +149,7 @@ export const pickPhoto = async (
       capturedDate = extractDateFromExif(asset.exif)
     }
     if (!capturedDate && source === 'library') {
-      capturedDate = await getPhotoDateFromAsset(originalUri)
+      capturedDate = await getPhotoDateFromAsset(originalUri, asset)
     }
 
     const finalUri = compressResult.success && compressResult.data ? compressResult.data : originalUri
@@ -371,7 +387,7 @@ export const pickMultiplePhotos = async (
         capturedDate = extractDateFromExif(asset.exif)
       }
       if (!capturedDate) {
-        capturedDate = await getPhotoDateFromAsset(asset.uri)
+        capturedDate = await getPhotoDateFromAsset(asset.uri, asset)
       }
 
       photos.push({ uri: finalUri, capturedDate })
