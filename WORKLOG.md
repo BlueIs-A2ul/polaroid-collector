@@ -2,6 +2,46 @@
 
 本文档记录项目的开发进度和重要变更，供 AI 助手在每次开始工作时阅读，了解项目当前状态。
 
+## 2026-03-21 开发记录（续七）
+
+### 新增功能
+
+1. **自动读取照片拍摄日期**
+   - 选择照片时自动读取 EXIF 数据中的拍摄时间
+   - 若 EXIF 无数据则尝试从媒体库获取创建时间
+   - 自动填充日期字段，无需手动选择
+
+### 修复问题
+
+1. **统计页面返回后滚动位置重置**
+   - 问题：`useFocusEffect` 每次返回都重新加载数据导致滚动位置丢失
+   - 解决：只在首次挂载时加载，已有数据时跳过
+
+2. **日历数量标签遮挡日期**
+   - 问题：绝对定位的标签遮挡日期数字
+   - 解决：改用垂直布局，日期在上、标签在下，增加行间距
+
+3. **上传页面 Hooks 顺序错误**
+   - 问题：`useMemo` 定义在条件返回之后，违反 React Hooks 规则
+   - 解决：将 `useMemo` 移到条件返回之前
+
+4. **创建记录时遗漏字段**
+   - 问题：`createRecord` 函数未保存 groupName、city、venue 等字段
+   - 解决：补充所有扩展字段的赋值
+
+### 文件变更
+
+| 文件 | 变更类型 | 说明 |
+|------|----------|------|
+| `src/services/photoService.ts` | 修改 | 添加 EXIF 日期读取、PhotoWithDate 类型 |
+| `src/screens/UploadScreen.tsx` | 修改 | 自动填充日期、修复 hooks 顺序 |
+| `src/screens/StatisticsScreen.tsx` | 修改 | 修复滚动位置问题 |
+| `src/components/features/Calendar.tsx` | 修改 | 修复数量标签布局 |
+| `src/services/recordService.ts` | 修改 | 补充遗漏字段 |
+| `package.json` | 修改 | 添加 expo-media-library |
+
+---
+
 ## 2026-03-21 开发记录（续六）
 
 ### 新增功能
