@@ -146,7 +146,7 @@ export const pickAndSetAvatar = async (
       }
     }
 
-    return setAvatar(idolName, data)
+    return setAvatar(idolName, data.uri)
   } catch (error) {
     return {
       success: false,

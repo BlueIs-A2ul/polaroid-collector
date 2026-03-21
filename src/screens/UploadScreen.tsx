@@ -19,7 +19,7 @@ import { RouteProp } from '@react-navigation/native'
 import { useTheme } from '../contexts/ThemeContext'
 import { CARD_SHADOW } from '../constants/themes'
 import { RootStackParamList } from '../navigation/AppNavigator'
-import { pickPhoto, pickMultiplePhotos } from '../services/photoService'
+import { pickPhoto, pickMultiplePhotos, PhotoWithDate } from '../services/photoService'
 import { createMultipleRecords } from '../services/recordService'
 import LoadingSpinner from '../components/common/LoadingSpinner'
 import IdolSelector from '../components/features/IdolSelector'
@@ -112,8 +112,13 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
       })
 
       if (success && data) {
-        const newPhotos: PhotoItem[] = data.map(uri => ({ uri, count: 1 }))
+        const newPhotos: PhotoItem[] = data.map(p => ({ uri: p.uri, count: 1 }))
         setPhotos([...photos, ...newPhotos])
+
+        const firstDate = data[0]?.capturedDate
+        if (firstDate && !photos.length) {
+          setPhotoDate(firstDate)
+        }
       } else if (error !== '用户取消选择') {
         Alert.alert('错误', error || '选择照片失败')
       }
@@ -125,7 +130,11 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
       })
 
       if (success && data) {
-        setPhotos([...photos, { uri: data, count: 1 }])
+        setPhotos([...photos, { uri: data.uri, count: 1 }])
+
+        if (data.capturedDate && !photos.length) {
+          setPhotoDate(data.capturedDate)
+        }
       } else if (error !== '用户取消选择') {
         Alert.alert('错误', error || '选择照片失败')
       }
@@ -166,7 +175,7 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
     })
 
     if (success && data) {
-      setPhotos(photos.map(p => (p.uri === photoUri ? { ...p, backPhotoUri: data } : p)))
+      setPhotos(photos.map(p => (p.uri === photoUri ? { ...p, backPhotoUri: data.uri } : p)))
     } else if (error !== '用户取消选择') {
       Alert.alert('错误', error || '选择背签照片失败')
     }

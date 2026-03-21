@@ -1,14 +1,62 @@
 import * as FileSystem from 'expo-file-system/legacy'
 import * as ImagePicker from 'expo-image-picker'
 import * as ImageManipulator from 'expo-image-manipulator'
+import * as MediaLibrary from 'expo-media-library'
 import { ServiceResult } from '../types'
 
-/**
- * 照片服务
- * 负责照片的选择、存储、读取和删除
- */
+export interface PhotoWithDate {
+  uri: string
+  capturedDate?: string
+}
 
 const PHOTO_DIR = `${(FileSystem as any).documentDirectory}photos/`
+
+const extractDateFromExif = (exif: any): string | undefined => {
+  if (!exif) return undefined
+
+  const dateStr = exif.DateTimeOriginal || exif.DateTime || exif.CreateDate
+  if (!dateStr) return undefined
+
+  try {
+    if (typeof dateStr === 'string') {
+      const cleaned = dateStr.replace(/:/g, '-')
+      const match = cleaned.match(/(\d{4})-(\d{2})-(\d{2})/)
+      if (match) {
+        return `${match[1]}-${match[2]}-${match[3]}`
+      }
+    }
+    if (typeof dateStr === 'number') {
+      const date = new Date(dateStr * 1000)
+      return date.toISOString().split('T')[0]
+    }
+  } catch {
+    return undefined
+  }
+  return undefined
+}
+
+const getPhotoDateFromAsset = async (assetUri: string): Promise<string | undefined> => {
+  try {
+    const { status } = await MediaLibrary.requestPermissionsAsync()
+    if (status !== 'granted') return undefined
+
+    const assetId = assetUri.replace('ph://', '').split('/')[0]
+    const assets = await MediaLibrary.getAssetsAsync({
+      first: 1,
+      after: assetId,
+      sortBy: [MediaLibrary.SortBy.creationTime],
+    })
+
+    if (assets.assets.length > 0) {
+      const creationTime = assets.assets[0].creationTime
+      const date = new Date(creationTime)
+      return date.toISOString().split('T')[0]
+    }
+  } catch {
+    return undefined
+  }
+  return undefined
+}
 
 /**
  * 确保照片目录存在
@@ -34,7 +82,7 @@ export const pickPhoto = async (
     cropWidth?: number
     cropHeight?: number
   },
-): Promise<ServiceResult<string>> => {
+): Promise<ServiceResult<PhotoWithDate>> => {
   try {
     const { allowCrop = true, cropWidth = 4, cropHeight = 3 } = options || {}
 
@@ -58,12 +106,14 @@ export const pickPhoto = async (
             allowsEditing: allowCrop,
             aspect: allowCrop ? [cropWidth, cropHeight] : undefined,
             quality: 0.6,
+            exif: true,
           })
         : await ImagePicker.launchImageLibraryAsync({
             mediaTypes: ['images'],
             allowsEditing: allowCrop,
             aspect: allowCrop ? [cropWidth, cropHeight] : undefined,
             quality: 0.6,
+            exif: true,
           })
 
     if (result.canceled) {
@@ -74,20 +124,23 @@ export const pickPhoto = async (
       }
     }
 
-    const originalUri = result.assets[0].uri
+    const asset = result.assets[0]
+    const originalUri = asset.uri
     const compressResult = await compressPhoto(originalUri)
 
-    if (compressResult.success && compressResult.data) {
-      return {
-        success: true,
-        data: compressResult.data,
-        error: null,
-      }
+    let capturedDate: string | undefined
+    if (asset.exif) {
+      capturedDate = extractDateFromExif(asset.exif)
     }
+    if (!capturedDate && source === 'library') {
+      capturedDate = await getPhotoDateFromAsset(originalUri)
+    }
+
+    const finalUri = compressResult.success && compressResult.data ? compressResult.data : originalUri
 
     return {
       success: true,
-      data: originalUri,
+      data: { uri: finalUri, capturedDate },
       error: null,
     }
   } catch (error) {
@@ -277,7 +330,7 @@ export const pickMultiplePhotos = async (
     cropWidth?: number
     cropHeight?: number
   },
-): Promise<ServiceResult<string[]>> => {
+): Promise<ServiceResult<PhotoWithDate[]>> => {
   try {
     const { allowCrop = false } = options || {}
 
@@ -297,6 +350,7 @@ export const pickMultiplePhotos = async (
       selectionLimit: 10,
       allowsEditing: allowCrop,
       quality: 0.6,
+      exif: true,
     })
 
     if (result.canceled) {
@@ -307,15 +361,25 @@ export const pickMultiplePhotos = async (
       }
     }
 
-    const uris: string[] = []
+    const photos: PhotoWithDate[] = []
     for (const asset of result.assets) {
       const compressResult = await compressPhoto(asset.uri)
-      uris.push(compressResult.success && compressResult.data ? compressResult.data : asset.uri)
+      const finalUri = compressResult.success && compressResult.data ? compressResult.data : asset.uri
+
+      let capturedDate: string | undefined
+      if (asset.exif) {
+        capturedDate = extractDateFromExif(asset.exif)
+      }
+      if (!capturedDate) {
+        capturedDate = await getPhotoDateFromAsset(asset.uri)
+      }
+
+      photos.push({ uri: finalUri, capturedDate })
     }
 
     return {
       success: true,
-      data: uris,
+      data: photos,
       error: null,
     }
   } catch (error) {

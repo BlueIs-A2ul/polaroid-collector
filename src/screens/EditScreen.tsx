@@ -120,9 +120,9 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
 
     if (success && data) {
       if (pendingPhotoType === 'front') {
-        setPhotoUri(data)
+        setPhotoUri(data.uri)
       } else {
-        setBackPhotoUri(data)
+        setBackPhotoUri(data.uri)
       }
     } else if (error !== '用户取消选择') {
       Alert.alert('错误', error || '选择照片失败')
@@ -180,7 +180,7 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
     })
 
     if (success && data) {
-      setBackPhotoUri(data)
+      setBackPhotoUri(data.uri)
     } else if (error !== '用户取消选择') {
       Alert.alert('错误', error || '选择背签照片失败')
     }
