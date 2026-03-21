@@ -356,7 +356,10 @@ const StatisticsScreen: React.FC<StatisticsScreenProps> = ({ navigation }) => {
     },
   }), [colors])
 
-  const loadData = React.useCallback(async () => {
+  const loadData = React.useCallback(async (forceRefresh = false) => {
+    if (statistics && !forceRefresh) {
+      return
+    }
     setLoading(true)
     const [statsResult, rankingResult, spendingResult] = await Promise.all([
       getStatistics(),
@@ -374,17 +377,15 @@ const StatisticsScreen: React.FC<StatisticsScreenProps> = ({ navigation }) => {
       setMonthlySpending(spendingResult.data)
     }
     setLoading(false)
-  }, [])
+  }, [statistics])
 
-  useFocusEffect(
-    React.useCallback(() => {
-      loadData()
-    }, [loadData]),
-  )
+  React.useEffect(() => {
+    loadData()
+  }, [])
 
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true)
-    await loadData()
+    await loadData(true)
     setRefreshing(false)
   }, [loadData])
 
