@@ -11,6 +11,7 @@ import StatisticsScreen from '../screens/StatisticsScreen'
 import CalendarScreen from '../screens/CalendarScreen'
 import ThemeSettingsScreen from '../screens/ThemeSettingsScreen'
 import YearlyReportEntryScreen from '../screens/YearlyReportEntryScreen'
+import IdolReportScreen from '../screens/IdolReportScreen'
 
 export type RootStackParamList = {
   Home: undefined
@@ -21,6 +22,7 @@ export type RootStackParamList = {
   Calendar: undefined
   ThemeSettings: undefined
   YearlyReport: undefined
+  IdolReport: { idolName: string; avatarUri?: string | null }
 }
 
 const Stack = createStackNavigator<RootStackParamList>()
@@ -81,6 +83,11 @@ const AppNavigator = () => {
         <Stack.Screen
           name='YearlyReport'
           component={YearlyReportEntryScreen}
+          options={{ headerShown: false }}
+        />
+        <Stack.Screen
+          name='IdolReport'
+          component={IdolReportScreen}
           options={{ headerShown: false }}
         />
       </Stack.Navigator>

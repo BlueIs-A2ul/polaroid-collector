@@ -696,6 +696,13 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
               color={colors.WHITE}
             />
           </TouchableOpacity>
+          <TouchableOpacity onPress={() => navigation.navigate('IdolReport', { idolName, avatarUri })}>
+            <Ionicons
+              name='stats-chart-outline'
+              size={24}
+              color={colors.WHITE}
+            />
+          </TouchableOpacity>
           <TouchableOpacity onPress={() => setShareModalVisible(true)}>
             <Ionicons
               name='share-outline'
@@ -706,7 +713,7 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
         </View>
       ),
     })
-  }, [navigation, ascending, colors])
+  }, [navigation, ascending, colors, idolName, avatarUri])
 
   if (loading) {
     return <LoadingSpinner />
