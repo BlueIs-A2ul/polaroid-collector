@@ -95,10 +95,8 @@ const Calendar: React.FC<CalendarProps> = ({
             {day}
           </Text>
           {count > 0 && (
-            <View style={styles.dotContainer}>
-              <View style={[styles.dot, count > 3 && styles.dotMultiple]}>
-                <Text style={styles.dotText}>{count}</Text>
-              </View>
+            <View style={[styles.countBadge, count > 3 && styles.countBadgeMultiple]}>
+              <Text style={styles.countBadgeText}>{count}</Text>
             </View>
           )}
         </TouchableOpacity>
@@ -207,31 +205,29 @@ const styles = StyleSheet.create({
   },
   cell: {
     width: '14.28%',
-    height: 44,
+    height: 52,
     alignItems: 'center',
     justifyContent: 'center',
   },
   selectedCell: {
     backgroundColor: COLORS.PRIMARY,
-    borderRadius: 100,
+    borderRadius: 8,
   },
   todayCell: {
     backgroundColor: COLORS.GRAY[100],
-    borderRadius: 100,
+    borderRadius: 8,
   },
   dayText: {
     fontSize: 14,
     color: COLORS.BLACK,
+    fontWeight: '500',
   },
   selectedDayText: {
     color: COLORS.WHITE,
     fontWeight: 'bold',
   },
-  dotContainer: {
-    position: 'absolute',
-    bottom: 4,
-  },
-  dot: {
+  countBadge: {
+    marginTop: 2,
     minWidth: 16,
     height: 16,
     borderRadius: 8,
@@ -240,10 +236,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     paddingHorizontal: 4,
   },
-  dotMultiple: {
+  countBadgeMultiple: {
     backgroundColor: COLORS.SUCCESS,
   },
-  dotText: {
+  countBadgeText: {
     fontSize: 10,
     color: COLORS.WHITE,
     fontWeight: 'bold',
