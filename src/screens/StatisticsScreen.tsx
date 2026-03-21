@@ -14,10 +14,11 @@ import { RouteProp } from '@react-navigation/native'
 import { useFocusEffect } from '@react-navigation/native'
 import { COLORS, CARD_SHADOW } from '../constants/themeColors'
 import { RootStackParamList } from '../navigation/AppNavigator'
-import { getRanking, getStatistics } from '../services/recordService'
-import { RankingItem, Statistics, FieldStat } from '../types'
+import { getRanking, getStatistics, getMonthlySpending } from '../services/recordService'
+import { RankingItem, Statistics, FieldStat, MonthlySpending } from '../types'
 import LoadingSpinner from '../components/common/LoadingSpinner'
 import EmptyState from '../components/common/EmptyState'
+import SpendingChart from '../components/common/SpendingChart'
 
 type StatisticsScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -94,14 +95,16 @@ const FieldStatSection: React.FC<FieldStatSectionProps> = ({
 const StatisticsScreen: React.FC<StatisticsScreenProps> = ({ navigation }) => {
   const [statistics, setStatistics] = React.useState<Statistics | null>(null)
   const [ranking, setRanking] = React.useState<RankingItem[]>([])
+  const [monthlySpending, setMonthlySpending] = React.useState<MonthlySpending[]>([])
   const [loading, setLoading] = React.useState(true)
   const [refreshing, setRefreshing] = React.useState(false)
 
   const loadData = React.useCallback(async () => {
     setLoading(true)
-    const [statsResult, rankingResult] = await Promise.all([
+    const [statsResult, rankingResult, spendingResult] = await Promise.all([
       getStatistics(),
       getRanking(),
+      getMonthlySpending(6),
     ])
 
     if (statsResult.success && statsResult.data) {
@@ -109,6 +112,9 @@ const StatisticsScreen: React.FC<StatisticsScreenProps> = ({ navigation }) => {
     }
     if (rankingResult.success && rankingResult.data) {
       setRanking(rankingResult.data)
+    }
+    if (spendingResult.success && spendingResult.data) {
+      setMonthlySpending(spendingResult.data)
     }
     setLoading(false)
   }, [])
@@ -172,6 +178,13 @@ const StatisticsScreen: React.FC<StatisticsScreenProps> = ({ navigation }) => {
           <Text style={styles.summaryLabel}>总花费</Text>
         </View>
       </View>
+
+      {statistics.totalPrice > 0 && (
+        <View style={styles.sectionContainer}>
+          <Text style={styles.sectionTitle}>花费趋势</Text>
+          <SpendingChart data={monthlySpending} />
+        </View>
+      )}
 
       <View style={styles.sectionContainer}>
         <Text style={styles.sectionTitle}>偶像占比</Text>

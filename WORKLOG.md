@@ -2,6 +2,28 @@
 
 本文档记录项目的开发进度和重要变更，供 AI 助手在每次开始工作时阅读，了解项目当前状态。
 
+## 2026-03-21 开发记录（续）
+
+### 新增功能
+
+1. **花费趋势图表**
+   - 统计页面新增花费趋势区块
+   - 展示近 6 个月的月度花费柱状图
+   - 显示总花费和月均花费统计
+   - 使用纯 View 样式实现，无需额外图表库
+   - 无花费记录时显示空状态提示
+
+### 文件变更
+
+| 文件 | 变更类型 | 说明 |
+|------|----------|------|
+| `src/types/index.ts` | 修改 | 添加 MonthlySpending 类型 |
+| `src/services/recordService.ts` | 修改 | 添加 getMonthlySpending 函数 |
+| `src/components/common/SpendingChart.tsx` | 新增 | 花费趋势柱状图组件 |
+| `src/screens/StatisticsScreen.tsx` | 修改 | 集成花费趋势图表 |
+
+---
+
 ## 2026-03-21 开发记录
 
 ### 新增功能

@@ -98,3 +98,11 @@ export interface PhotoItem {
   polaroidType?: string
   memberCount?: string
 }
+
+export interface MonthlySpending {
+  year: number
+  month: number
+  totalSpending: number
+  recordCount: number
+  label: string
+}
