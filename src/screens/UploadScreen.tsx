@@ -266,10 +266,6 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
     }
   }
 
-  if (loading) {
-    return <LoadingSpinner />
-  }
-
   const styles = useMemo(() => StyleSheet.create({
     container: {
       flex: 1,
@@ -649,6 +645,10 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
       color: colors.WHITE,
     },
   }), [colors])
+
+  if (loading) {
+    return <LoadingSpinner />
+  }
 
   return (
     <ScrollView style={styles.container}>
