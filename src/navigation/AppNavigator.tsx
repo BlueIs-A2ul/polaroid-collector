@@ -1,7 +1,7 @@
 import React from 'react'
 import { NavigationContainer } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack'
-import { COLORS } from '../constants/themeColors'
+import { useTheme } from '../contexts/ThemeContext'
 
 import HomeScreen from '../screens/HomeScreen'
 import UploadScreen from '../screens/UploadScreen'
@@ -9,6 +9,7 @@ import DetailScreen from '../screens/DetailScreen'
 import EditScreen from '../screens/EditScreen'
 import StatisticsScreen from '../screens/StatisticsScreen'
 import CalendarScreen from '../screens/CalendarScreen'
+import ThemeSettingsScreen from '../screens/ThemeSettingsScreen'
 
 export type RootStackParamList = {
   Home: undefined
@@ -17,23 +18,23 @@ export type RootStackParamList = {
   Edit: { recordId: string }
   Statistics: undefined
   Calendar: undefined
+  ThemeSettings: undefined
 }
 
 const Stack = createStackNavigator<RootStackParamList>()
 
-/**
- * 应用导航配置
- */
 const AppNavigator = () => {
+  const { colors } = useTheme()
+
   return (
     <NavigationContainer>
       <Stack.Navigator
         initialRouteName='Home'
         screenOptions={{
           headerStyle: {
-            backgroundColor: COLORS.PRIMARY,
+            backgroundColor: colors.PRIMARY,
           },
-          headerTintColor: COLORS.WHITE,
+          headerTintColor: colors.WHITE,
           headerTitleStyle: {
             fontWeight: 'bold',
           },
@@ -69,6 +70,11 @@ const AppNavigator = () => {
           name='Calendar'
           component={CalendarScreen}
           options={{ title: '日历' }}
+        />
+        <Stack.Screen
+          name='ThemeSettings'
+          component={ThemeSettingsScreen}
+          options={{ title: '主题设置' }}
         />
       </Stack.Navigator>
     </NavigationContainer>

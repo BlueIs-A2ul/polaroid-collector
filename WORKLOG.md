@@ -2,6 +2,43 @@
 
 本文档记录项目的开发进度和重要变更，供 AI 助手在每次开始工作时阅读，了解项目当前状态。
 
+## 2026-03-21 开发记录（续二）
+
+### 新增功能
+
+1. **主题管理功能**
+   - 支持 6 套预设主题：经典棕、海洋蓝、樱花粉、森林绿、薰衣草、日落橙
+   - 主题设置页面，可一键切换主题
+   - 主题配置持久化存储
+   - 架构预留自定义主题扩展能力
+
+### 架构变更
+
+1. **主题系统架构**
+   - 新增 `ThemeContext` 和 `useTheme` hook 提供全局主题状态
+   - 所有组件改用 `useTheme()` 获取动态主题颜色
+   - 预设主题定义在 `constants/themes.ts`
+   - 主题存储服务 `themeService.ts`
+
+### 文件变更
+
+| 文件 | 变更类型 | 说明 |
+|------|----------|------|
+| `src/types/theme.ts` | 新增 | 主题类型定义 |
+| `src/constants/themes.ts` | 新增 | 预设主题常量 |
+| `src/constants/storageKeys.ts` | 修改 | 添加 THEME 存储键 |
+| `src/services/themeService.ts` | 新增 | 主题存储服务 |
+| `src/contexts/ThemeContext.tsx` | 新增 | 主题 Context 和 Hook |
+| `src/screens/ThemeSettingsScreen.tsx` | 新增 | 主题设置页面 |
+| `App.tsx` | 修改 | 包装 ThemeProvider |
+| `src/navigation/AppNavigator.tsx` | 修改 | 动态主题色、添加主题设置路由 |
+| `src/screens/HomeScreen.tsx` | 修改 | 使用 useTheme、添加主题设置入口 |
+| `src/screens/*.tsx` | 修改 | 所有 Screen 使用 useTheme |
+| `src/components/**/*.tsx` | 修改 | 所有组件使用 useTheme |
+| `src/constants/themeColors.ts` | 废弃 | 由 themes.ts 替代 |
+
+---
+
 ## 2026-03-21 开发记录（续）
 
 ### 新增功能

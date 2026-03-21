@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import {
   View,
   Text,
@@ -9,7 +9,7 @@ import {
   ScrollView,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
-import { COLORS } from '../../constants/themeColors'
+import { useTheme } from '../../contexts/ThemeContext'
 
 interface OptionsSelectorProps {
   label: string
@@ -26,8 +26,120 @@ const OptionsSelector: React.FC<OptionsSelectorProps> = ({
   placeholder = '请选择',
   onChange,
 }) => {
+  const { colors } = useTheme()
   const [modalVisible, setModalVisible] = useState(false)
   const [customInput, setCustomInput] = useState('')
+
+  const styles = useMemo(() => StyleSheet.create({
+    container: {
+      marginBottom: 8,
+    },
+    label: {
+      fontSize: 13,
+      color: colors.GRAY[600],
+      marginBottom: 4,
+    },
+    selector: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      backgroundColor: colors.GRAY[100],
+      borderRadius: 6,
+      paddingHorizontal: 10,
+      paddingVertical: 8,
+    },
+    selectorFilled: {
+      backgroundColor: colors.WHITE,
+      borderWidth: 1,
+      borderColor: colors.PRIMARY,
+    },
+    selectorText: {
+      fontSize: 14,
+      color: colors.BLACK,
+    },
+    placeholder: {
+      color: colors.GRAY[400],
+    },
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      justifyContent: 'flex-end',
+    },
+    modalContent: {
+      backgroundColor: colors.WHITE,
+      borderTopLeftRadius: 20,
+      borderTopRightRadius: 20,
+      maxHeight: '60%',
+    },
+    modalHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.GRAY[200],
+    },
+    modalTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.BLACK,
+    },
+    optionsContainer: {
+      padding: 16,
+    },
+    optionButton: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+      borderRadius: 8,
+      marginBottom: 8,
+      backgroundColor: colors.WHITE,
+      borderWidth: 1,
+      borderColor: colors.GRAY[200],
+    },
+    optionSelected: {
+      backgroundColor: `${colors.PRIMARY}15`,
+    },
+    optionText: {
+      fontSize: 16,
+      color: colors.BLACK,
+    },
+    optionTextSelected: {
+      color: colors.PRIMARY,
+      fontWeight: 'bold',
+    },
+    customInputContainer: {
+      flexDirection: 'row',
+      padding: 16,
+      borderTopWidth: 1,
+      borderTopColor: colors.GRAY[200],
+      gap: 12,
+    },
+    customInput: {
+      flex: 1,
+      backgroundColor: colors.GRAY[100],
+      borderRadius: 8,
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+      fontSize: 14,
+    },
+    customSubmitButton: {
+      backgroundColor: colors.PRIMARY,
+      borderRadius: 8,
+      paddingHorizontal: 20,
+      justifyContent: 'center',
+    },
+    customSubmitButtonDisabled: {
+      backgroundColor: colors.GRAY[300],
+    },
+    customSubmitText: {
+      color: colors.WHITE,
+      fontSize: 14,
+      fontWeight: 'bold',
+    },
+  }), [colors])
 
   const handleSelectOption = (option: string) => {
     if (option === '自定义') {
@@ -57,7 +169,7 @@ const OptionsSelector: React.FC<OptionsSelectorProps> = ({
         <Text style={[styles.selectorText, value ? null : styles.placeholder]}>
           {displayValue}
         </Text>
-        <Ionicons name='chevron-down' size={18} color={COLORS.GRAY[500]} />
+        <Ionicons name='chevron-down' size={18} color={colors.GRAY[500]} />
       </TouchableOpacity>
 
       <Modal
@@ -71,7 +183,7 @@ const OptionsSelector: React.FC<OptionsSelectorProps> = ({
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>{label}</Text>
               <TouchableOpacity onPress={() => setModalVisible(false)}>
-                <Ionicons name='close' size={24} color={COLORS.BLACK} />
+                <Ionicons name='close' size={24} color={colors.BLACK} />
               </TouchableOpacity>
             </View>
 
@@ -94,7 +206,7 @@ const OptionsSelector: React.FC<OptionsSelectorProps> = ({
                     {option}
                   </Text>
                   {value === option && (
-                    <Ionicons name='checkmark' size={18} color={COLORS.PRIMARY} />
+                    <Ionicons name='checkmark' size={18} color={colors.PRIMARY} />
                   )}
                 </TouchableOpacity>
               ))}
@@ -126,116 +238,5 @@ const OptionsSelector: React.FC<OptionsSelectorProps> = ({
     </View>
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    marginBottom: 8,
-  },
-  label: {
-    fontSize: 13,
-    color: COLORS.GRAY[600],
-    marginBottom: 4,
-  },
-  selector: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: COLORS.GRAY[100],
-    borderRadius: 6,
-    paddingHorizontal: 10,
-    paddingVertical: 8,
-  },
-  selectorFilled: {
-    backgroundColor: COLORS.WHITE,
-    borderWidth: 1,
-    borderColor: COLORS.PRIMARY,
-  },
-  selectorText: {
-    fontSize: 14,
-    color: COLORS.BLACK,
-  },
-  placeholder: {
-    color: COLORS.GRAY[400],
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
-  },
-  modalContent: {
-    backgroundColor: COLORS.WHITE,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    maxHeight: '60%',
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.GRAY[200],
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: COLORS.BLACK,
-  },
-  optionsContainer: {
-    padding: 16,
-  },
-  optionButton: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    marginBottom: 8,
-    backgroundColor: COLORS.WHITE,
-    borderWidth: 1,
-    borderColor: COLORS.GRAY[200],
-  },
-  optionSelected: {
-    backgroundColor: `${COLORS.PRIMARY}15`,
-  },
-  optionText: {
-    fontSize: 16,
-    color: COLORS.BLACK,
-  },
-  optionTextSelected: {
-    color: COLORS.PRIMARY,
-    fontWeight: 'bold',
-  },
-  customInputContainer: {
-    flexDirection: 'row',
-    padding: 16,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.GRAY[200],
-    gap: 12,
-  },
-  customInput: {
-    flex: 1,
-    backgroundColor: COLORS.GRAY[100],
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 14,
-  },
-  customSubmitButton: {
-    backgroundColor: COLORS.PRIMARY,
-    borderRadius: 8,
-    paddingHorizontal: 20,
-    justifyContent: 'center',
-  },
-  customSubmitButtonDisabled: {
-    backgroundColor: COLORS.GRAY[300],
-  },
-  customSubmitText: {
-    color: COLORS.WHITE,
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-})
 
 export default OptionsSelector

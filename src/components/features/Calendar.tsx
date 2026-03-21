@@ -6,7 +6,7 @@ import {
   TouchableOpacity,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
-import { COLORS } from '../../constants/themeColors'
+import { useTheme } from '../../contexts/ThemeContext'
 
 interface CalendarProps {
   markedDates: Record<string, number>
@@ -22,10 +22,110 @@ const Calendar: React.FC<CalendarProps> = ({
   onDateSelect,
   selectedDate,
 }) => {
+  const { colors } = useTheme()
   const [currentDate, setCurrentDate] = useState(new Date())
 
   const currentYear = currentDate.getFullYear()
   const currentMonth = currentDate.getMonth()
+
+  const styles = useMemo(() => StyleSheet.create({
+    container: {
+      backgroundColor: colors.WHITE,
+      borderRadius: 12,
+      padding: 16,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 16,
+    },
+    navButton: {
+      padding: 8,
+    },
+    titleContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+    },
+    title: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.BLACK,
+    },
+    todayButton: {
+      paddingHorizontal: 8,
+      paddingVertical: 4,
+      backgroundColor: colors.GRAY[100],
+      borderRadius: 4,
+    },
+    todayButtonText: {
+      fontSize: 12,
+      color: colors.PRIMARY,
+    },
+    weekdays: {
+      flexDirection: 'row',
+      marginBottom: 8,
+    },
+    weekdayCell: {
+      width: '14.28%',
+      alignItems: 'center',
+    },
+    weekdayText: {
+      fontSize: 12,
+      color: colors.GRAY[600],
+      fontWeight: '500',
+    },
+    weekendText: {
+      color: colors.ERROR,
+    },
+    daysContainer: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      rowGap: 8,
+    },
+    cell: {
+      width: '14.28%',
+      height: 52,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    selectedCell: {
+      backgroundColor: colors.PRIMARY,
+      borderRadius: 8,
+    },
+    todayCell: {
+      backgroundColor: colors.GRAY[100],
+      borderRadius: 8,
+    },
+    dayText: {
+      fontSize: 14,
+      color: colors.BLACK,
+      fontWeight: '500',
+    },
+    selectedDayText: {
+      color: colors.WHITE,
+      fontWeight: 'bold',
+    },
+    countBadge: {
+      marginTop: 2,
+      minWidth: 16,
+      height: 16,
+      borderRadius: 8,
+      backgroundColor: colors.PRIMARY,
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingHorizontal: 4,
+    },
+    countBadgeMultiple: {
+      backgroundColor: colors.SUCCESS,
+    },
+    countBadgeText: {
+      fontSize: 10,
+      color: colors.WHITE,
+      fontWeight: 'bold',
+    },
+  }), [colors])
 
   const daysInMonth = useMemo(() => {
     return new Date(currentYear, currentMonth + 1, 0).getDate()
@@ -110,7 +210,7 @@ const Calendar: React.FC<CalendarProps> = ({
     <View style={styles.container}>
       <View style={styles.header}>
         <TouchableOpacity onPress={goToPreviousMonth} style={styles.navButton}>
-          <Ionicons name='chevron-back' size={24} color={COLORS.BLACK} />
+          <Ionicons name='chevron-back' size={24} color={colors.BLACK} />
         </TouchableOpacity>
 
         <View style={styles.titleContainer}>
@@ -123,7 +223,7 @@ const Calendar: React.FC<CalendarProps> = ({
         </View>
 
         <TouchableOpacity onPress={goToNextMonth} style={styles.navButton}>
-          <Ionicons name='chevron-forward' size={24} color={COLORS.BLACK} />
+          <Ionicons name='chevron-forward' size={24} color={colors.BLACK} />
         </TouchableOpacity>
       </View>
 
@@ -146,104 +246,5 @@ const Calendar: React.FC<CalendarProps> = ({
     </View>
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    backgroundColor: COLORS.WHITE,
-    borderRadius: 12,
-    padding: 16,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  navButton: {
-    padding: 8,
-  },
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  title: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: COLORS.BLACK,
-  },
-  todayButton: {
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    backgroundColor: COLORS.GRAY[100],
-    borderRadius: 4,
-  },
-  todayButtonText: {
-    fontSize: 12,
-    color: COLORS.PRIMARY,
-  },
-  weekdays: {
-    flexDirection: 'row',
-    marginBottom: 8,
-  },
-  weekdayCell: {
-    width: '14.28%',
-    alignItems: 'center',
-  },
-  weekdayText: {
-    fontSize: 12,
-    color: COLORS.GRAY[600],
-    fontWeight: '500',
-  },
-  weekendText: {
-    color: COLORS.ERROR,
-  },
-  daysContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    rowGap: 8,
-  },
-  cell: {
-    width: '14.28%',
-    height: 52,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  selectedCell: {
-    backgroundColor: COLORS.PRIMARY,
-    borderRadius: 8,
-  },
-  todayCell: {
-    backgroundColor: COLORS.GRAY[100],
-    borderRadius: 8,
-  },
-  dayText: {
-    fontSize: 14,
-    color: COLORS.BLACK,
-    fontWeight: '500',
-  },
-  selectedDayText: {
-    color: COLORS.WHITE,
-    fontWeight: 'bold',
-  },
-  countBadge: {
-    marginTop: 2,
-    minWidth: 16,
-    height: 16,
-    borderRadius: 8,
-    backgroundColor: COLORS.PRIMARY,
-    alignItems: 'center',
-    justifyContent: 'center',
-    paddingHorizontal: 4,
-  },
-  countBadgeMultiple: {
-    backgroundColor: COLORS.SUCCESS,
-  },
-  countBadgeText: {
-    fontSize: 10,
-    color: COLORS.WHITE,
-    fontWeight: 'bold',
-  },
-})
 
 export default Calendar

@@ -1,25 +1,24 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { View, ActivityIndicator, StyleSheet } from 'react-native'
-import { COLORS } from '../../constants/themeColors'
+import { useTheme } from '../../contexts/ThemeContext'
 
-/**
- * 加载中旋转器组件
- */
 const LoadingSpinner: React.FC = React.memo(() => {
+  const { colors } = useTheme()
+
+  const styles = useMemo(() => StyleSheet.create({
+    container: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+      backgroundColor: colors.SECONDARY,
+    },
+  }), [colors])
+
   return (
     <View style={styles.container}>
-      <ActivityIndicator size='large' color={COLORS.PRIMARY} />
+      <ActivityIndicator size='large' color={colors.PRIMARY} />
     </View>
   )
-})
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: COLORS.SECONDARY,
-  },
 })
 
 export default LoadingSpinner

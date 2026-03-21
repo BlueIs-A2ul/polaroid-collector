@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useState, useMemo } from 'react'
 import {
   View,
   Text,
@@ -16,7 +16,8 @@ import DateTimePicker from '@react-native-community/datetimepicker'
 import { Ionicons } from '@expo/vector-icons'
 import { StackNavigationProp } from '@react-navigation/stack'
 import { RouteProp } from '@react-navigation/native'
-import { COLORS, CARD_SHADOW } from '../constants/themeColors'
+import { useTheme } from '../contexts/ThemeContext'
+import { CARD_SHADOW } from '../constants/themes'
 import { RootStackParamList } from '../navigation/AppNavigator'
 import { pickPhoto, pickMultiplePhotos } from '../services/photoService'
 import { createMultipleRecords } from '../services/recordService'
@@ -39,6 +40,7 @@ interface UploadScreenProps {
 }
 
 const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
+  const { colors } = useTheme()
   const [idolName, setIdolName] = useState<string>('')
   const [photoDate, setPhotoDate] = useState<string>(
     new Date().toISOString().split('T')[0],
@@ -255,6 +257,386 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
     return <LoadingSpinner />
   }
 
+  const styles = useMemo(() => StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.SECONDARY,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: 20,
+      paddingTop: 40,
+      backgroundColor: colors.PRIMARY,
+    },
+    backButton: {
+      padding: 8,
+    },
+    placeholder: {
+      width: 40,
+    },
+    title: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      color: colors.WHITE,
+    },
+    form: {
+      padding: 20,
+    },
+    formGroup: {
+      marginBottom: 20,
+    },
+    label: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      color: colors.BLACK,
+      marginBottom: 8,
+    },
+    input: {
+      backgroundColor: colors.WHITE,
+      borderRadius: 8,
+      padding: 12,
+      fontSize: 16,
+      ...CARD_SHADOW,
+    },
+    idolNameContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    idolNameInput: {
+      flex: 1,
+      backgroundColor: colors.WHITE,
+      borderTopLeftRadius: 8,
+      borderBottomLeftRadius: 8,
+      padding: 12,
+      fontSize: 16,
+      ...CARD_SHADOW,
+    },
+    selectIdolButton: {
+      backgroundColor: colors.WHITE,
+      borderTopRightRadius: 8,
+      borderBottomRightRadius: 8,
+      padding: 12,
+      borderLeftWidth: 1,
+      borderLeftColor: colors.GRAY[200],
+      ...CARD_SHADOW,
+    },
+    selectIdolHintButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginTop: 8,
+      padding: 8,
+    },
+    selectIdolHintText: {
+      marginLeft: 6,
+      fontSize: 14,
+      color: colors.PRIMARY,
+    },
+    dateInput: {
+      backgroundColor: colors.WHITE,
+      borderRadius: 8,
+      padding: 12,
+      fontSize: 16,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      ...CARD_SHADOW,
+    },
+    dateInputText: {
+      fontSize: 16,
+      color: colors.BLACK,
+    },
+    photoButtons: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+    },
+    photoButton: {
+      backgroundColor: colors.WHITE,
+      borderRadius: 12,
+      padding: 16,
+      alignItems: 'center',
+      width: '31%',
+      ...CARD_SHADOW,
+    },
+    photoButtonText: {
+      marginTop: 6,
+      fontSize: 13,
+      color: colors.PRIMARY,
+      fontWeight: 'bold',
+    },
+    photoListHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 8,
+    },
+    photoListSummary: {
+      flexDirection: 'row',
+    },
+    totalCount: {
+      fontSize: 14,
+      color: colors.GRAY[600],
+    },
+    totalPrice: {
+      fontSize: 14,
+      color: colors.PRIMARY,
+      fontWeight: 'bold',
+    },
+    photoItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.WHITE,
+      borderRadius: 8,
+      padding: 10,
+      marginBottom: 10,
+      ...CARD_SHADOW,
+    },
+    photoThumbnailContainer: {
+      position: 'relative',
+    },
+    photoThumbnail: {
+      width: 60,
+      height: 60,
+      borderRadius: 6,
+    },
+    backPhotoBadge: {
+      position: 'absolute',
+      bottom: -4,
+      right: -4,
+      backgroundColor: colors.SUCCESS,
+      borderRadius: 8,
+      padding: 2,
+    },
+    photoInfo: {
+      flex: 1,
+      marginLeft: 12,
+    },
+    photoInfoHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 4,
+    },
+    photoIndex: {
+      fontSize: 14,
+      color: colors.BLACK,
+      marginRight: 8,
+    },
+    backPhotoTag: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: `${colors.SUCCESS}20`,
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+      borderRadius: 4,
+    },
+    backPhotoTagText: {
+      fontSize: 11,
+      color: colors.SUCCESS,
+      marginLeft: 2,
+    },
+    countInputContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 6,
+    },
+    countLabel: {
+      fontSize: 14,
+      color: colors.GRAY[600],
+      marginRight: 8,
+    },
+    countInput: {
+      backgroundColor: colors.GRAY[100],
+      borderRadius: 6,
+      padding: 6,
+      width: 60,
+      fontSize: 14,
+      textAlign: 'center',
+    },
+    noteInputContainer: {
+      marginBottom: 6,
+    },
+    noteInput: {
+      backgroundColor: colors.GRAY[100],
+      borderRadius: 6,
+      padding: 8,
+      fontSize: 14,
+      minHeight: 40,
+      textAlignVertical: 'top',
+    },
+    extraFieldsContainer: {
+      marginTop: 8,
+      paddingTop: 8,
+      borderTopWidth: 1,
+      borderTopColor: colors.GRAY[200],
+    },
+    extraFieldRow: {
+      flexDirection: 'row',
+      gap: 8,
+      marginBottom: 6,
+    },
+    extraFieldHalf: {
+      flex: 1,
+    },
+    extraFieldFull: {
+      marginBottom: 6,
+    },
+    extraFieldLabel: {
+      fontSize: 13,
+      color: colors.GRAY[600],
+      marginBottom: 4,
+    },
+    extraFieldInput: {
+      backgroundColor: colors.GRAY[100],
+      borderRadius: 6,
+      padding: 8,
+      fontSize: 14,
+    },
+    extraFieldInputWrapper: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      backgroundColor: colors.GRAY[100],
+      borderRadius: 6,
+      padding: 8,
+    },
+    extraFieldInputText: {
+      fontSize: 14,
+      color: colors.BLACK,
+      flex: 1,
+    },
+    extraFieldPlaceholder: {
+      color: colors.GRAY[400],
+    },
+    photoActions: {
+      flexDirection: 'row',
+    },
+    addBackPhotoButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: 4,
+      paddingHorizontal: 8,
+      backgroundColor: `${colors.PRIMARY}10`,
+      borderRadius: 4,
+    },
+    addBackPhotoText: {
+      fontSize: 12,
+      color: colors.PRIMARY,
+      marginLeft: 4,
+    },
+    removeBackPhotoButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: 4,
+      paddingHorizontal: 8,
+      backgroundColor: `${colors.ERROR}10`,
+      borderRadius: 4,
+    },
+    removeBackPhotoText: {
+      fontSize: 12,
+      color: colors.ERROR,
+      marginLeft: 4,
+    },
+    removePhotoButton: {
+      padding: 4,
+    },
+    saveButton: {
+      flexDirection: 'row',
+      backgroundColor: colors.PRIMARY,
+      borderRadius: 12,
+      padding: 16,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginTop: 20,
+      ...CARD_SHADOW,
+    },
+    saveButtonText: {
+      marginLeft: 8,
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.WHITE,
+    },
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    modalContainer: {
+      backgroundColor: colors.WHITE,
+      borderRadius: 16,
+      width: '90%',
+      maxWidth: 400,
+      ...CARD_SHADOW,
+    },
+    modalHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.GRAY[200],
+    },
+    modalTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.BLACK,
+    },
+    modalContent: {
+      padding: 16,
+    },
+    cropOption: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 16,
+    },
+    cropLabel: {
+      fontSize: 16,
+      color: colors.BLACK,
+    },
+    cropDimensions: {
+      marginBottom: 24,
+    },
+    dimensionInputs: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginTop: 8,
+    },
+    dimensionInput: {
+      flex: 1,
+      backgroundColor: colors.GRAY[100],
+      borderRadius: 8,
+      padding: 12,
+      fontSize: 16,
+      textAlign: 'center',
+      ...CARD_SHADOW,
+    },
+    dimensionSeparator: {
+      marginHorizontal: 12,
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.BLACK,
+    },
+    cropHint: {
+      fontSize: 12,
+      color: colors.GRAY[500],
+      marginTop: 8,
+    },
+    confirmButton: {
+      backgroundColor: colors.PRIMARY,
+      borderRadius: 8,
+      padding: 14,
+      alignItems: 'center',
+      ...CARD_SHADOW,
+    },
+    confirmButtonText: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      color: colors.WHITE,
+    },
+  }), [colors])
+
   return (
     <ScrollView style={styles.container}>
       <View style={styles.header}>
@@ -262,7 +644,7 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
           style={styles.backButton}
           onPress={() => navigation.goBack()}
         >
-          <Ionicons name='arrow-back' size={24} color={COLORS.WHITE} />
+          <Ionicons name='arrow-back' size={24} color={colors.WHITE} />
         </TouchableOpacity>
         <Text style={styles.title}>上传拍立得</Text>
         <View style={styles.placeholder} />
@@ -282,7 +664,7 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
               style={styles.selectIdolButton}
               onPress={handleOpenIdolSelector}
             >
-              <Ionicons name='list' size={24} color={COLORS.PRIMARY} />
+              <Ionicons name='list' size={24} color={colors.PRIMARY} />
             </TouchableOpacity>
           </View>
           <TouchableOpacity
@@ -292,7 +674,7 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
             <Ionicons
               name='people-circle-outline'
               size={16}
-              color={COLORS.PRIMARY}
+              color={colors.PRIMARY}
             />
             <Text style={styles.selectIdolHintText}>点击选择已有偶像</Text>
           </TouchableOpacity>
@@ -307,7 +689,7 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
             <Text style={styles.dateInputText}>
               {photoDate || '请选择日期'}
             </Text>
-            <Ionicons name='calendar' size={20} color={COLORS.PRIMARY} />
+            <Ionicons name='calendar' size={20} color={colors.PRIMARY} />
           </TouchableOpacity>
           {showDatePicker && (
             <DateTimePicker
@@ -326,21 +708,21 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
               style={styles.photoButton}
               onPress={() => handleShowCropOptions('camera')}
             >
-              <Ionicons name='camera' size={28} color={COLORS.PRIMARY} />
+              <Ionicons name='camera' size={28} color={colors.PRIMARY} />
               <Text style={styles.photoButtonText}>拍照</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.photoButton}
               onPress={() => handleShowCropOptions('library')}
             >
-              <Ionicons name='image' size={28} color={COLORS.PRIMARY} />
+              <Ionicons name='image' size={28} color={colors.PRIMARY} />
               <Text style={styles.photoButtonText}>单张</Text>
             </TouchableOpacity>
             <TouchableOpacity
               style={styles.photoButton}
               onPress={() => handleShowCropOptions('multiple')}
             >
-              <Ionicons name='images' size={28} color={COLORS.PRIMARY} />
+              <Ionicons name='images' size={28} color={colors.PRIMARY} />
               <Text style={styles.photoButtonText}>多张</Text>
             </TouchableOpacity>
           </View>
@@ -363,7 +745,7 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
                   <Image source={{ uri: photo.uri }} style={styles.photoThumbnail} />
                   {photo.backPhotoUri && (
                     <View style={styles.backPhotoBadge}>
-                      <Ionicons name='document-text' size={12} color={COLORS.WHITE} />
+                      <Ionicons name='document-text' size={12} color={colors.WHITE} />
                     </View>
                   )}
                 </View>
@@ -372,7 +754,7 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
                     <Text style={styles.photoIndex}>照片 {index + 1}</Text>
                     {photo.backPhotoUri && (
                       <View style={styles.backPhotoTag}>
-                        <Ionicons name='document-text' size={12} color={COLORS.SUCCESS} />
+                        <Ionicons name='document-text' size={12} color={colors.SUCCESS} />
                         <Text style={styles.backPhotoTagText}>背签</Text>
                       </View>
                     )}
@@ -417,7 +799,7 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
                           <Text style={[styles.extraFieldInputText, photo.groupName ? null : styles.extraFieldPlaceholder]}>
                             {photo.groupName || '选填'}
                           </Text>
-                          <Ionicons name='chevron-down' size={16} color={COLORS.GRAY[500]} />
+                          <Ionicons name='chevron-down' size={16} color={colors.GRAY[500]} />
                         </TouchableOpacity>
                       </View>
                       <View style={styles.extraFieldHalf}>
@@ -429,7 +811,7 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
                           <Text style={[styles.extraFieldInputText, photo.city ? null : styles.extraFieldPlaceholder]}>
                             {photo.city || '选填'}
                           </Text>
-                          <Ionicons name='chevron-down' size={16} color={COLORS.GRAY[500]} />
+                          <Ionicons name='chevron-down' size={16} color={colors.GRAY[500]} />
                         </TouchableOpacity>
                       </View>
                     </View>
@@ -462,7 +844,7 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
                         <Text style={[styles.extraFieldInputText, photo.venue ? null : styles.extraFieldPlaceholder]}>
                           {photo.venue || '选填'}
                         </Text>
-                        <Ionicons name='chevron-down' size={16} color={COLORS.GRAY[500]} />
+                        <Ionicons name='chevron-down' size={16} color={colors.GRAY[500]} />
                       </TouchableOpacity>
                     </View>
                   </View>
@@ -472,7 +854,7 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
                         style={styles.removeBackPhotoButton}
                         onPress={() => handleRemoveBackPhoto(photo.uri)}
                       >
-                        <Ionicons name='document-text-outline' size={14} color={COLORS.ERROR} />
+                        <Ionicons name='document-text-outline' size={14} color={colors.ERROR} />
                         <Text style={styles.removeBackPhotoText}>移除背签</Text>
                       </TouchableOpacity>
                     ) : (
@@ -480,7 +862,7 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
                         style={styles.addBackPhotoButton}
                         onPress={() => handleAddBackPhoto(photo.uri)}
                       >
-                        <Ionicons name='add-circle-outline' size={14} color={COLORS.PRIMARY} />
+                        <Ionicons name='add-circle-outline' size={14} color={colors.PRIMARY} />
                         <Text style={styles.addBackPhotoText}>添加背签</Text>
                       </TouchableOpacity>
                     )}
@@ -490,7 +872,7 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
                   style={styles.removePhotoButton}
                   onPress={() => removePhoto(photo.uri)}
                 >
-                  <Ionicons name='close-circle' size={24} color={COLORS.ERROR} />
+                  <Ionicons name='close-circle' size={24} color={colors.ERROR} />
                 </TouchableOpacity>
               </View>
             ))}
@@ -498,7 +880,7 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
         )}
 
         <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-          <Ionicons name='checkmark' size={24} color={COLORS.WHITE} />
+          <Ionicons name='checkmark' size={24} color={colors.WHITE} />
           <Text style={styles.saveButtonText}>保存</Text>
         </TouchableOpacity>
       </View>
@@ -534,7 +916,7 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>裁切选项</Text>
               <TouchableOpacity onPress={() => setShowCropOptions(false)}>
-                <Ionicons name='close' size={24} color={COLORS.BLACK} />
+                <Ionicons name='close' size={24} color={colors.BLACK} />
               </TouchableOpacity>
             </View>
 
@@ -545,10 +927,10 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
                   value={allowCrop}
                   onValueChange={setAllowCrop}
                   trackColor={{
-                    false: COLORS.GRAY[300],
-                    true: COLORS.PRIMARY,
+                    false: colors.GRAY[300],
+                    true: colors.PRIMARY,
                   }}
-                  thumbColor={COLORS.WHITE}
+                  thumbColor={colors.WHITE}
                 />
               </View>
 
@@ -591,385 +973,5 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
     </ScrollView>
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.SECONDARY,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 20,
-    paddingTop: 40,
-    backgroundColor: COLORS.PRIMARY,
-  },
-  backButton: {
-    padding: 8,
-  },
-  placeholder: {
-    width: 40,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: COLORS.WHITE,
-  },
-  form: {
-    padding: 20,
-  },
-  formGroup: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: COLORS.BLACK,
-    marginBottom: 8,
-  },
-  input: {
-    backgroundColor: COLORS.WHITE,
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    ...CARD_SHADOW,
-  },
-  idolNameContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  idolNameInput: {
-    flex: 1,
-    backgroundColor: COLORS.WHITE,
-    borderTopLeftRadius: 8,
-    borderBottomLeftRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    ...CARD_SHADOW,
-  },
-  selectIdolButton: {
-    backgroundColor: COLORS.WHITE,
-    borderTopRightRadius: 8,
-    borderBottomRightRadius: 8,
-    padding: 12,
-    borderLeftWidth: 1,
-    borderLeftColor: COLORS.GRAY[200],
-    ...CARD_SHADOW,
-  },
-  selectIdolHintButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 8,
-    padding: 8,
-  },
-  selectIdolHintText: {
-    marginLeft: 6,
-    fontSize: 14,
-    color: COLORS.PRIMARY,
-  },
-  dateInput: {
-    backgroundColor: COLORS.WHITE,
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    ...CARD_SHADOW,
-  },
-  dateInputText: {
-    fontSize: 16,
-    color: COLORS.BLACK,
-  },
-  photoButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-  },
-  photoButton: {
-    backgroundColor: COLORS.WHITE,
-    borderRadius: 12,
-    padding: 16,
-    alignItems: 'center',
-    width: '31%',
-    ...CARD_SHADOW,
-  },
-  photoButtonText: {
-    marginTop: 6,
-    fontSize: 13,
-    color: COLORS.PRIMARY,
-    fontWeight: 'bold',
-  },
-  photoListHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  photoListSummary: {
-    flexDirection: 'row',
-  },
-  totalCount: {
-    fontSize: 14,
-    color: COLORS.GRAY[600],
-  },
-  totalPrice: {
-    fontSize: 14,
-    color: COLORS.PRIMARY,
-    fontWeight: 'bold',
-  },
-  photoItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.WHITE,
-    borderRadius: 8,
-    padding: 10,
-    marginBottom: 10,
-    ...CARD_SHADOW,
-  },
-  photoThumbnailContainer: {
-    position: 'relative',
-  },
-  photoThumbnail: {
-    width: 60,
-    height: 60,
-    borderRadius: 6,
-  },
-  backPhotoBadge: {
-    position: 'absolute',
-    bottom: -4,
-    right: -4,
-    backgroundColor: COLORS.SUCCESS,
-    borderRadius: 8,
-    padding: 2,
-  },
-  photoInfo: {
-    flex: 1,
-    marginLeft: 12,
-  },
-  photoInfoHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 4,
-  },
-  photoIndex: {
-    fontSize: 14,
-    color: COLORS.BLACK,
-    marginRight: 8,
-  },
-  backPhotoTag: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: `${COLORS.SUCCESS}20`,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
-  },
-  backPhotoTagText: {
-    fontSize: 11,
-    color: COLORS.SUCCESS,
-    marginLeft: 2,
-  },
-  countInputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 6,
-  },
-  countLabel: {
-    fontSize: 14,
-    color: COLORS.GRAY[600],
-    marginRight: 8,
-  },
-  countInput: {
-    backgroundColor: COLORS.GRAY[100],
-    borderRadius: 6,
-    padding: 6,
-    width: 60,
-    fontSize: 14,
-    textAlign: 'center',
-  },
-  noteInputContainer: {
-    marginBottom: 6,
-  },
-  noteInput: {
-    backgroundColor: COLORS.GRAY[100],
-    borderRadius: 6,
-    padding: 8,
-    fontSize: 14,
-    minHeight: 40,
-    textAlignVertical: 'top',
-  },
-  extraFieldsContainer: {
-    marginTop: 8,
-    paddingTop: 8,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.GRAY[200],
-  },
-  extraFieldRow: {
-    flexDirection: 'row',
-    gap: 8,
-    marginBottom: 6,
-  },
-  extraFieldHalf: {
-    flex: 1,
-  },
-  extraFieldFull: {
-    marginBottom: 6,
-  },
-  extraFieldLabel: {
-    fontSize: 13,
-    color: COLORS.GRAY[600],
-    marginBottom: 4,
-  },
-  extraFieldInput: {
-    backgroundColor: COLORS.GRAY[100],
-    borderRadius: 6,
-    padding: 8,
-    fontSize: 14,
-  },
-  extraFieldInputWrapper: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: COLORS.GRAY[100],
-    borderRadius: 6,
-    padding: 8,
-  },
-  extraFieldInputText: {
-    fontSize: 14,
-    color: COLORS.BLACK,
-    flex: 1,
-  },
-  extraFieldPlaceholder: {
-    color: COLORS.GRAY[400],
-  },
-  photoActions: {
-    flexDirection: 'row',
-  },
-  addBackPhotoButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    backgroundColor: `${COLORS.PRIMARY}10`,
-    borderRadius: 4,
-  },
-  addBackPhotoText: {
-    fontSize: 12,
-    color: COLORS.PRIMARY,
-    marginLeft: 4,
-  },
-  removeBackPhotoButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    paddingVertical: 4,
-    paddingHorizontal: 8,
-    backgroundColor: `${COLORS.ERROR}10`,
-    borderRadius: 4,
-  },
-  removeBackPhotoText: {
-    fontSize: 12,
-    color: COLORS.ERROR,
-    marginLeft: 4,
-  },
-  removePhotoButton: {
-    padding: 4,
-  },
-  saveButton: {
-    flexDirection: 'row',
-    backgroundColor: COLORS.PRIMARY,
-    borderRadius: 12,
-    padding: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 20,
-    ...CARD_SHADOW,
-  },
-  saveButtonText: {
-    marginLeft: 8,
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: COLORS.WHITE,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContainer: {
-    backgroundColor: COLORS.WHITE,
-    borderRadius: 16,
-    width: '90%',
-    maxWidth: 400,
-    ...CARD_SHADOW,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.GRAY[200],
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: COLORS.BLACK,
-  },
-  modalContent: {
-    padding: 16,
-  },
-  cropOption: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  cropLabel: {
-    fontSize: 16,
-    color: COLORS.BLACK,
-  },
-  cropDimensions: {
-    marginBottom: 24,
-  },
-  dimensionInputs: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  dimensionInput: {
-    flex: 1,
-    backgroundColor: COLORS.GRAY[100],
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    textAlign: 'center',
-    ...CARD_SHADOW,
-  },
-  dimensionSeparator: {
-    marginHorizontal: 12,
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: COLORS.BLACK,
-  },
-  cropHint: {
-    fontSize: 12,
-    color: COLORS.GRAY[500],
-    marginTop: 8,
-  },
-  confirmButton: {
-    backgroundColor: COLORS.PRIMARY,
-    borderRadius: 8,
-    padding: 14,
-    alignItems: 'center',
-    ...CARD_SHADOW,
-  },
-  confirmButtonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: COLORS.WHITE,
-  },
-})
 
 export default UploadScreen

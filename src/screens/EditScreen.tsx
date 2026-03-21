@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Fragment } from 'react'
+import React, { useState, useEffect, Fragment, useMemo } from 'react'
 import {
   View,
   Text,
@@ -16,7 +16,8 @@ import DateTimePicker from '@react-native-community/datetimepicker'
 import { Ionicons } from '@expo/vector-icons'
 import { StackNavigationProp } from '@react-navigation/stack'
 import { RouteProp } from '@react-navigation/native'
-import { COLORS, CARD_SHADOW } from '../constants/themeColors'
+import { useTheme } from '../contexts/ThemeContext'
+import { CARD_SHADOW } from '../constants/themes'
 import { RootStackParamList } from '../navigation/AppNavigator'
 import { pickPhoto } from '../services/photoService'
 import { getRecordById } from '../services/storageService'
@@ -35,6 +36,7 @@ interface EditScreenProps {
 }
 
 const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
+  const { colors } = useTheme()
   const { recordId } = route.params
   const [idolName, setIdolName] = useState<string>('')
   const [photoCount, setPhotoCount] = useState<string>('')
@@ -365,6 +367,323 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
     ])
   }
 
+  const styles = useMemo(() => StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.SECONDARY,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: 20,
+      paddingTop: 40,
+      backgroundColor: colors.PRIMARY,
+    },
+    backButton: {
+      padding: 8,
+    },
+    deleteButton: {
+      padding: 8,
+    },
+    title: {
+      fontSize: 20,
+      fontWeight: 'bold',
+      color: colors.WHITE,
+    },
+    form: {
+      padding: 20,
+    },
+    formGroup: {
+      marginBottom: 20,
+    },
+    label: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      color: colors.BLACK,
+      marginBottom: 8,
+    },
+    input: {
+      backgroundColor: colors.WHITE,
+      borderRadius: 8,
+      padding: 12,
+      fontSize: 16,
+      ...CARD_SHADOW,
+    },
+    noteInput: {
+      backgroundColor: colors.WHITE,
+      borderRadius: 8,
+      padding: 12,
+      fontSize: 16,
+      minHeight: 80,
+      textAlignVertical: 'top',
+      ...CARD_SHADOW,
+    },
+    sectionTitle: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      color: colors.BLACK,
+      marginBottom: 12,
+    },
+    extraFieldsContainer: {
+      backgroundColor: colors.WHITE,
+      borderRadius: 8,
+      padding: 12,
+      ...CARD_SHADOW,
+    },
+    extraFieldRow: {
+      flexDirection: 'row',
+      gap: 12,
+      marginBottom: 12,
+    },
+    extraFieldHalf: {
+      flex: 1,
+    },
+    extraFieldFull: {
+      marginBottom: 0,
+    },
+    extraFieldLabel: {
+      fontSize: 13,
+      color: colors.GRAY[600],
+      marginBottom: 6,
+    },
+    extraFieldInput: {
+      backgroundColor: colors.GRAY[100],
+      borderRadius: 6,
+      padding: 10,
+      fontSize: 14,
+    },
+    extraFieldInputWrapper: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      backgroundColor: colors.GRAY[100],
+      borderRadius: 6,
+      padding: 10,
+    },
+    extraFieldInputText: {
+      fontSize: 14,
+      color: colors.BLACK,
+      flex: 1,
+    },
+    extraFieldPlaceholder: {
+      color: colors.GRAY[400],
+    },
+    dateInput: {
+      backgroundColor: colors.WHITE,
+      borderRadius: 8,
+      padding: 12,
+      fontSize: 16,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      ...CARD_SHADOW,
+    },
+    dateInputText: {
+      fontSize: 16,
+      color: colors.BLACK,
+    },
+    backPhotoHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 8,
+    },
+    hasBackTag: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginLeft: 10,
+      backgroundColor: `${colors.SUCCESS}20`,
+      paddingHorizontal: 8,
+      paddingVertical: 2,
+      borderRadius: 4,
+    },
+    hasBackText: {
+      fontSize: 12,
+      color: colors.SUCCESS,
+      marginLeft: 4,
+    },
+    photoPreviewContainer: {
+      position: 'relative',
+      marginBottom: 12,
+    },
+    photoPreview: {
+      width: '100%',
+      height: 300,
+      borderRadius: 8,
+      resizeMode: 'cover',
+    },
+    removePhotoButton: {
+      position: 'absolute',
+      top: 8,
+      right: 8,
+      backgroundColor: colors.WHITE,
+      borderRadius: 12,
+      padding: 4,
+    },
+    backPhotoLabel: {
+      position: 'absolute',
+      bottom: 8,
+      left: 8,
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.SUCCESS,
+      paddingHorizontal: 8,
+      paddingVertical: 4,
+      borderRadius: 4,
+    },
+    backPhotoLabelText: {
+      fontSize: 12,
+      color: colors.WHITE,
+      marginLeft: 4,
+    },
+    photoButtons: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+    },
+    photoButton: {
+      backgroundColor: colors.WHITE,
+      borderRadius: 12,
+      padding: 16,
+      alignItems: 'center',
+      width: '45%',
+      ...CARD_SHADOW,
+    },
+    photoButtonText: {
+      marginTop: 8,
+      fontSize: 14,
+      color: colors.PRIMARY,
+      fontWeight: 'bold',
+    },
+    backPhotoButtons: {
+      alignItems: 'center',
+    },
+    addBackPhotoButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: `${colors.PRIMARY}10`,
+      paddingVertical: 12,
+      paddingHorizontal: 20,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: colors.PRIMARY,
+      borderStyle: 'dashed',
+    },
+    addBackPhotoText: {
+      fontSize: 14,
+      color: colors.PRIMARY,
+      marginLeft: 8,
+    },
+    changeBackPhotoButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.WHITE,
+      paddingVertical: 10,
+      paddingHorizontal: 16,
+      borderRadius: 8,
+      ...CARD_SHADOW,
+    },
+    changeBackPhotoText: {
+      fontSize: 14,
+      color: colors.PRIMARY,
+      marginLeft: 8,
+    },
+    saveButton: {
+      flexDirection: 'row',
+      backgroundColor: colors.PRIMARY,
+      borderRadius: 12,
+      padding: 16,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginTop: 20,
+      ...CARD_SHADOW,
+    },
+    saveButtonText: {
+      marginLeft: 8,
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.WHITE,
+    },
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    modalContainer: {
+      backgroundColor: colors.WHITE,
+      borderRadius: 16,
+      width: '90%',
+      maxWidth: 400,
+      ...CARD_SHADOW,
+    },
+    modalHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.GRAY[200],
+    },
+    modalTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.BLACK,
+    },
+    modalContent: {
+      padding: 16,
+    },
+    cropOption: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 16,
+    },
+    cropLabel: {
+      fontSize: 16,
+      color: colors.BLACK,
+    },
+    cropDimensions: {
+      marginBottom: 24,
+    },
+    dimensionInputs: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginTop: 8,
+    },
+    dimensionInput: {
+      flex: 1,
+      backgroundColor: colors.GRAY[100],
+      borderRadius: 8,
+      padding: 12,
+      fontSize: 16,
+      textAlign: 'center',
+      ...CARD_SHADOW,
+    },
+    dimensionSeparator: {
+      marginHorizontal: 12,
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.BLACK,
+    },
+    cropHint: {
+      fontSize: 12,
+      color: colors.GRAY[500],
+      marginTop: 8,
+    },
+    confirmButton: {
+      backgroundColor: colors.PRIMARY,
+      borderRadius: 8,
+      padding: 14,
+      alignItems: 'center',
+      ...CARD_SHADOW,
+    },
+    confirmButtonText: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      color: colors.WHITE,
+    },
+  }), [colors])
+
   if (loading) {
     return <LoadingSpinner />
   }
@@ -378,11 +697,11 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
       <ScrollView style={styles.container}>
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={handleCancel}>
-            <Ionicons name='arrow-back' size={24} color={COLORS.WHITE} />
+            <Ionicons name='arrow-back' size={24} color={colors.WHITE} />
           </TouchableOpacity>
           <Text style={styles.title}>编辑拍立得</Text>
           <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
-            <Ionicons name='trash' size={24} color={COLORS.ERROR} />
+            <Ionicons name='trash' size={24} color={colors.ERROR} />
           </TouchableOpacity>
         </View>
 
@@ -417,7 +736,7 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
             <Text style={styles.dateInputText}>
               {photoDate || '请选择日期'}
             </Text>
-            <Ionicons name='calendar' size={20} color={COLORS.PRIMARY} />
+            <Ionicons name='calendar' size={20} color={colors.PRIMARY} />
           </TouchableOpacity>
           {showDatePicker && (
             <DateTimePicker
@@ -466,7 +785,7 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
                   <Text style={[styles.extraFieldInputText, groupName ? null : styles.extraFieldPlaceholder]}>
                     {groupName || '选填'}
                   </Text>
-                  <Ionicons name='chevron-down' size={16} color={COLORS.GRAY[500]} />
+                  <Ionicons name='chevron-down' size={16} color={colors.GRAY[500]} />
                 </TouchableOpacity>
               </View>
               <View style={styles.extraFieldHalf}>
@@ -478,7 +797,7 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
                   <Text style={[styles.extraFieldInputText, city ? null : styles.extraFieldPlaceholder]}>
                     {city || '选填'}
                   </Text>
-                  <Ionicons name='chevron-down' size={16} color={COLORS.GRAY[500]} />
+                  <Ionicons name='chevron-down' size={16} color={colors.GRAY[500]} />
                 </TouchableOpacity>
               </View>
             </View>
@@ -511,7 +830,7 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
                 <Text style={[styles.extraFieldInputText, venue ? null : styles.extraFieldPlaceholder]}>
                   {venue || '选填'}
                 </Text>
-                <Ionicons name='chevron-down' size={16} color={COLORS.GRAY[500]} />
+                <Ionicons name='chevron-down' size={16} color={colors.GRAY[500]} />
               </TouchableOpacity>
             </View>
           </View>
@@ -527,11 +846,11 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
                   style={styles.removePhotoButton}
                   onPress={handleRemovePhoto}
                 >
-                  <Ionicons
-                    name='close-circle'
-                    size={24}
-                    color={COLORS.ERROR}
-                  />
+<Ionicons
+                   name='close-circle'
+                   size={24}
+                   color={colors.ERROR}
+                 />
                 </TouchableOpacity>
               </View>
               <View style={styles.photoButtons}>
@@ -539,14 +858,14 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
                   style={styles.photoButton}
                   onPress={() => handlePickPhoto('camera', 'front')}
                 >
-                  <Ionicons name='camera' size={28} color={COLORS.PRIMARY} />
+<Ionicons name='camera' size={28} color={colors.PRIMARY} />
                   <Text style={styles.photoButtonText}>拍照</Text>
                 </TouchableOpacity>
                 <TouchableOpacity
                   style={styles.photoButton}
                   onPress={() => handlePickPhoto('library', 'front')}
                 >
-                  <Ionicons name='images' size={28} color={COLORS.PRIMARY} />
+                  <Ionicons name='images' size={28} color={colors.PRIMARY} />
                   <Text style={styles.photoButtonText}>相册</Text>
                 </TouchableOpacity>
               </View>
@@ -557,14 +876,14 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
                 style={styles.photoButton}
                 onPress={() => handlePickPhoto('camera', 'front')}
               >
-                <Ionicons name='camera' size={28} color={COLORS.PRIMARY} />
+                <Ionicons name='camera' size={28} color={colors.PRIMARY} />
                 <Text style={styles.photoButtonText}>拍照</Text>
               </TouchableOpacity>
               <TouchableOpacity
                 style={styles.photoButton}
                 onPress={() => handlePickPhoto('library', 'front')}
               >
-                <Ionicons name='images' size={28} color={COLORS.PRIMARY} />
+                <Ionicons name='images' size={28} color={colors.PRIMARY} />
                 <Text style={styles.photoButtonText}>相册</Text>
               </TouchableOpacity>
             </View>
@@ -576,7 +895,7 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
             <Text style={styles.label}>背签照片</Text>
             {backPhotoUri && (
               <View style={styles.hasBackTag}>
-                <Ionicons name='checkmark-circle' size={14} color={COLORS.SUCCESS} />
+                <Ionicons name='checkmark-circle' size={14} color={colors.SUCCESS} />
                 <Text style={styles.hasBackText}>已添加</Text>
               </View>
             )}
@@ -588,14 +907,14 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
                 style={styles.removePhotoButton}
                 onPress={handleRemoveBackPhoto}
               >
-                <Ionicons
-                  name='close-circle'
-                  size={24}
-                  color={COLORS.ERROR}
-                />
+<Ionicons
+                   name='close-circle'
+                   size={24}
+                   color={colors.ERROR}
+                 />
               </TouchableOpacity>
               <View style={styles.backPhotoLabel}>
-                <Ionicons name='document-text' size={14} color={COLORS.WHITE} />
+                <Ionicons name='document-text' size={14} color={colors.WHITE} />
                 <Text style={styles.backPhotoLabelText}>背签</Text>
               </View>
             </View>
@@ -606,7 +925,7 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
                 style={styles.changeBackPhotoButton}
                 onPress={handlePickBackPhoto}
               >
-                <Ionicons name='sync' size={18} color={COLORS.PRIMARY} />
+                <Ionicons name='sync' size={18} color={colors.PRIMARY} />
                 <Text style={styles.changeBackPhotoText}>更换背签</Text>
               </TouchableOpacity>
             ) : (
@@ -614,7 +933,7 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
                 style={styles.addBackPhotoButton}
                 onPress={handlePickBackPhoto}
               >
-                <Ionicons name='add-circle-outline' size={18} color={COLORS.PRIMARY} />
+                <Ionicons name='add-circle-outline' size={18} color={colors.PRIMARY} />
                 <Text style={styles.addBackPhotoText}>添加背签照片</Text>
               </TouchableOpacity>
             )}
@@ -622,7 +941,7 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
         </View>
 
         <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-          <Ionicons name='checkmark' size={24} color={COLORS.WHITE} />
+          <Ionicons name='checkmark' size={24} color={colors.WHITE} />
           <Text style={styles.saveButtonText}>保存修改</Text>
         </TouchableOpacity>
       </View>
@@ -638,22 +957,22 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>裁切选项</Text>
               <TouchableOpacity onPress={() => setShowCropOptions(false)}>
-                <Ionicons name='close' size={24} color={COLORS.BLACK} />
+                <Ionicons name='close' size={24} color={colors.BLACK} />
               </TouchableOpacity>
             </View>
 
             <View style={styles.modalContent}>
               <View style={styles.cropOption}>
                 <Text style={styles.cropLabel}>启用裁切</Text>
-                <Switch
-                  value={allowCrop}
-                  onValueChange={setAllowCrop}
-                  trackColor={{
-                    false: COLORS.GRAY[300],
-                    true: COLORS.PRIMARY,
-                  }}
-                  thumbColor={COLORS.WHITE}
-                />
+<Switch
+                   value={allowCrop}
+                   onValueChange={setAllowCrop}
+                   trackColor={{
+                     false: colors.GRAY[300],
+                     true: colors.PRIMARY,
+                   }}
+                   thumbColor={colors.WHITE}
+                 />
               </View>
 
               {allowCrop && (
@@ -709,322 +1028,5 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
   </Fragment>
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.SECONDARY,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 20,
-    paddingTop: 40,
-    backgroundColor: COLORS.PRIMARY,
-  },
-  backButton: {
-    padding: 8,
-  },
-  deleteButton: {
-    padding: 8,
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    color: COLORS.WHITE,
-  },
-  form: {
-    padding: 20,
-  },
-  formGroup: {
-    marginBottom: 20,
-  },
-  label: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: COLORS.BLACK,
-    marginBottom: 8,
-  },
-  input: {
-    backgroundColor: COLORS.WHITE,
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    ...CARD_SHADOW,
-  },
-  noteInput: {
-    backgroundColor: COLORS.WHITE,
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    minHeight: 80,
-    textAlignVertical: 'top',
-    ...CARD_SHADOW,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: COLORS.BLACK,
-    marginBottom: 12,
-  },
-  extraFieldsContainer: {
-    backgroundColor: COLORS.WHITE,
-    borderRadius: 8,
-    padding: 12,
-    ...CARD_SHADOW,
-  },
-  extraFieldRow: {
-    flexDirection: 'row',
-    gap: 12,
-    marginBottom: 12,
-  },
-  extraFieldHalf: {
-    flex: 1,
-  },
-  extraFieldFull: {
-    marginBottom: 0,
-  },
-  extraFieldLabel: {
-    fontSize: 13,
-    color: COLORS.GRAY[600],
-    marginBottom: 6,
-  },
-  extraFieldInput: {
-    backgroundColor: COLORS.GRAY[100],
-    borderRadius: 6,
-    padding: 10,
-    fontSize: 14,
-  },
-  extraFieldInputWrapper: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: COLORS.GRAY[100],
-    borderRadius: 6,
-    padding: 10,
-  },
-  extraFieldInputText: {
-    fontSize: 14,
-    color: COLORS.BLACK,
-    flex: 1,
-  },
-  extraFieldPlaceholder: {
-    color: COLORS.GRAY[400],
-  },
-  dateInput: {
-    backgroundColor: COLORS.WHITE,
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    ...CARD_SHADOW,
-  },
-  dateInputText: {
-    fontSize: 16,
-    color: COLORS.BLACK,
-  },
-  backPhotoHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
-  },
-  hasBackTag: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginLeft: 10,
-    backgroundColor: `${COLORS.SUCCESS}20`,
-    paddingHorizontal: 8,
-    paddingVertical: 2,
-    borderRadius: 4,
-  },
-  hasBackText: {
-    fontSize: 12,
-    color: COLORS.SUCCESS,
-    marginLeft: 4,
-  },
-  photoPreviewContainer: {
-    position: 'relative',
-    marginBottom: 12,
-  },
-  photoPreview: {
-    width: '100%',
-    height: 300,
-    borderRadius: 8,
-    resizeMode: 'cover',
-  },
-  removePhotoButton: {
-    position: 'absolute',
-    top: 8,
-    right: 8,
-    backgroundColor: COLORS.WHITE,
-    borderRadius: 12,
-    padding: 4,
-  },
-  backPhotoLabel: {
-    position: 'absolute',
-    bottom: 8,
-    left: 8,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.SUCCESS,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 4,
-  },
-  backPhotoLabelText: {
-    fontSize: 12,
-    color: COLORS.WHITE,
-    marginLeft: 4,
-  },
-  photoButtons: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-  },
-  photoButton: {
-    backgroundColor: COLORS.WHITE,
-    borderRadius: 12,
-    padding: 16,
-    alignItems: 'center',
-    width: '45%',
-    ...CARD_SHADOW,
-  },
-  photoButtonText: {
-    marginTop: 8,
-    fontSize: 14,
-    color: COLORS.PRIMARY,
-    fontWeight: 'bold',
-  },
-  backPhotoButtons: {
-    alignItems: 'center',
-  },
-  addBackPhotoButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: `${COLORS.PRIMARY}10`,
-    paddingVertical: 12,
-    paddingHorizontal: 20,
-    borderRadius: 8,
-    borderWidth: 1,
-    borderColor: COLORS.PRIMARY,
-    borderStyle: 'dashed',
-  },
-  addBackPhotoText: {
-    fontSize: 14,
-    color: COLORS.PRIMARY,
-    marginLeft: 8,
-  },
-  changeBackPhotoButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.WHITE,
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 8,
-    ...CARD_SHADOW,
-  },
-  changeBackPhotoText: {
-    fontSize: 14,
-    color: COLORS.PRIMARY,
-    marginLeft: 8,
-  },
-  saveButton: {
-    flexDirection: 'row',
-    backgroundColor: COLORS.PRIMARY,
-    borderRadius: 12,
-    padding: 16,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 20,
-    ...CARD_SHADOW,
-  },
-  saveButtonText: {
-    marginLeft: 8,
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: COLORS.WHITE,
-  },
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalContainer: {
-    backgroundColor: COLORS.WHITE,
-    borderRadius: 16,
-    width: '90%',
-    maxWidth: 400,
-    ...CARD_SHADOW,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.GRAY[200],
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: COLORS.BLACK,
-  },
-  modalContent: {
-    padding: 16,
-  },
-  cropOption: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  cropLabel: {
-    fontSize: 16,
-    color: COLORS.BLACK,
-  },
-  cropDimensions: {
-    marginBottom: 24,
-  },
-  dimensionInputs: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 8,
-  },
-  dimensionInput: {
-    flex: 1,
-    backgroundColor: COLORS.GRAY[100],
-    borderRadius: 8,
-    padding: 12,
-    fontSize: 16,
-    textAlign: 'center',
-    ...CARD_SHADOW,
-  },
-  dimensionSeparator: {
-    marginHorizontal: 12,
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: COLORS.BLACK,
-  },
-  cropHint: {
-    fontSize: 12,
-    color: COLORS.GRAY[500],
-    marginTop: 8,
-  },
-  confirmButton: {
-    backgroundColor: COLORS.PRIMARY,
-    borderRadius: 8,
-    padding: 14,
-    alignItems: 'center',
-    ...CARD_SHADOW,
-  },
-  confirmButtonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: COLORS.WHITE,
-  },
-})
 
 export default EditScreen

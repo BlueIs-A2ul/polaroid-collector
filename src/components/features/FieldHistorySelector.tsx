@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useCallback, useMemo } from 'react'
 import {
   View,
   Text,
@@ -9,7 +9,7 @@ import {
   TextInput,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
-import { COLORS } from '../../constants/themeColors'
+import { useTheme } from '../../contexts/ThemeContext'
 import { getFieldHistory, addFieldHistory, removeFieldHistory } from '../../services/fieldHistoryService'
 
 interface FieldHistorySelectorProps {
@@ -29,9 +29,121 @@ const FieldHistorySelector: React.FC<FieldHistorySelectorProps> = ({
   onClose,
   onSelect,
 }) => {
+  const { colors } = useTheme()
   const [history, setHistory] = useState<string[]>([])
   const [customInput, setCustomInput] = useState('')
   const [loading, setLoading] = useState(false)
+
+  const styles = useMemo(() => StyleSheet.create({
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      justifyContent: 'flex-end',
+    },
+    modalContainer: {
+      backgroundColor: colors.WHITE,
+      borderTopLeftRadius: 20,
+      borderTopRightRadius: 20,
+      maxHeight: '70%',
+      paddingBottom: 20,
+    },
+    modalHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.GRAY[200],
+    },
+    modalTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.BLACK,
+    },
+    inputContainer: {
+      flexDirection: 'row',
+      padding: 16,
+      gap: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.GRAY[200],
+    },
+    customInput: {
+      flex: 1,
+      backgroundColor: colors.GRAY[100],
+      borderRadius: 8,
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+      fontSize: 16,
+    },
+    submitButton: {
+      backgroundColor: colors.PRIMARY,
+      borderRadius: 8,
+      paddingHorizontal: 20,
+      justifyContent: 'center',
+    },
+    submitButtonDisabled: {
+      backgroundColor: colors.GRAY[300],
+    },
+    submitButtonText: {
+      color: colors.WHITE,
+      fontSize: 14,
+      fontWeight: 'bold',
+    },
+    historySection: {
+      padding: 16,
+    },
+    historyTitle: {
+      fontSize: 14,
+      color: colors.GRAY[600],
+      marginBottom: 12,
+    },
+    historyList: {
+      maxHeight: 300,
+    },
+    historyItem: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      backgroundColor: colors.WHITE,
+      borderRadius: 8,
+      paddingHorizontal: 16,
+      paddingVertical: 12,
+      marginBottom: 8,
+      borderWidth: 1,
+      borderColor: colors.GRAY[200],
+    },
+    historyItemSelected: {
+      backgroundColor: `${colors.PRIMARY}15`,
+      borderWidth: 1,
+      borderColor: colors.PRIMARY,
+    },
+    historyItemText: {
+      fontSize: 16,
+      color: colors.BLACK,
+      flex: 1,
+    },
+    historyItemTextSelected: {
+      color: colors.PRIMARY,
+      fontWeight: '500',
+    },
+    removeButton: {
+      padding: 4,
+    },
+    emptyContainer: {
+      alignItems: 'center',
+      paddingVertical: 40,
+    },
+    emptyText: {
+      fontSize: 16,
+      color: colors.GRAY[500],
+      marginTop: 12,
+    },
+    emptyHint: {
+      fontSize: 12,
+      color: colors.GRAY[400],
+      marginTop: 4,
+    },
+  }), [colors])
 
   const loadHistory = useCallback(async () => {
     setLoading(true)
@@ -68,7 +180,7 @@ const FieldHistorySelector: React.FC<FieldHistorySelectorProps> = ({
 
   const renderEmptyState = () => (
     <View style={styles.emptyContainer}>
-      <Ionicons name='time-outline' size={48} color={COLORS.GRAY[300]} />
+      <Ionicons name='time-outline' size={48} color={colors.GRAY[300]} />
       <Text style={styles.emptyText}>暂无历史记录</Text>
       <Text style={styles.emptyHint}>输入后将自动保存</Text>
     </View>
@@ -86,7 +198,7 @@ const FieldHistorySelector: React.FC<FieldHistorySelectorProps> = ({
         style={styles.removeButton}
         onPress={() => handleRemove(item)}
       >
-        <Ionicons name='close-circle' size={18} color={COLORS.GRAY[400]} />
+        <Ionicons name='close-circle' size={18} color={colors.GRAY[400]} />
       </TouchableOpacity>
     </TouchableOpacity>
   )
@@ -103,7 +215,7 @@ const FieldHistorySelector: React.FC<FieldHistorySelectorProps> = ({
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>{title}</Text>
             <TouchableOpacity onPress={onClose}>
-              <Ionicons name='close' size={24} color={COLORS.BLACK} />
+              <Ionicons name='close' size={24} color={colors.BLACK} />
             </TouchableOpacity>
           </View>
 
@@ -142,116 +254,5 @@ const FieldHistorySelector: React.FC<FieldHistorySelectorProps> = ({
     </Modal>
   )
 }
-
-const styles = StyleSheet.create({
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
-  },
-  modalContainer: {
-    backgroundColor: COLORS.WHITE,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    maxHeight: '70%',
-    paddingBottom: 20,
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.GRAY[200],
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: COLORS.BLACK,
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    padding: 16,
-    gap: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.GRAY[200],
-  },
-  customInput: {
-    flex: 1,
-    backgroundColor: COLORS.GRAY[100],
-    borderRadius: 8,
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 16,
-  },
-  submitButton: {
-    backgroundColor: COLORS.PRIMARY,
-    borderRadius: 8,
-    paddingHorizontal: 20,
-    justifyContent: 'center',
-  },
-  submitButtonDisabled: {
-    backgroundColor: COLORS.GRAY[300],
-  },
-  submitButtonText: {
-    color: COLORS.WHITE,
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  historySection: {
-    padding: 16,
-  },
-  historyTitle: {
-    fontSize: 14,
-    color: COLORS.GRAY[600],
-    marginBottom: 12,
-  },
-  historyList: {
-    maxHeight: 300,
-  },
-  historyItem: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: COLORS.WHITE,
-    borderRadius: 8,
-    paddingHorizontal: 16,
-    paddingVertical: 12,
-    marginBottom: 8,
-    borderWidth: 1,
-    borderColor: COLORS.GRAY[200],
-  },
-  historyItemSelected: {
-    backgroundColor: `${COLORS.PRIMARY}15`,
-    borderWidth: 1,
-    borderColor: COLORS.PRIMARY,
-  },
-  historyItemText: {
-    fontSize: 16,
-    color: COLORS.BLACK,
-    flex: 1,
-  },
-  historyItemTextSelected: {
-    color: COLORS.PRIMARY,
-    fontWeight: '500',
-  },
-  removeButton: {
-    padding: 4,
-  },
-  emptyContainer: {
-    alignItems: 'center',
-    paddingVertical: 40,
-  },
-  emptyText: {
-    fontSize: 16,
-    color: COLORS.GRAY[500],
-    marginTop: 12,
-  },
-  emptyHint: {
-    fontSize: 12,
-    color: COLORS.GRAY[400],
-    marginTop: 4,
-  },
-})
 
 export default FieldHistorySelector

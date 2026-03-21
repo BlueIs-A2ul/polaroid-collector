@@ -15,7 +15,8 @@ import { Ionicons } from '@expo/vector-icons'
 import { StackNavigationProp } from '@react-navigation/stack'
 import { RouteProp } from '@react-navigation/native'
 import { useFocusEffect } from '@react-navigation/native'
-import { COLORS, CARD_SHADOW } from '../constants/themeColors'
+import { useTheme } from '../contexts/ThemeContext'
+import { CARD_SHADOW } from '../constants/themes'
 import { RootStackParamList } from '../navigation/AppNavigator'
 import { useIdolDetail } from '../hooks/useRecords'
 import { formatDate } from '../utils/rankingUtils'
@@ -56,6 +57,7 @@ interface BatchEditState {
 
 const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
   const { idolName } = route.params
+  const { colors } = useTheme()
   const { detail, loading, error, ascending, toggleSort, refreshDetail } =
     useIdolDetail(idolName)
   const [refreshing, setRefreshing] = React.useState(false)
@@ -73,6 +75,405 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
   })
   const [saving, setSaving] = React.useState(false)
   const [showFieldSelector, setShowFieldSelector] = React.useState<'groupName' | 'city' | 'venue' | null>(null)
+
+  const styles = React.useMemo(() => StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.SECONDARY,
+    },
+    header: {
+      backgroundColor: colors.PRIMARY,
+      padding: 20,
+      paddingTop: 40,
+      alignItems: 'center',
+    },
+    avatarContainer: {
+      position: 'relative',
+      marginBottom: 16,
+    },
+    avatar: {
+      width: 80,
+      height: 80,
+      borderRadius: 40,
+      borderWidth: 3,
+      borderColor: colors.WHITE,
+    },
+    avatarPlaceholder: {
+      width: 80,
+      height: 80,
+      borderRadius: 40,
+      backgroundColor: 'rgba(255, 255, 255, 0.3)',
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderWidth: 3,
+      borderColor: colors.WHITE,
+    },
+    avatarEditBadge: {
+      position: 'absolute',
+      bottom: 0,
+      right: 0,
+      backgroundColor: colors.PRIMARY,
+      borderRadius: 12,
+      padding: 4,
+      borderWidth: 2,
+      borderColor: colors.WHITE,
+    },
+    idolName: {
+      fontSize: 28,
+      fontWeight: 'bold',
+      color: colors.WHITE,
+      marginBottom: 16,
+    },
+    stats: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      gap: 24,
+    },
+    stat: {
+      flexDirection: 'row',
+      alignItems: 'center',
+    },
+    statText: {
+      marginLeft: 4,
+      fontSize: 14,
+      color: colors.WHITE,
+    },
+    recordsContainer: {
+      padding: 16,
+    },
+    sectionHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginBottom: 16,
+    },
+    sectionTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.BLACK,
+    },
+    sortHint: {
+      fontSize: 12,
+      color: colors.GRAY[500],
+    },
+    dateGroup: {
+      backgroundColor: colors.WHITE,
+      borderRadius: 12,
+      marginBottom: 16,
+      ...CARD_SHADOW,
+    },
+    dateHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: 12,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.GRAY[100],
+    },
+    dateInfo: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 6,
+    },
+    dateText: {
+      fontSize: 14,
+      fontWeight: 'bold',
+      color: colors.BLACK,
+    },
+    dateStats: {
+      flexDirection: 'row',
+    },
+    dateStatText: {
+      fontSize: 13,
+      color: colors.GRAY[600],
+    },
+    datePriceText: {
+      fontSize: 13,
+      color: colors.PRIMARY,
+      fontWeight: 'bold',
+    },
+    photoGrid: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      padding: 8,
+      gap: 8,
+    },
+    photoItem: {
+      width: 100,
+      height: 100,
+      borderRadius: 8,
+      overflow: 'hidden',
+    },
+    photoImage: {
+      width: '100%',
+      height: '100%',
+      resizeMode: 'cover',
+    },
+    backPhotoBadge: {
+      position: 'absolute',
+      bottom: 4,
+      left: 4,
+      backgroundColor: colors.SUCCESS,
+      borderRadius: 6,
+      padding: 2,
+    },
+    countBadge: {
+      position: 'absolute',
+      bottom: 4,
+      right: 4,
+      backgroundColor: 'rgba(0, 0, 0, 0.6)',
+      borderRadius: 6,
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+    },
+    countBadgeText: {
+      fontSize: 11,
+      color: colors.WHITE,
+      fontWeight: 'bold',
+    },
+    priceBadge: {
+      position: 'absolute',
+      top: 4,
+      right: 4,
+      backgroundColor: colors.PRIMARY,
+      borderRadius: 6,
+      paddingHorizontal: 6,
+      paddingVertical: 2,
+    },
+    priceBadgeText: {
+      fontSize: 11,
+      color: colors.WHITE,
+      fontWeight: 'bold',
+    },
+    modalContainer: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.85)',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    modalCloseButton: {
+      position: 'absolute',
+      top: 50,
+      right: 20,
+      zIndex: 10,
+      padding: 8,
+    },
+    modalContent: {
+      width: '90%',
+      alignItems: 'center',
+    },
+    modalImageContainer: {
+      width: '100%',
+      borderRadius: 12,
+      overflow: 'hidden',
+    },
+    modalImage: {
+      width: '100%',
+      aspectRatio: 1,
+      resizeMode: 'contain',
+      backgroundColor: colors.GRAY[100],
+    },
+    loadingContainer: {
+      padding: 40,
+      alignItems: 'center',
+    },
+    loadingText: {
+      fontSize: 16,
+      color: colors.WHITE,
+    },
+    modalInfo: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      marginTop: 16,
+      width: '100%',
+    },
+    modalDate: {
+      fontSize: 14,
+      color: colors.WHITE,
+    },
+    toggleButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: 16,
+    },
+    toggleButtonText: {
+      fontSize: 13,
+      color: colors.WHITE,
+      marginLeft: 6,
+    },
+    noteContainer: {
+      flexDirection: 'row',
+      alignItems: 'flex-start',
+      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+      paddingHorizontal: 12,
+      paddingVertical: 8,
+      borderRadius: 8,
+      marginTop: 12,
+      width: '100%',
+    },
+    noteText: {
+      fontSize: 13,
+      color: colors.WHITE,
+      marginLeft: 8,
+      flex: 1,
+    },
+    extraInfoContainer: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      marginTop: 12,
+      width: '100%',
+      gap: 8,
+    },
+    extraInfoItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+      paddingHorizontal: 10,
+      paddingVertical: 6,
+      borderRadius: 6,
+    },
+    extraInfoLabel: {
+      fontSize: 12,
+      color: colors.GRAY[400],
+      marginRight: 4,
+    },
+    extraInfoValue: {
+      fontSize: 12,
+      color: colors.WHITE,
+      fontWeight: '500',
+    },
+    editButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.PRIMARY,
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderRadius: 16,
+      marginTop: 12,
+    },
+    editButtonText: {
+      fontSize: 13,
+      color: colors.WHITE,
+      marginLeft: 6,
+    },
+    dateHeaderRight: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+    },
+    batchEditButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: `${colors.PRIMARY}15`,
+      paddingHorizontal: 10,
+      paddingVertical: 4,
+      borderRadius: 12,
+    },
+    batchEditText: {
+      fontSize: 12,
+      color: colors.PRIMARY,
+      marginLeft: 4,
+    },
+    batchEditModal: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
+    batchEditContent: {
+      backgroundColor: colors.WHITE,
+      borderRadius: 16,
+      width: '90%',
+      maxWidth: 400,
+      ...CARD_SHADOW,
+    },
+    batchEditHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.GRAY[200],
+    },
+    batchEditTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.BLACK,
+    },
+    batchEditBody: {
+      padding: 16,
+    },
+    batchEditDate: {
+      fontSize: 14,
+      color: colors.GRAY[600],
+      marginBottom: 16,
+      textAlign: 'center',
+    },
+    batchEditField: {
+      marginBottom: 16,
+    },
+    batchEditLabel: {
+      fontSize: 14,
+      fontWeight: '500',
+      color: colors.BLACK,
+      marginBottom: 6,
+    },
+    batchEditInputWrapper: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      backgroundColor: colors.GRAY[100],
+      borderRadius: 8,
+      padding: 12,
+    },
+    batchEditInputText: {
+      fontSize: 15,
+      color: colors.BLACK,
+      flex: 1,
+    },
+    batchEditPlaceholder: {
+      color: colors.GRAY[400],
+    },
+    batchEditCount: {
+      fontSize: 12,
+      color: colors.GRAY[500],
+      textAlign: 'center',
+      marginBottom: 16,
+    },
+    batchEditButtons: {
+      flexDirection: 'row',
+      gap: 12,
+      marginTop: 8,
+    },
+    batchEditCancelButton: {
+      flex: 1,
+      backgroundColor: colors.GRAY[200],
+      borderRadius: 8,
+      padding: 14,
+      alignItems: 'center',
+    },
+    batchEditCancelText: {
+      fontSize: 15,
+      color: colors.GRAY[700],
+      fontWeight: '500',
+    },
+    batchEditSaveButton: {
+      flex: 1,
+      backgroundColor: colors.PRIMARY,
+      borderRadius: 8,
+      padding: 14,
+      alignItems: 'center',
+    },
+    batchEditSaveText: {
+      fontSize: 15,
+      color: colors.WHITE,
+      fontWeight: 'bold',
+    },
+  }), [colors])
 
   const loadAvatar = React.useCallback(async () => {
     const { success, data } = await getAvatar(idolName)
@@ -245,7 +646,7 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
           <Ionicons
             name={ascending ? 'arrow-up' : 'arrow-down'}
             size={24}
-            color={COLORS.WHITE}
+            color={colors.WHITE}
           />
         </TouchableOpacity>
       ),
@@ -274,8 +675,8 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={[COLORS.PRIMARY]}
-            tintColor={COLORS.PRIMARY}
+            colors={[colors.PRIMARY]}
+            tintColor={colors.PRIMARY}
           />
         }
       >
@@ -285,26 +686,26 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
               <RNImage source={{ uri: avatarUri }} style={styles.avatar} />
             ) : (
               <View style={styles.avatarPlaceholder}>
-                <Ionicons name='person' size={40} color={COLORS.WHITE} />
+                <Ionicons name='person' size={40} color={colors.WHITE} />
               </View>
             )}
             <View style={styles.avatarEditBadge}>
-              <Ionicons name='camera' size={14} color={COLORS.WHITE} />
+              <Ionicons name='camera' size={14} color={colors.WHITE} />
             </View>
           </TouchableOpacity>
           <Text style={styles.idolName}>{detail.idolName}</Text>
           <View style={styles.stats}>
             <View style={styles.stat}>
-              <Ionicons name='camera' size={20} color={COLORS.PRIMARY} />
+              <Ionicons name='camera' size={20} color={colors.PRIMARY} />
               <Text style={styles.statText}>{detail.totalCount} 张</Text>
             </View>
             <View style={styles.stat}>
-              <Ionicons name='calendar' size={20} color={COLORS.PRIMARY} />
+              <Ionicons name='calendar' size={20} color={colors.PRIMARY} />
               <Text style={styles.statText}>{detail.totalRecords} 次</Text>
             </View>
             {detail.totalPrice > 0 && (
               <View style={styles.stat}>
-                <Ionicons name='wallet' size={20} color={COLORS.PRIMARY} />
+                <Ionicons name='wallet' size={20} color={colors.PRIMARY} />
                 <Text style={styles.statText}>¥{detail.totalPrice}</Text>
               </View>
             )}
@@ -321,7 +722,7 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
             <View key={group.date} style={styles.dateGroup}>
               <View style={styles.dateHeader}>
                 <View style={styles.dateInfo}>
-                  <Ionicons name='calendar' size={16} color={COLORS.PRIMARY} />
+                  <Ionicons name='calendar' size={16} color={colors.PRIMARY} />
                   <Text style={styles.dateText}>{formatDate(group.date)}</Text>
                 </View>
                 <View style={styles.dateHeaderRight}>
@@ -329,7 +730,7 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
                     style={styles.batchEditButton}
                     onPress={() => openBatchEdit(group)}
                   >
-                    <Ionicons name='create-outline' size={16} color={COLORS.PRIMARY} />
+                    <Ionicons name='create-outline' size={16} color={colors.PRIMARY} />
                     <Text style={styles.batchEditText}>编辑本日</Text>
                   </TouchableOpacity>
                   <View style={styles.dateStats}>
@@ -352,7 +753,7 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
                     <CachedImage uri={record.photoUri} style={styles.photoImage} />
                     {record.backPhotoUri && (
                       <View style={styles.backPhotoBadge}>
-                        <Ionicons name='document-text' size={10} color={COLORS.WHITE} />
+                        <Ionicons name='document-text' size={10} color={colors.WHITE} />
                       </View>
                     )}
                     {record.photoCount > 1 && (
@@ -390,7 +791,7 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
       >
         <View style={styles.modalContainer}>
           <TouchableOpacity style={styles.modalCloseButton} onPress={closePhotoModal}>
-            <Ionicons name='close' size={28} color={COLORS.WHITE} />
+            <Ionicons name='close' size={28} color={colors.WHITE} />
           </TouchableOpacity>
 
           {selectedRecord && selectedRecord.photoUri ? (
@@ -413,7 +814,7 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
                     <Ionicons
                       name={showingBack ? 'image-outline' : 'document-text-outline'}
                       size={16}
-                      color={COLORS.PRIMARY}
+                      color={colors.PRIMARY}
                     />
                     <Text style={styles.toggleButtonText}>
                       {showingBack ? '查看正面' : '查看背签'}
@@ -424,7 +825,7 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
 
               {selectedRecord.note && (
                 <View style={styles.noteContainer}>
-                  <Ionicons name='chatbubble-outline' size={14} color={COLORS.GRAY[400]} />
+                  <Ionicons name='chatbubble-outline' size={14} color={colors.GRAY[400]} />
                   <Text style={styles.noteText}>{selectedRecord.note}</Text>
                 </View>
               )}
@@ -471,7 +872,7 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
                   navigation.navigate('Edit', { recordId: selectedRecord.id })
                 }}
               >
-                <Ionicons name='create-outline' size={16} color={COLORS.WHITE} />
+                <Ionicons name='create-outline' size={16} color={colors.WHITE} />
                 <Text style={styles.editButtonText}>编辑</Text>
               </TouchableOpacity>
             </View>
@@ -494,7 +895,7 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
             <View style={styles.batchEditHeader}>
               <Text style={styles.batchEditTitle}>批量编辑</Text>
               <TouchableOpacity onPress={closeBatchEdit}>
-                <Ionicons name='close' size={24} color={COLORS.BLACK} />
+                <Ionicons name='close' size={24} color={colors.BLACK} />
               </TouchableOpacity>
             </View>
 
@@ -512,7 +913,7 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
                   <Text style={[styles.batchEditInputText, batchEdit.groupName ? null : styles.batchEditPlaceholder]}>
                     {batchEdit.groupName || '选填'}
                   </Text>
-                  <Ionicons name='chevron-down' size={16} color={COLORS.GRAY[500]} />
+                  <Ionicons name='chevron-down' size={16} color={colors.GRAY[500]} />
                 </TouchableOpacity>
               </View>
 
@@ -525,7 +926,7 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
                   <Text style={[styles.batchEditInputText, batchEdit.city ? null : styles.batchEditPlaceholder]}>
                     {batchEdit.city || '选填'}
                   </Text>
-                  <Ionicons name='chevron-down' size={16} color={COLORS.GRAY[500]} />
+                  <Ionicons name='chevron-down' size={16} color={colors.GRAY[500]} />
                 </TouchableOpacity>
               </View>
 
@@ -538,7 +939,7 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
                   <Text style={[styles.batchEditInputText, batchEdit.venue ? null : styles.batchEditPlaceholder]}>
                     {batchEdit.venue || '选填'}
                   </Text>
-                  <Ionicons name='chevron-down' size={16} color={COLORS.GRAY[500]} />
+                  <Ionicons name='chevron-down' size={16} color={colors.GRAY[500]} />
                 </TouchableOpacity>
               </View>
 
@@ -588,404 +989,5 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
     </>
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.SECONDARY,
-  },
-  header: {
-    backgroundColor: COLORS.PRIMARY,
-    padding: 20,
-    paddingTop: 40,
-    alignItems: 'center',
-  },
-  avatarContainer: {
-    position: 'relative',
-    marginBottom: 16,
-  },
-  avatar: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    borderWidth: 3,
-    borderColor: COLORS.WHITE,
-  },
-  avatarPlaceholder: {
-    width: 80,
-    height: 80,
-    borderRadius: 40,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    borderWidth: 3,
-    borderColor: COLORS.WHITE,
-  },
-  avatarEditBadge: {
-    position: 'absolute',
-    bottom: 0,
-    right: 0,
-    backgroundColor: COLORS.PRIMARY,
-    borderRadius: 12,
-    padding: 4,
-    borderWidth: 2,
-    borderColor: COLORS.WHITE,
-  },
-  idolName: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: COLORS.WHITE,
-    marginBottom: 16,
-  },
-  stats: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 24,
-  },
-  stat: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  statText: {
-    marginLeft: 4,
-    fontSize: 14,
-    color: COLORS.WHITE,
-  },
-  recordsContainer: {
-    padding: 16,
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 16,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: COLORS.BLACK,
-  },
-  sortHint: {
-    fontSize: 12,
-    color: COLORS.GRAY[500],
-  },
-  dateGroup: {
-    backgroundColor: COLORS.WHITE,
-    borderRadius: 12,
-    marginBottom: 16,
-    ...CARD_SHADOW,
-  },
-  dateHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 12,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.GRAY[100],
-  },
-  dateInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  dateText: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: COLORS.BLACK,
-  },
-  dateStats: {
-    flexDirection: 'row',
-  },
-  dateStatText: {
-    fontSize: 13,
-    color: COLORS.GRAY[600],
-  },
-  datePriceText: {
-    fontSize: 13,
-    color: COLORS.PRIMARY,
-    fontWeight: 'bold',
-  },
-  photoGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    padding: 8,
-    gap: 8,
-  },
-  photoItem: {
-    width: 100,
-    height: 100,
-    borderRadius: 8,
-    overflow: 'hidden',
-  },
-  photoImage: {
-    width: '100%',
-    height: '100%',
-    resizeMode: 'cover',
-  },
-  backPhotoBadge: {
-    position: 'absolute',
-    bottom: 4,
-    left: 4,
-    backgroundColor: COLORS.SUCCESS,
-    borderRadius: 6,
-    padding: 2,
-  },
-  countBadge: {
-    position: 'absolute',
-    bottom: 4,
-    right: 4,
-    backgroundColor: 'rgba(0, 0, 0, 0.6)',
-    borderRadius: 6,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-  },
-  countBadgeText: {
-    fontSize: 11,
-    color: COLORS.WHITE,
-    fontWeight: 'bold',
-  },
-  priceBadge: {
-    position: 'absolute',
-    top: 4,
-    right: 4,
-    backgroundColor: COLORS.PRIMARY,
-    borderRadius: 6,
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-  },
-  priceBadgeText: {
-    fontSize: 11,
-    color: COLORS.WHITE,
-    fontWeight: 'bold',
-  },
-  modalContainer: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.85)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  modalCloseButton: {
-    position: 'absolute',
-    top: 50,
-    right: 20,
-    zIndex: 10,
-    padding: 8,
-  },
-  modalContent: {
-    width: '90%',
-    alignItems: 'center',
-  },
-  modalImageContainer: {
-    width: '100%',
-    borderRadius: 12,
-    overflow: 'hidden',
-  },
-  modalImage: {
-    width: '100%',
-    aspectRatio: 1,
-    resizeMode: 'contain',
-    backgroundColor: COLORS.GRAY[100],
-  },
-  loadingContainer: {
-    padding: 40,
-    alignItems: 'center',
-  },
-  loadingText: {
-    fontSize: 16,
-    color: COLORS.WHITE,
-  },
-  modalInfo: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginTop: 16,
-    width: '100%',
-  },
-  modalDate: {
-    fontSize: 14,
-    color: COLORS.WHITE,
-  },
-  toggleButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    borderRadius: 16,
-  },
-  toggleButtonText: {
-    fontSize: 13,
-    color: COLORS.WHITE,
-    marginLeft: 6,
-  },
-  noteContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    paddingHorizontal: 12,
-    paddingVertical: 8,
-    borderRadius: 8,
-    marginTop: 12,
-    width: '100%',
-  },
-  noteText: {
-    fontSize: 13,
-    color: COLORS.WHITE,
-    marginLeft: 8,
-    flex: 1,
-  },
-  extraInfoContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    marginTop: 12,
-    width: '100%',
-    gap: 8,
-  },
-  extraInfoItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: 'rgba(255, 255, 255, 0.1)',
-    paddingHorizontal: 10,
-    paddingVertical: 6,
-    borderRadius: 6,
-  },
-  extraInfoLabel: {
-    fontSize: 12,
-    color: COLORS.GRAY[400],
-    marginRight: 4,
-  },
-  extraInfoValue: {
-    fontSize: 12,
-    color: COLORS.WHITE,
-    fontWeight: '500',
-  },
-  editButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.PRIMARY,
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 16,
-    marginTop: 12,
-  },
-  editButtonText: {
-    fontSize: 13,
-    color: COLORS.WHITE,
-    marginLeft: 6,
-  },
-  dateHeaderRight: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 12,
-  },
-  batchEditButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: `${COLORS.PRIMARY}15`,
-    paddingHorizontal: 10,
-    paddingVertical: 4,
-    borderRadius: 12,
-  },
-  batchEditText: {
-    fontSize: 12,
-    color: COLORS.PRIMARY,
-    marginLeft: 4,
-  },
-  batchEditModal: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  batchEditContent: {
-    backgroundColor: COLORS.WHITE,
-    borderRadius: 16,
-    width: '90%',
-    maxWidth: 400,
-    ...CARD_SHADOW,
-  },
-  batchEditHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.GRAY[200],
-  },
-  batchEditTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: COLORS.BLACK,
-  },
-  batchEditBody: {
-    padding: 16,
-  },
-  batchEditDate: {
-    fontSize: 14,
-    color: COLORS.GRAY[600],
-    marginBottom: 16,
-    textAlign: 'center',
-  },
-  batchEditField: {
-    marginBottom: 16,
-  },
-  batchEditLabel: {
-    fontSize: 14,
-    fontWeight: '500',
-    color: COLORS.BLACK,
-    marginBottom: 6,
-  },
-  batchEditInputWrapper: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    backgroundColor: COLORS.GRAY[100],
-    borderRadius: 8,
-    padding: 12,
-  },
-  batchEditInputText: {
-    fontSize: 15,
-    color: COLORS.BLACK,
-    flex: 1,
-  },
-  batchEditPlaceholder: {
-    color: COLORS.GRAY[400],
-  },
-  batchEditCount: {
-    fontSize: 12,
-    color: COLORS.GRAY[500],
-    textAlign: 'center',
-    marginBottom: 16,
-  },
-  batchEditButtons: {
-    flexDirection: 'row',
-    gap: 12,
-    marginTop: 8,
-  },
-  batchEditCancelButton: {
-    flex: 1,
-    backgroundColor: COLORS.GRAY[200],
-    borderRadius: 8,
-    padding: 14,
-    alignItems: 'center',
-  },
-  batchEditCancelText: {
-    fontSize: 15,
-    color: COLORS.GRAY[700],
-    fontWeight: '500',
-  },
-  batchEditSaveButton: {
-    flex: 1,
-    backgroundColor: COLORS.PRIMARY,
-    borderRadius: 8,
-    padding: 14,
-    alignItems: 'center',
-  },
-  batchEditSaveText: {
-    fontSize: 15,
-    color: COLORS.WHITE,
-    fontWeight: 'bold',
-  },
-})
 
 export default DetailScreen

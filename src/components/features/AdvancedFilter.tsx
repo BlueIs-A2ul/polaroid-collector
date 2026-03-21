@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect, useMemo } from 'react'
 import {
   View,
   Text,
@@ -8,7 +8,8 @@ import {
   ScrollView,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
-import { COLORS, CARD_SHADOW } from '../../constants/themeColors'
+import { useTheme } from '../../contexts/ThemeContext'
+import { CARD_SHADOW } from '../../constants/themes'
 import { getAllRecords } from '../../services/storageService'
 import { PolaroidRecord } from '../../types'
 
@@ -32,13 +33,125 @@ const AdvancedFilter: React.FC<AdvancedFilterProps> = ({
   onApply,
   currentFilters,
 }) => {
+  const { colors } = useTheme()
   const [records, setRecords] = useState<PolaroidRecord[]>([])
   const [filters, setFilters] = useState<FilterOptions>(currentFilters)
 
   const [groupNames, setGroupNames] = useState<string[]>([])
   const [cities, setCities] = useState<string[]>([])
   const [venues, setVenues] = useState<string[]>([])
-  const [types, setTypes] = useState<string[]>(['无签', '带签', '主题', '宿题'])
+  const [types] = useState<string[]>(['无签', '带签', '主题', '宿题'])
+
+  const styles = useMemo(() => StyleSheet.create({
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      justifyContent: 'flex-end',
+    },
+    modalContainer: {
+      backgroundColor: colors.WHITE,
+      borderTopLeftRadius: 20,
+      borderTopRightRadius: 20,
+      maxHeight: '80%',
+    },
+    modalHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.GRAY[200],
+    },
+    modalTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.BLACK,
+    },
+    modalContent: {
+      padding: 16,
+      maxHeight: 400,
+    },
+    section: {
+      marginBottom: 20,
+    },
+    sectionTitle: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: colors.BLACK,
+      marginBottom: 12,
+    },
+    optionsContainer: {
+      flexDirection: 'row',
+      flexWrap: 'wrap',
+      gap: 8,
+    },
+    optionButton: {
+      paddingHorizontal: 14,
+      paddingVertical: 8,
+      borderRadius: 16,
+      backgroundColor: colors.GRAY[100],
+      borderWidth: 1,
+      borderColor: colors.GRAY[200],
+    },
+    optionButtonActive: {
+      backgroundColor: colors.PRIMARY,
+      borderColor: colors.PRIMARY,
+    },
+    optionText: {
+      fontSize: 14,
+      color: colors.BLACK,
+    },
+    optionTextActive: {
+      color: colors.WHITE,
+      fontWeight: '500',
+    },
+    emptyState: {
+      alignItems: 'center',
+      paddingVertical: 40,
+    },
+    emptyText: {
+      fontSize: 16,
+      color: colors.GRAY[500],
+      marginTop: 12,
+    },
+    emptyHint: {
+      fontSize: 12,
+      color: colors.GRAY[400],
+      marginTop: 4,
+    },
+    modalFooter: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: 16,
+      borderTopWidth: 1,
+      borderTopColor: colors.GRAY[200],
+      gap: 12,
+    },
+    clearButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+      paddingVertical: 12,
+      paddingHorizontal: 16,
+    },
+    clearButtonText: {
+      fontSize: 14,
+      color: colors.GRAY[600],
+    },
+    applyButton: {
+      flex: 1,
+      backgroundColor: colors.PRIMARY,
+      borderRadius: 8,
+      paddingVertical: 12,
+      alignItems: 'center',
+    },
+    applyButtonText: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      color: colors.WHITE,
+    },
+  }), [colors])
 
   useEffect(() => {
     if (visible) {
@@ -137,7 +250,7 @@ const AdvancedFilter: React.FC<AdvancedFilterProps> = ({
           <View style={styles.modalHeader}>
             <Text style={styles.modalTitle}>高级筛选</Text>
             <TouchableOpacity onPress={onClose}>
-              <Ionicons name='close' size={24} color={COLORS.BLACK} />
+              <Ionicons name='close' size={24} color={colors.BLACK} />
             </TouchableOpacity>
           </View>
 
@@ -161,7 +274,7 @@ const AdvancedFilter: React.FC<AdvancedFilterProps> = ({
                   <Ionicons
                     name='filter-outline'
                     size={48}
-                    color={COLORS.GRAY[300]}
+                    color={colors.GRAY[300]}
                   />
                   <Text style={styles.emptyText}>
                     暂无可筛选的数据
@@ -179,7 +292,7 @@ const AdvancedFilter: React.FC<AdvancedFilterProps> = ({
                 style={styles.clearButton}
                 onPress={handleClear}
               >
-                <Ionicons name='close-circle' size={18} color={COLORS.GRAY[600]} />
+                <Ionicons name='close-circle' size={18} color={colors.GRAY[600]} />
                 <Text style={styles.clearButtonText}>清除筛选</Text>
               </TouchableOpacity>
             )}
@@ -195,116 +308,5 @@ const AdvancedFilter: React.FC<AdvancedFilterProps> = ({
     </Modal>
   )
 }
-
-const styles = StyleSheet.create({
-  modalOverlay: {
-    flex: 1,
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
-    justifyContent: 'flex-end',
-  },
-  modalContainer: {
-    backgroundColor: COLORS.WHITE,
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    maxHeight: '80%',
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: COLORS.GRAY[200],
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: COLORS.BLACK,
-  },
-  modalContent: {
-    padding: 16,
-    maxHeight: 400,
-  },
-  section: {
-    marginBottom: 20,
-  },
-  sectionTitle: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: COLORS.BLACK,
-    marginBottom: 12,
-  },
-  optionsContainer: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  optionButton: {
-    paddingHorizontal: 14,
-    paddingVertical: 8,
-    borderRadius: 16,
-    backgroundColor: COLORS.GRAY[100],
-    borderWidth: 1,
-    borderColor: COLORS.GRAY[200],
-  },
-  optionButtonActive: {
-    backgroundColor: COLORS.PRIMARY,
-    borderColor: COLORS.PRIMARY,
-  },
-  optionText: {
-    fontSize: 14,
-    color: COLORS.BLACK,
-  },
-  optionTextActive: {
-    color: COLORS.WHITE,
-    fontWeight: '500',
-  },
-  emptyState: {
-    alignItems: 'center',
-    paddingVertical: 40,
-  },
-  emptyText: {
-    fontSize: 16,
-    color: COLORS.GRAY[500],
-    marginTop: 12,
-  },
-  emptyHint: {
-    fontSize: 12,
-    color: COLORS.GRAY[400],
-    marginTop: 4,
-  },
-  modalFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 16,
-    borderTopWidth: 1,
-    borderTopColor: COLORS.GRAY[200],
-    gap: 12,
-  },
-  clearButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 4,
-    paddingVertical: 12,
-    paddingHorizontal: 16,
-  },
-  clearButtonText: {
-    fontSize: 14,
-    color: COLORS.GRAY[600],
-  },
-  applyButton: {
-    flex: 1,
-    backgroundColor: COLORS.PRIMARY,
-    borderRadius: 8,
-    paddingVertical: 12,
-    alignItems: 'center',
-  },
-  applyButtonText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: COLORS.WHITE,
-  },
-})
 
 export default AdvancedFilter

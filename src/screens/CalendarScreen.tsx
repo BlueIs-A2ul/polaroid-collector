@@ -11,7 +11,8 @@ import { Ionicons } from '@expo/vector-icons'
 import { StackNavigationProp } from '@react-navigation/stack'
 import { RouteProp } from '@react-navigation/native'
 import { useFocusEffect } from '@react-navigation/native'
-import { COLORS, CARD_SHADOW } from '../constants/themeColors'
+import { useTheme } from '../contexts/ThemeContext'
+import { CARD_SHADOW } from '../constants/themes'
 import { RootStackParamList } from '../navigation/AppNavigator'
 import { getAllRecords } from '../services/storageService'
 import { PolaroidRecord } from '../types'
@@ -33,6 +34,7 @@ interface CalendarScreenProps {
 }
 
 const CalendarScreen: React.FC<CalendarScreenProps> = ({ navigation }) => {
+  const { colors } = useTheme()
   const [records, setRecords] = useState<PolaroidRecord[]>([])
   const [loading, setLoading] = useState(true)
   const [refreshing, setRefreshing] = useState(false)
@@ -76,6 +78,121 @@ const CalendarScreen: React.FC<CalendarScreenProps> = ({ navigation }) => {
     return selectedRecords.reduce((sum, r) => sum + r.photoCount, 0)
   }, [selectedRecords])
 
+  const styles = useMemo(() => StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.SECONDARY,
+    },
+    header: {
+      backgroundColor: colors.PRIMARY,
+      padding: 20,
+      paddingTop: 60,
+      alignItems: 'center',
+    },
+    headerTitle: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: colors.WHITE,
+    },
+    headerSubtitle: {
+      fontSize: 14,
+      color: colors.WHITE,
+      opacity: 0.8,
+      marginTop: 4,
+    },
+    calendarContainer: {
+      padding: 16,
+    },
+    selectedSection: {
+      padding: 16,
+    },
+    selectedHeader: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginBottom: 12,
+      gap: 8,
+    },
+    selectedTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.BLACK,
+      flex: 1,
+    },
+    selectedCount: {
+      fontSize: 14,
+      color: colors.GRAY[600],
+    },
+    recordsGrid: {
+      gap: 12,
+    },
+    recordCard: {
+      flexDirection: 'row',
+      backgroundColor: colors.WHITE,
+      borderRadius: 12,
+      overflow: 'hidden',
+      ...CARD_SHADOW,
+    },
+    recordImage: {
+      width: 80,
+      height: 80,
+    },
+    recordInfo: {
+      flex: 1,
+      padding: 12,
+      justifyContent: 'center',
+    },
+    recordIdolName: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      color: colors.BLACK,
+      marginBottom: 4,
+    },
+    recordMeta: {
+      flexDirection: 'row',
+      gap: 12,
+      marginBottom: 4,
+    },
+    recordCount: {
+      fontSize: 14,
+      color: colors.GRAY[600],
+    },
+    recordPrice: {
+      fontSize: 14,
+      color: colors.PRIMARY,
+      fontWeight: '500',
+    },
+    recordNote: {
+      fontSize: 12,
+      color: colors.GRAY[500],
+    },
+    emptyDate: {
+      backgroundColor: colors.WHITE,
+      borderRadius: 12,
+      padding: 32,
+      alignItems: 'center',
+      ...CARD_SHADOW,
+    },
+    emptyDateText: {
+      fontSize: 14,
+      color: colors.GRAY[500],
+      marginTop: 8,
+    },
+    hint: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      padding: 20,
+      gap: 8,
+    },
+    hintText: {
+      fontSize: 14,
+      color: colors.GRAY[500],
+    },
+    bottomPadding: {
+      height: 20,
+    },
+  }), [colors])
+
   if (loading) {
     return <LoadingSpinner />
   }
@@ -87,8 +204,8 @@ const CalendarScreen: React.FC<CalendarScreenProps> = ({ navigation }) => {
         <RefreshControl
           refreshing={refreshing}
           onRefresh={onRefresh}
-          colors={[COLORS.PRIMARY]}
-          tintColor={COLORS.PRIMARY}
+          colors={[colors.PRIMARY]}
+          tintColor={colors.PRIMARY}
         />
       }
     >
@@ -110,7 +227,7 @@ const CalendarScreen: React.FC<CalendarScreenProps> = ({ navigation }) => {
       {selectedDate && (
         <View style={styles.selectedSection}>
           <View style={styles.selectedHeader}>
-            <Ionicons name='calendar' size={20} color={COLORS.PRIMARY} />
+            <Ionicons name='calendar' size={20} color={colors.PRIMARY} />
             <Text style={styles.selectedTitle}>{formatDate(selectedDate)}</Text>
             <Text style={styles.selectedCount}>
               {selectedRecords.length} 条记录 · {totalPhotosOnDate} 张
@@ -150,7 +267,7 @@ const CalendarScreen: React.FC<CalendarScreenProps> = ({ navigation }) => {
             </View>
           ) : (
             <View style={styles.emptyDate}>
-              <Ionicons name='camera-outline' size={40} color={COLORS.GRAY[300]} />
+              <Ionicons name='camera-outline' size={40} color={colors.GRAY[300]} />
               <Text style={styles.emptyDateText}>这天没有拍摄记录</Text>
             </View>
           )}
@@ -159,7 +276,7 @@ const CalendarScreen: React.FC<CalendarScreenProps> = ({ navigation }) => {
 
       {!selectedDate && (
         <View style={styles.hint}>
-          <Ionicons name='hand-left-outline' size={20} color={COLORS.GRAY[500]} />
+          <Ionicons name='hand-left-outline' size={20} color={colors.GRAY[500]} />
           <Text style={styles.hintText}>点击日期查看当天的拍摄记录</Text>
         </View>
       )}
@@ -168,120 +285,5 @@ const CalendarScreen: React.FC<CalendarScreenProps> = ({ navigation }) => {
     </ScrollView>
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.SECONDARY,
-  },
-  header: {
-    backgroundColor: COLORS.PRIMARY,
-    padding: 20,
-    paddingTop: 60,
-    alignItems: 'center',
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: COLORS.WHITE,
-  },
-  headerSubtitle: {
-    fontSize: 14,
-    color: COLORS.WHITE,
-    opacity: 0.8,
-    marginTop: 4,
-  },
-  calendarContainer: {
-    padding: 16,
-  },
-  selectedSection: {
-    padding: 16,
-  },
-  selectedHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 12,
-    gap: 8,
-  },
-  selectedTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: COLORS.BLACK,
-    flex: 1,
-  },
-  selectedCount: {
-    fontSize: 14,
-    color: COLORS.GRAY[600],
-  },
-  recordsGrid: {
-    gap: 12,
-  },
-  recordCard: {
-    flexDirection: 'row',
-    backgroundColor: COLORS.WHITE,
-    borderRadius: 12,
-    overflow: 'hidden',
-    ...CARD_SHADOW,
-  },
-  recordImage: {
-    width: 80,
-    height: 80,
-  },
-  recordInfo: {
-    flex: 1,
-    padding: 12,
-    justifyContent: 'center',
-  },
-  recordIdolName: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: COLORS.BLACK,
-    marginBottom: 4,
-  },
-  recordMeta: {
-    flexDirection: 'row',
-    gap: 12,
-    marginBottom: 4,
-  },
-  recordCount: {
-    fontSize: 14,
-    color: COLORS.GRAY[600],
-  },
-  recordPrice: {
-    fontSize: 14,
-    color: COLORS.PRIMARY,
-    fontWeight: '500',
-  },
-  recordNote: {
-    fontSize: 12,
-    color: COLORS.GRAY[500],
-  },
-  emptyDate: {
-    backgroundColor: COLORS.WHITE,
-    borderRadius: 12,
-    padding: 32,
-    alignItems: 'center',
-    ...CARD_SHADOW,
-  },
-  emptyDateText: {
-    fontSize: 14,
-    color: COLORS.GRAY[500],
-    marginTop: 8,
-  },
-  hint: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 20,
-    gap: 8,
-  },
-  hintText: {
-    fontSize: 14,
-    color: COLORS.GRAY[500],
-  },
-  bottomPadding: {
-    height: 20,
-  },
-})
 
 export default CalendarScreen

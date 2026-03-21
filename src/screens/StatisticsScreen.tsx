@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import {
   View,
   Text,
@@ -12,7 +12,8 @@ import { Ionicons } from '@expo/vector-icons'
 import { StackNavigationProp } from '@react-navigation/stack'
 import { RouteProp } from '@react-navigation/native'
 import { useFocusEffect } from '@react-navigation/native'
-import { COLORS, CARD_SHADOW } from '../constants/themeColors'
+import { useTheme } from '../contexts/ThemeContext'
+import { CARD_SHADOW } from '../constants/themes'
 import { RootStackParamList } from '../navigation/AppNavigator'
 import { getRanking, getStatistics, getMonthlySpending } from '../services/recordService'
 import { RankingItem, Statistics, FieldStat, MonthlySpending } from '../types'
@@ -44,12 +45,95 @@ const FieldStatSection: React.FC<FieldStatSectionProps> = ({
   icon,
   emptyText,
 }) => {
+  const { colors } = useTheme()
+
+  const styles = useMemo(() => StyleSheet.create({
+    sectionContainer: {
+      padding: 16,
+    },
+    sectionTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.BLACK,
+      marginBottom: 12,
+    },
+    emptySection: {
+      backgroundColor: colors.WHITE,
+      borderRadius: 12,
+      padding: 32,
+      alignItems: 'center',
+      ...CARD_SHADOW,
+    },
+    emptySectionText: {
+      fontSize: 14,
+      color: colors.GRAY[500],
+      marginTop: 8,
+    },
+    statItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.WHITE,
+      borderRadius: 12,
+      padding: 12,
+      marginBottom: 8,
+      ...CARD_SHADOW,
+    },
+    statRank: {
+      width: 28,
+      height: 28,
+      borderRadius: 14,
+      backgroundColor: colors.GRAY[400],
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: 12,
+    },
+    statRankText: {
+      fontSize: 12,
+      fontWeight: 'bold',
+      color: colors.WHITE,
+    },
+    statInfo: {
+      flex: 1,
+    },
+    statName: {
+      fontSize: 14,
+      fontWeight: 'bold',
+      color: colors.BLACK,
+      marginBottom: 6,
+    },
+    progressBar: {
+      height: 6,
+      backgroundColor: colors.GRAY[200],
+      borderRadius: 3,
+      overflow: 'hidden',
+    },
+    progressFill: {
+      height: '100%',
+      backgroundColor: colors.GRAY[400],
+      borderRadius: 3,
+    },
+    statStats: {
+      alignItems: 'flex-end',
+      marginLeft: 12,
+    },
+    statCount: {
+      fontSize: 14,
+      fontWeight: 'bold',
+      color: colors.BLACK,
+    },
+    statPercent: {
+      fontSize: 12,
+      color: colors.GRAY[600],
+      marginTop: 2,
+    },
+  }), [colors])
+
   if (stats.length === 0) {
     return (
       <View style={styles.sectionContainer}>
         <Text style={styles.sectionTitle}>{title}</Text>
         <View style={styles.emptySection}>
-          <Ionicons name={icon} size={32} color={COLORS.GRAY[300]} />
+          <Ionicons name={icon} size={32} color={colors.GRAY[300]} />
           <Text style={styles.emptySectionText}>{emptyText}</Text>
         </View>
       </View>
@@ -93,11 +177,124 @@ const FieldStatSection: React.FC<FieldStatSectionProps> = ({
 }
 
 const StatisticsScreen: React.FC<StatisticsScreenProps> = ({ navigation }) => {
+  const { colors } = useTheme()
   const [statistics, setStatistics] = React.useState<Statistics | null>(null)
   const [ranking, setRanking] = React.useState<RankingItem[]>([])
   const [monthlySpending, setMonthlySpending] = React.useState<MonthlySpending[]>([])
   const [loading, setLoading] = React.useState(true)
   const [refreshing, setRefreshing] = React.useState(false)
+
+  const styles = useMemo(() => StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.SECONDARY,
+    },
+    header: {
+      backgroundColor: colors.PRIMARY,
+      padding: 20,
+      paddingTop: 60,
+      alignItems: 'center',
+    },
+    headerTitle: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: colors.WHITE,
+    },
+    summaryContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+      padding: 16,
+      marginTop: -20,
+    },
+    summaryCard: {
+      backgroundColor: colors.WHITE,
+      borderRadius: 12,
+      padding: 16,
+      alignItems: 'center',
+      minWidth: 100,
+      ...CARD_SHADOW,
+    },
+    summaryValue: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: colors.BLACK,
+      marginTop: 8,
+    },
+    summaryLabel: {
+      fontSize: 12,
+      color: colors.GRAY[600],
+      marginTop: 4,
+    },
+    sectionContainer: {
+      padding: 16,
+    },
+    sectionTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.BLACK,
+      marginBottom: 12,
+    },
+    idolItem: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.WHITE,
+      borderRadius: 12,
+      padding: 12,
+      marginBottom: 8,
+      ...CARD_SHADOW,
+    },
+    idolRank: {
+      width: 28,
+      height: 28,
+      borderRadius: 14,
+      backgroundColor: colors.PRIMARY,
+      justifyContent: 'center',
+      alignItems: 'center',
+      marginRight: 12,
+    },
+    idolRankText: {
+      fontSize: 12,
+      fontWeight: 'bold',
+      color: colors.WHITE,
+    },
+    idolInfo: {
+      flex: 1,
+    },
+    idolName: {
+      fontSize: 14,
+      fontWeight: 'bold',
+      color: colors.BLACK,
+      marginBottom: 6,
+    },
+    progressBar: {
+      height: 6,
+      backgroundColor: colors.GRAY[200],
+      borderRadius: 3,
+      overflow: 'hidden',
+    },
+    progressFill: {
+      height: '100%',
+      backgroundColor: colors.GRAY[400],
+      borderRadius: 3,
+    },
+    idolStats: {
+      alignItems: 'flex-end',
+      marginLeft: 12,
+    },
+    idolCount: {
+      fontSize: 14,
+      fontWeight: 'bold',
+      color: colors.BLACK,
+    },
+    idolPercent: {
+      fontSize: 12,
+      color: colors.GRAY[600],
+      marginTop: 2,
+    },
+    bottomPadding: {
+      height: 20,
+    },
+  }), [colors])
 
   const loadData = React.useCallback(async () => {
     setLoading(true)
@@ -152,8 +349,8 @@ const StatisticsScreen: React.FC<StatisticsScreenProps> = ({ navigation }) => {
         <RefreshControl
           refreshing={refreshing}
           onRefresh={onRefresh}
-          colors={[COLORS.PRIMARY]}
-          tintColor={COLORS.PRIMARY}
+          colors={[colors.PRIMARY]}
+          tintColor={colors.PRIMARY}
         />
       }
     >
@@ -163,17 +360,17 @@ const StatisticsScreen: React.FC<StatisticsScreenProps> = ({ navigation }) => {
 
       <View style={styles.summaryContainer}>
         <View style={styles.summaryCard}>
-          <Ionicons name='camera' size={32} color={COLORS.PRIMARY} />
+          <Ionicons name='camera' size={32} color={colors.PRIMARY} />
           <Text style={styles.summaryValue}>{statistics.totalPhotos}</Text>
           <Text style={styles.summaryLabel}>总拍立得</Text>
         </View>
         <View style={styles.summaryCard}>
-          <Ionicons name='person' size={32} color={COLORS.PRIMARY} />
+          <Ionicons name='person' size={32} color={colors.PRIMARY} />
           <Text style={styles.summaryValue}>{statistics.uniqueIdols}</Text>
           <Text style={styles.summaryLabel}>偶像数</Text>
         </View>
         <View style={styles.summaryCard}>
-          <Ionicons name='wallet' size={32} color={COLORS.PRIMARY} />
+          <Ionicons name='wallet' size={32} color={colors.PRIMARY} />
           <Text style={styles.summaryValue}>¥{statistics.totalPrice}</Text>
           <Text style={styles.summaryLabel}>总花费</Text>
         </View>
@@ -244,175 +441,5 @@ const StatisticsScreen: React.FC<StatisticsScreenProps> = ({ navigation }) => {
     </ScrollView>
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.SECONDARY,
-  },
-  header: {
-    backgroundColor: COLORS.PRIMARY,
-    padding: 20,
-    paddingTop: 60,
-    alignItems: 'center',
-  },
-  headerTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: COLORS.WHITE,
-  },
-  summaryContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    padding: 16,
-    marginTop: -20,
-  },
-  summaryCard: {
-    backgroundColor: COLORS.WHITE,
-    borderRadius: 12,
-    padding: 16,
-    alignItems: 'center',
-    minWidth: 100,
-    ...CARD_SHADOW,
-  },
-  summaryValue: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: COLORS.BLACK,
-    marginTop: 8,
-  },
-  summaryLabel: {
-    fontSize: 12,
-    color: COLORS.GRAY[600],
-    marginTop: 4,
-  },
-  sectionContainer: {
-    padding: 16,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: COLORS.BLACK,
-    marginBottom: 12,
-  },
-  emptySection: {
-    backgroundColor: COLORS.WHITE,
-    borderRadius: 12,
-    padding: 32,
-    alignItems: 'center',
-    ...CARD_SHADOW,
-  },
-  emptySectionText: {
-    fontSize: 14,
-    color: COLORS.GRAY[500],
-    marginTop: 8,
-  },
-  statItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.WHITE,
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 8,
-    ...CARD_SHADOW,
-  },
-  statRank: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: COLORS.GRAY[400],
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  statRankText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: COLORS.WHITE,
-  },
-  statInfo: {
-    flex: 1,
-  },
-  statName: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: COLORS.BLACK,
-    marginBottom: 6,
-  },
-  progressBar: {
-    height: 6,
-    backgroundColor: COLORS.GRAY[200],
-    borderRadius: 3,
-    overflow: 'hidden',
-  },
-  progressFill: {
-    height: '100%',
-    backgroundColor: COLORS.GRAY[400],
-    borderRadius: 3,
-  },
-  statStats: {
-    alignItems: 'flex-end',
-    marginLeft: 12,
-  },
-  statCount: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: COLORS.BLACK,
-  },
-  statPercent: {
-    fontSize: 12,
-    color: COLORS.GRAY[600],
-    marginTop: 2,
-  },
-  idolItem: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.WHITE,
-    borderRadius: 12,
-    padding: 12,
-    marginBottom: 8,
-    ...CARD_SHADOW,
-  },
-  idolRank: {
-    width: 28,
-    height: 28,
-    borderRadius: 14,
-    backgroundColor: COLORS.PRIMARY,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
-  },
-  idolRankText: {
-    fontSize: 12,
-    fontWeight: 'bold',
-    color: COLORS.WHITE,
-  },
-  idolInfo: {
-    flex: 1,
-  },
-  idolName: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: COLORS.BLACK,
-    marginBottom: 6,
-  },
-  idolStats: {
-    alignItems: 'flex-end',
-    marginLeft: 12,
-  },
-  idolCount: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: COLORS.BLACK,
-  },
-  idolPercent: {
-    fontSize: 12,
-    color: COLORS.GRAY[600],
-    marginTop: 2,
-  },
-  bottomPadding: {
-    height: 20,
-  },
-})
 
 export default StatisticsScreen

@@ -14,7 +14,7 @@ import { Ionicons } from '@expo/vector-icons'
 import { StackNavigationProp } from '@react-navigation/stack'
 import { RouteProp } from '@react-navigation/native'
 import { useFocusEffect } from '@react-navigation/native'
-import { COLORS } from '../constants/themeColors'
+import { useTheme } from '../contexts/ThemeContext'
 import { RootStackParamList } from '../navigation/AppNavigator'
 import { useRecords } from '../hooks/useRecords'
 import IdolCard from '../components/features/IdolCard'
@@ -44,6 +44,7 @@ interface HomeScreenProps {
 }
 
 const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
+  const { colors } = useTheme()
   const { ranking, statistics, loading, error, refreshAll } = useRecords()
   const [searchQuery, setSearchQuery] = React.useState('')
   const [refreshing, setRefreshing] = React.useState(false)
@@ -55,6 +56,109 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     venue: null,
     polaroidType: null,
   })
+
+  const styles = React.useMemo(() => StyleSheet.create({
+    container: {
+      flex: 1,
+      backgroundColor: colors.SECONDARY,
+    },
+    header: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: 20,
+      paddingTop: 40,
+      backgroundColor: colors.PRIMARY,
+    },
+    title: {
+      fontSize: 24,
+      fontWeight: 'bold',
+      color: colors.WHITE,
+    },
+    headerButtons: {
+      flexDirection: 'row',
+      gap: 12,
+    },
+    iconButton: {
+      padding: 8,
+    },
+    addButton: {
+      padding: 8,
+    },
+    statsContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-around',
+      backgroundColor: colors.WHITE,
+      padding: 20,
+      margin: 16,
+      borderRadius: 12,
+    },
+    statItem: {
+      alignItems: 'center',
+    },
+    statMoreHint: {
+      justifyContent: 'center',
+    },
+    statValue: {
+      fontSize: 28,
+      fontWeight: 'bold',
+      color: colors.PRIMARY,
+      marginTop: 8,
+    },
+    statLabel: {
+      fontSize: 12,
+      color: colors.GRAY[600],
+      marginTop: 4,
+    },
+    quickActions: {
+      flexDirection: 'row',
+      justifyContent: 'center',
+      gap: 16,
+      paddingHorizontal: 16,
+      marginBottom: 8,
+    },
+    quickActionButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.WHITE,
+      paddingHorizontal: 20,
+      paddingVertical: 10,
+      borderRadius: 20,
+      gap: 8,
+      shadowColor: '#000',
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.1,
+      shadowRadius: 2,
+      elevation: 2,
+    },
+    quickActionText: {
+      fontSize: 14,
+      color: colors.PRIMARY,
+      fontWeight: '500',
+    },
+    quickActionTextInactive: {
+      color: colors.GRAY[500],
+    },
+    sectionHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      paddingHorizontal: 20,
+      paddingVertical: 12,
+    },
+    sectionTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.BLACK,
+    },
+    list: {
+      flex: 1,
+    },
+    listContent: {
+      paddingHorizontal: 16,
+      paddingBottom: 20,
+    },
+  }), [colors])
 
   const loadAvatars = React.useCallback(async () => {
     const { success, data } = await getAllAvatars()
@@ -91,9 +195,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     return result
   }, [ranking, searchQuery, filters])
 
-  /**
-   * 显示导出选项
-   */
   const showExportOptions = () => {
     if (Platform.OS === 'ios') {
       ActionSheetIOS.showActionSheetWithOptions(
@@ -119,9 +220,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     }
   }
 
-  /**
-   * 导出为 JSON
-   */
   const handleExportJSON = async () => {
     const { success, data: fileUri, error: err } = await exportToJSON()
     if (success && fileUri) {
@@ -137,9 +235,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     }
   }
 
-  /**
-   * 导出为 CSV
-   */
   const handleExportCSV = async () => {
     const { success, data: fileUri, error: err } = await exportToCSV()
     if (success && fileUri) {
@@ -155,36 +250,33 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     }
   }
 
-  /**
-   * 下拉刷新
-   */
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true)
     await refreshAll()
     setRefreshing(false)
   }, [refreshAll])
 
-  /**
-   * 显示更多选项
-   */
   const showMoreOptions = () => {
     if (Platform.OS === 'ios') {
       ActionSheetIOS.showActionSheetWithOptions(
         {
           title: '更多选项',
-          options: ['创建备份', '恢复备份', '取消'],
-          cancelButtonIndex: 2,
+          options: ['主题设置', '创建备份', '恢复备份', '取消'],
+          cancelButtonIndex: 3,
         },
         async buttonIndex => {
           if (buttonIndex === 0) {
-            await handleCreateBackup()
+            navigation.navigate('ThemeSettings')
           } else if (buttonIndex === 1) {
+            await handleCreateBackup()
+          } else if (buttonIndex === 2) {
             await handleRestoreBackup()
           }
         },
       )
     } else {
       Alert.alert('更多选项', '请选择操作', [
+        { text: '主题设置', onPress: () => navigation.navigate('ThemeSettings') },
         { text: '创建备份', onPress: handleCreateBackup },
         { text: '恢复备份', onPress: handleRestoreBackup },
         { text: '取消', style: 'cancel' },
@@ -192,9 +284,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     }
   }
 
-  /**
-   * 创建备份
-   */
   const handleCreateBackup = async () => {
     const { success, data: fileUri, error: err } = await createBackup()
     if (success && fileUri) {
@@ -210,9 +299,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     }
   }
 
-  /**
-   * 恢复备份
-   */
   const handleRestoreBackup = async () => {
     Alert.alert('恢复备份', '这将清除当前所有数据并从备份恢复，是否继续？', [
       { text: '取消', style: 'cancel' },
@@ -268,7 +354,6 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
   return (
     <View style={styles.container}>
-      {/* 头部 */}
       <View style={styles.header}>
         <Text style={styles.title}>我的拍立得收藏</Text>
         <View style={styles.headerButtons}>
@@ -276,54 +361,52 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
             style={styles.iconButton}
             onPress={showExportOptions}
           >
-            <Ionicons name='download-outline' size={24} color={COLORS.WHITE} />
+            <Ionicons name='download-outline' size={24} color={colors.WHITE} />
           </TouchableOpacity>
           <TouchableOpacity style={styles.iconButton} onPress={showMoreOptions}>
-            <Ionicons name='settings-outline' size={24} color={COLORS.WHITE} />
+            <Ionicons name='settings-outline' size={24} color={colors.WHITE} />
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.addButton}
             onPress={() => navigation.navigate('Upload')}
           >
-            <Ionicons name='add' size={24} color={COLORS.WHITE} />
+            <Ionicons name='add' size={24} color={colors.WHITE} />
           </TouchableOpacity>
         </View>
       </View>
 
-      {/* 统计信息 */}
       {statistics && (
         <TouchableOpacity
           style={styles.statsContainer}
           onPress={() => navigation.navigate('Statistics')}
         >
           <View style={styles.statItem}>
-            <Ionicons name='camera' size={24} color={COLORS.PRIMARY} />
+            <Ionicons name='camera' size={24} color={colors.PRIMARY} />
             <Text style={styles.statValue}>{statistics.totalPhotos}</Text>
             <Text style={styles.statLabel}>拍立得</Text>
           </View>
           <View style={styles.statItem}>
-            <Ionicons name='person' size={24} color={COLORS.PRIMARY} />
+            <Ionicons name='person' size={24} color={colors.PRIMARY} />
             <Text style={styles.statValue}>{statistics.uniqueIdols}</Text>
             <Text style={styles.statLabel}>偶像</Text>
           </View>
           <View style={styles.statItem}>
-            <Ionicons name='wallet' size={24} color={COLORS.PRIMARY} />
+            <Ionicons name='wallet' size={24} color={colors.PRIMARY} />
             <Text style={styles.statValue}>¥{statistics.totalPrice}</Text>
             <Text style={styles.statLabel}>总花费</Text>
           </View>
           <View style={styles.statMoreHint}>
-            <Ionicons name='chevron-forward' size={20} color={COLORS.GRAY[400]} />
+            <Ionicons name='chevron-forward' size={20} color={colors.GRAY[400]} />
           </View>
         </TouchableOpacity>
       )}
 
-      {/* 快捷入口 */}
       <View style={styles.quickActions}>
         <TouchableOpacity
           style={styles.quickActionButton}
           onPress={() => navigation.navigate('Calendar')}
         >
-          <Ionicons name='calendar' size={24} color={COLORS.PRIMARY} />
+          <Ionicons name='calendar' size={24} color={colors.PRIMARY} />
           <Text style={styles.quickActionText}>日历</Text>
         </TouchableOpacity>
         <TouchableOpacity
@@ -333,7 +416,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           <Ionicons
             name={Object.values(filters).some(v => v) ? 'filter' : 'filter-outline'}
             size={24}
-            color={Object.values(filters).some(v => v) ? COLORS.PRIMARY : COLORS.GRAY[500]}
+            color={Object.values(filters).some(v => v) ? colors.PRIMARY : colors.GRAY[500]}
           />
           <Text style={[
             styles.quickActionText,
@@ -346,12 +429,11 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           style={styles.quickActionButton}
           onPress={() => navigation.navigate('Upload')}
         >
-          <Ionicons name='camera' size={24} color={COLORS.PRIMARY} />
+          <Ionicons name='camera' size={24} color={colors.PRIMARY} />
           <Text style={styles.quickActionText}>上传</Text>
         </TouchableOpacity>
       </View>
 
-      {/* 搜索栏 */}
       {ranking.length > 0 && (
         <SearchBar
           value={searchQuery}
@@ -360,15 +442,13 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         />
       )}
 
-      {/* 排行榜标题 */}
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>偶像排行榜</Text>
         <TouchableOpacity onPress={refreshAll}>
-          <Ionicons name='refresh' size={20} color={COLORS.PRIMARY} />
+          <Ionicons name='refresh' size={20} color={colors.PRIMARY} />
         </TouchableOpacity>
       </View>
 
-      {/* 排行榜列表 */}
       <ScrollView
         style={styles.list}
         contentContainerStyle={styles.listContent}
@@ -376,8 +456,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           <RefreshControl
             refreshing={refreshing}
             onRefresh={onRefresh}
-            colors={[COLORS.PRIMARY]}
-            tintColor={COLORS.PRIMARY}
+            colors={[colors.PRIMARY]}
+            tintColor={colors.PRIMARY}
           />
         }
       >
@@ -418,108 +498,5 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     </View>
   )
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: COLORS.SECONDARY,
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    padding: 20,
-    paddingTop: 40,
-    backgroundColor: COLORS.PRIMARY,
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: COLORS.WHITE,
-  },
-  headerButtons: {
-    flexDirection: 'row',
-    gap: 12,
-  },
-  iconButton: {
-    padding: 8,
-  },
-  addButton: {
-    padding: 8,
-  },
-  statsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    backgroundColor: COLORS.WHITE,
-    padding: 20,
-    margin: 16,
-    borderRadius: 12,
-  },
-  statItem: {
-    alignItems: 'center',
-  },
-  statMoreHint: {
-    justifyContent: 'center',
-  },
-  statValue: {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: COLORS.PRIMARY,
-    marginTop: 8,
-  },
-  statLabel: {
-    fontSize: 12,
-    color: COLORS.GRAY[600],
-    marginTop: 4,
-  },
-  quickActions: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    gap: 16,
-    paddingHorizontal: 16,
-    marginBottom: 8,
-  },
-  quickActionButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: COLORS.WHITE,
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 20,
-    gap: 8,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.1,
-    shadowRadius: 2,
-    elevation: 2,
-  },
-  quickActionText: {
-    fontSize: 14,
-    color: COLORS.PRIMARY,
-    fontWeight: '500',
-  },
-  quickActionTextInactive: {
-    color: COLORS.GRAY[500],
-  },
-  sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    paddingHorizontal: 20,
-    paddingVertical: 12,
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: 'bold',
-    color: COLORS.BLACK,
-  },
-  list: {
-    flex: 1,
-  },
-  listContent: {
-    paddingHorizontal: 16,
-    paddingBottom: 20,
-  },
-})
 
 export default HomeScreen
