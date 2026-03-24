@@ -23,6 +23,7 @@ import { formatDate } from '../utils/rankingUtils'
 import LoadingSpinner from '../components/common/LoadingSpinner'
 import EmptyState from '../components/common/EmptyState'
 import CachedImage from '../components/common/CachedImage'
+import { DetailSkeleton } from '../components/common/Skeleton'
 import { PolaroidRecord } from '../types'
 import { getAvatar, pickAndSetAvatar, removeAvatar } from '../services/avatarService'
 import { updateRecordData } from '../services/recordService'
@@ -716,7 +717,7 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
   }, [navigation, ascending, colors, idolName, avatarUri])
 
   if (loading) {
-    return <LoadingSpinner />
+    return <DetailSkeleton />
   }
 
   if (error || !detail) {

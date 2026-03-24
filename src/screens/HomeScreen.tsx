@@ -22,6 +22,7 @@ import LoadingSpinner from '../components/common/LoadingSpinner'
 import EmptyState from '../components/common/EmptyState'
 import SearchBar from '../components/common/SearchBar'
 import AdvancedFilter, { FilterOptions } from '../components/features/AdvancedFilter'
+import { HomeSkeleton } from '../components/common/Skeleton'
 import {
   exportToJSON,
   exportToCSV,
@@ -373,7 +374,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   }
 
   if (loading) {
-    return <LoadingSpinner />
+    return <HomeSkeleton />
   }
 
   if (error) {

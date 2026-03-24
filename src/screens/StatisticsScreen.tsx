@@ -20,6 +20,7 @@ import { RankingItem, Statistics, FieldStat, MonthlySpending } from '../types'
 import LoadingSpinner from '../components/common/LoadingSpinner'
 import EmptyState from '../components/common/EmptyState'
 import SpendingChart from '../components/common/SpendingChart'
+import { StatisticsSkeleton } from '../components/common/Skeleton'
 
 type StatisticsScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -390,7 +391,7 @@ const StatisticsScreen: React.FC<StatisticsScreenProps> = ({ navigation }) => {
   }, [loadData])
 
   if (loading) {
-    return <LoadingSpinner />
+    return <StatisticsSkeleton />
   }
 
   if (!statistics || ranking.length === 0) {
