@@ -17,12 +17,21 @@
    - 自动识别 CSV 表头字段
    - 导入后自动刷新列表
 
+3. **骨架屏加载优化**
+   - 创建通用 Skeleton 和 SkeletonCircle 组件
+   - 新增 HomeSkeleton、DetailSkeleton、StatisticsSkeleton 专用骨架屏
+   - 替换首页、详情页、统计页的 LoadingSpinner
+   - 带闪烁动画效果，提升用户体验
+
 ### 文件变更
 
 | 文件 | 变更类型 | 说明 |
 |------|----------|------|
 | `src/services/exportService.ts` | 修改 | 完善 CSV 导出字段，添加 importFromCSV 函数 |
-| `src/screens/HomeScreen.tsx` | 修改 | 添加 CSV 导入入口和处理函数 |
+| `src/screens/HomeScreen.tsx` | 修改 | 添加 CSV 导入入口、使用骨架屏 |
+| `src/screens/DetailScreen.tsx` | 修改 | 使用骨架屏 |
+| `src/screens/StatisticsScreen.tsx` | 修改 | 使用骨架屏 |
+| `src/components/common/Skeleton.tsx` | 新增 | 骨架屏组件 |
 
 ---
 
