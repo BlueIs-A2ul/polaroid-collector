@@ -1,17 +1,11 @@
 import * as FileSystem from 'expo-file-system/legacy'
 import * as Sharing from 'expo-sharing'
-import { ServiceResult } from '../types'
-import { PolaroidRecord } from '../types'
-import { getAllRecords } from './storageService'
-
-/**
- * 导出服务
- * 负责数据导出为 JSON 或 CSV 格式
- */
+import { ServiceResult, PolaroidRecord } from '../types'
+import { getAllRecords, saveRecord } from './storageService'
+import { generateId } from '../utils/rankingUtils'
 
 /**
  * 导出数据为 JSON 格式
- * @returns 导出结果
  */
 export const exportToJSON = async (): Promise<ServiceResult<string>> => {
   try {
@@ -54,7 +48,6 @@ export const exportToJSON = async (): Promise<ServiceResult<string>> => {
 
 /**
  * 导出数据为 CSV 格式
- * @returns 导出结果
  */
 export const exportToCSV = async (): Promise<ServiceResult<string>> => {
   try {
@@ -68,29 +61,32 @@ export const exportToCSV = async (): Promise<ServiceResult<string>> => {
       }
     }
 
-    // CSV 表头
     const headers = [
-      'ID',
       '偶像名称',
       '拍立得数量',
       '拍摄日期',
-      '照片路径',
-      '创建时间',
-      '更新时间',
+      '价格',
+      '备注',
+      '团体',
+      '城市',
+      '场馆',
+      '拍立得类型',
+      '人数',
     ]
 
-    // CSV 行数据
     const rows = records.map((record: PolaroidRecord) => [
-      record.id,
-      record.idolName,
-      record.photoCount,
-      record.photoDate,
-      record.photoUri,
-      new Date(record.createdAt).toLocaleString('zh-CN'),
-      new Date(record.updatedAt).toLocaleString('zh-CN'),
+      record.idolName || '',
+      String(record.photoCount || 1),
+      record.photoDate || '',
+      record.price ? String(record.price) : '',
+      record.note || '',
+      record.groupName || '',
+      record.city || '',
+      record.venue || '',
+      record.polaroidType || '',
+      record.memberCount || '',
     ])
 
-    // 构建 CSV 内容
     const csvContent = [
       headers.join(','),
       ...rows.map(row =>
@@ -98,7 +94,6 @@ export const exportToCSV = async (): Promise<ServiceResult<string>> => {
       ),
     ].join('\n')
 
-    // 添加 BOM 以支持中文
     const bom = '\uFEFF'
     const csvWithBom = bom + csvContent
 
@@ -123,8 +118,153 @@ export const exportToCSV = async (): Promise<ServiceResult<string>> => {
 }
 
 /**
+ * 从 CSV 导入数据
+ */
+export const importFromCSV = async (
+  csvUri: string,
+): Promise<ServiceResult<number>> => {
+  try {
+    const fileContent = await FileSystem.readAsStringAsync(csvUri)
+
+    const lines = fileContent.split('\n').filter(line => line.trim())
+
+    if (lines.length < 2) {
+      return {
+        success: false,
+        data: null,
+        error: 'CSV 文件为空或格式错误',
+      }
+    }
+
+    const headers = parseCSVLine(lines[0]).map(h => h.trim())
+
+    const fieldMap: Record<string, string> = {
+      '偶像名称': 'idolName',
+      '拍立得数量': 'photoCount',
+      '拍摄日期': 'photoDate',
+      '价格': 'price',
+      '备注': 'note',
+      '团体': 'groupName',
+      '城市': 'city',
+      '场馆': 'venue',
+      '拍立得类型': 'polaroidType',
+      '人数': 'memberCount',
+    }
+
+    const fieldIndices: Record<string, number> = {}
+    headers.forEach((header, index) => {
+      const field = fieldMap[header]
+      if (field) {
+        fieldIndices[field] = index
+      }
+    })
+
+    if (fieldIndices.idolName === undefined) {
+      return {
+        success: false,
+        data: null,
+        error: 'CSV 缺少必要字段：偶像名称',
+      }
+    }
+
+    let successCount = 0
+    let failCount = 0
+
+    for (let i = 1; i < lines.length; i++) {
+      try {
+        const values = parseCSVLine(lines[i])
+
+        if (values.length < 1) continue
+
+        const idolName = values[fieldIndices.idolName]?.trim()
+        if (!idolName) continue
+
+        const photoCount = parseInt(values[fieldIndices.photoCount] || '1', 10) || 1
+        const photoDate = values[fieldIndices.photoDate]?.trim() || new Date().toISOString().split('T')[0]
+
+        const record: PolaroidRecord = {
+          id: generateId(),
+          idolName,
+          photoCount,
+          photoDate,
+          photoUri: '',
+          price: fieldIndices.price !== undefined ? parseFloat(values[fieldIndices.price]) || undefined : undefined,
+          note: fieldIndices.note !== undefined ? values[fieldIndices.note]?.trim() || undefined : undefined,
+          groupName: fieldIndices.groupName !== undefined ? values[fieldIndices.groupName]?.trim() || undefined : undefined,
+          city: fieldIndices.city !== undefined ? values[fieldIndices.city]?.trim() || undefined : undefined,
+          venue: fieldIndices.venue !== undefined ? values[fieldIndices.venue]?.trim() || undefined : undefined,
+          polaroidType: fieldIndices.polaroidType !== undefined ? values[fieldIndices.polaroidType]?.trim() || undefined : undefined,
+          memberCount: fieldIndices.memberCount !== undefined ? values[fieldIndices.memberCount]?.trim() || undefined : undefined,
+          createdAt: Date.now(),
+          updatedAt: Date.now(),
+        }
+
+        const { success } = await saveRecord(record)
+        if (success) {
+          successCount++
+        } else {
+          failCount++
+        }
+      } catch {
+        failCount++
+      }
+    }
+
+    return {
+      success: true,
+      data: successCount,
+      error: failCount > 0 ? `${failCount} 条记录导入失败` : null,
+    }
+  } catch (error) {
+    console.error('导入 CSV 失败:', error)
+    return {
+      success: false,
+      data: null,
+      error: error instanceof Error ? error.message : String(error),
+    }
+  }
+}
+
+/**
+ * 解析 CSV 行
+ */
+const parseCSVLine = (line: string): string[] => {
+  const values: string[] = []
+  let current = ''
+  let inQuotes = false
+
+  for (let i = 0; i < line.length; i++) {
+    const char = line[i]
+
+    if (inQuotes) {
+      if (char === '"') {
+        if (line[i + 1] === '"') {
+          current += '"'
+          i++
+        } else {
+          inQuotes = false
+        }
+      } else {
+        current += char
+      }
+    } else {
+      if (char === '"') {
+        inQuotes = true
+      } else if (char === ',') {
+        values.push(current)
+        current = ''
+      } else {
+        current += char
+      }
+    }
+  }
+
+  values.push(current)
+  return values
+}
+
+/**
  * 分享导出的文件
- * @param fileUri - 文件 URI
  */
 export const shareExportedFile = async (fileUri: string): Promise<void> => {
   try {

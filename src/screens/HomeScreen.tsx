@@ -25,6 +25,7 @@ import AdvancedFilter, { FilterOptions } from '../components/features/AdvancedFi
 import {
   exportToJSON,
   exportToCSV,
+  importFromCSV,
   shareExportedFile,
 } from '../services/exportService'
 import {
@@ -199,22 +200,25 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     if (Platform.OS === 'ios') {
       ActionSheetIOS.showActionSheetWithOptions(
         {
-          title: '导出数据',
-          options: ['导出为 JSON', '导出为 CSV', '取消'],
-          cancelButtonIndex: 2,
+          title: '数据导入导出',
+          options: ['导出为 JSON', '导出为 CSV', '从 CSV 导入', '取消'],
+          cancelButtonIndex: 3,
         },
         async buttonIndex => {
           if (buttonIndex === 0) {
             await handleExportJSON()
           } else if (buttonIndex === 1) {
             await handleExportCSV()
+          } else if (buttonIndex === 2) {
+            await handleImportCSV()
           }
         },
       )
     } else {
-      Alert.alert('导出数据', '请选择导出格式', [
+      Alert.alert('数据导入导出', '请选择操作', [
         { text: '导出为 JSON', onPress: handleExportJSON },
         { text: '导出为 CSV', onPress: handleExportCSV },
+        { text: '从 CSV 导入', onPress: handleImportCSV },
         { text: '取消', style: 'cancel' },
       ])
     }
@@ -247,6 +251,36 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       ])
     } else {
       Alert.alert('导出失败', err || '未知错误')
+    }
+  }
+
+  const handleImportCSV = async () => {
+    try {
+      const result = await DocumentPicker.getDocumentAsync({
+        type: 'text/csv',
+      })
+
+      if (!result.canceled && result.assets && result.assets.length > 0) {
+        const { success, data: count, error: err } = await importFromCSV(
+          result.assets[0].uri,
+        )
+
+        if (success) {
+          Alert.alert('导入成功', `成功导入 ${count} 条记录`, [
+            {
+              text: '确定',
+              onPress: () => refreshAll(),
+            },
+          ])
+        } else {
+          Alert.alert('导入失败', err || '未知错误')
+        }
+      }
+    } catch (error) {
+      Alert.alert(
+        '导入失败',
+        error instanceof Error ? error.message : String(error),
+      )
     }
   }
 
