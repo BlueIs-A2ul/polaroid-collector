@@ -20,6 +20,7 @@ import { useTheme } from '../contexts/ThemeContext'
 import { RootStackParamList } from '../navigation/AppNavigator'
 import { useRecords } from '../hooks/useRecords'
 import IdolCard from '../components/features/IdolCard'
+import SwipeableIdolCard from '../components/features/SwipeableIdolCard'
 import LoadingSpinner from '../components/common/LoadingSpinner'
 import EmptyState from '../components/common/EmptyState'
 import SearchBar, { SearchType } from '../components/common/SearchBar'
@@ -428,6 +429,31 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     }
   }, [selectedIdols, batchEditField, batchEditValue, exitSelectionMode, refreshAll])
 
+  const handleDeleteIdol = React.useCallback(async (idolName: string) => {
+    Alert.alert(
+      '删除偶像',
+      `确定要删除 ${idolName} 的所有记录吗？此操作不可撤销。`,
+      [
+        { text: '取消', style: 'cancel' },
+        {
+          text: '删除',
+          style: 'destructive',
+          onPress: async () => {
+            await removeAvatar(idolName)
+            const { success, data: deletedCount } = await deleteRecordsByIdolNames([idolName])
+            if (success) {
+              Alert.alert('删除成功', `已删除 ${deletedCount} 条记录`)
+              refreshAll()
+              loadAvatars()
+            } else {
+              Alert.alert('删除失败', '请稍后重试')
+            }
+          },
+        },
+      ],
+    )
+  }, [refreshAll, loadAvatars])
+
   const showExportOptions = () => {
     if (Platform.OS === 'ios') {
       ActionSheetIOS.showActionSheetWithOptions(
@@ -756,7 +782,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           />
         ) : (
           filteredRanking.map((item, index) => (
-            <IdolCard
+            <SwipeableIdolCard
               key={item.idolName}
               idolName={item.idolName}
               totalCount={item.totalCount}
@@ -766,6 +792,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
                 navigation.navigate('Detail', { idolName: item.idolName })
               }
               onLongPress={() => enterSelectionMode(item.idolName)}
+              onDelete={() => handleDeleteIdol(item.idolName)}
               selected={selectedIdols.has(item.idolName)}
               selectionMode={selectionMode}
               onSelect={() => toggleSelection(item.idolName)}
