@@ -9,6 +9,8 @@ import {
   ActionSheetIOS,
   Platform,
   RefreshControl,
+  Modal,
+  TextInput,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { StackNavigationProp } from '@react-navigation/stack'
@@ -22,6 +24,7 @@ import LoadingSpinner from '../components/common/LoadingSpinner'
 import EmptyState from '../components/common/EmptyState'
 import SearchBar, { SearchType } from '../components/common/SearchBar'
 import AdvancedFilter, { FilterOptions } from '../components/features/AdvancedFilter'
+import FieldHistorySelector from '../components/features/FieldHistorySelector'
 import { HomeSkeleton } from '../components/common/Skeleton'
 import {
   exportToJSON,
@@ -34,7 +37,8 @@ import {
   restoreFromBackup,
   shareBackupFile,
 } from '../services/backupService'
-import { getAllAvatars } from '../services/avatarService'
+import { getAllAvatars, removeAvatar } from '../services/avatarService'
+import { deleteRecordsByIdolNames, updateRecordsByIdolNames } from '../services/storageService'
 import * as DocumentPicker from 'expo-document-picker'
 
 type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>
@@ -59,6 +63,12 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     venue: null,
     polaroidType: null,
   })
+  const [selectionMode, setSelectionMode] = React.useState(false)
+  const [selectedIdols, setSelectedIdols] = React.useState<Set<string>>(new Set())
+  const [showBatchEdit, setShowBatchEdit] = React.useState(false)
+  const [batchEditField, setBatchEditField] = React.useState<'groupName' | 'city' | 'venue'>('groupName')
+  const [batchEditValue, setBatchEditValue] = React.useState('')
+  const [showFieldHistory, setShowFieldHistory] = React.useState(false)
 
   const styles = React.useMemo(() => StyleSheet.create({
     container: {
@@ -77,6 +87,11 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       fontSize: 24,
       fontWeight: 'bold',
       color: colors.WHITE,
+    },
+    selectAllText: {
+      fontSize: 14,
+      color: colors.WHITE,
+      fontWeight: '500',
     },
     headerButtons: {
       flexDirection: 'row',
@@ -161,6 +176,119 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       paddingHorizontal: 16,
       paddingBottom: 20,
     },
+    batchActionBar: {
+      flexDirection: 'row',
+      backgroundColor: colors.PRIMARY,
+      padding: 16,
+      paddingBottom: 24,
+      gap: 16,
+    },
+    batchActionButton: {
+      flex: 1,
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      backgroundColor: colors.PRIMARY,
+      borderRadius: 8,
+      paddingVertical: 12,
+      gap: 8,
+    },
+    deleteButton: {
+      backgroundColor: '#EF4444',
+    },
+    batchActionText: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      color: colors.WHITE,
+    },
+    modalOverlay: {
+      flex: 1,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      justifyContent: 'flex-end',
+    },
+    modalContainer: {
+      backgroundColor: colors.WHITE,
+      borderTopLeftRadius: 20,
+      borderTopRightRadius: 20,
+    },
+    modalHeader: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      padding: 16,
+      borderBottomWidth: 1,
+      borderBottomColor: colors.GRAY[200],
+    },
+    modalTitle: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.BLACK,
+    },
+    modalContent: {
+      padding: 16,
+    },
+    modalHint: {
+      fontSize: 14,
+      color: colors.GRAY[600],
+      marginBottom: 16,
+    },
+    fieldSelector: {
+      flexDirection: 'row',
+      gap: 12,
+      marginBottom: 16,
+    },
+    fieldOption: {
+      paddingHorizontal: 16,
+      paddingVertical: 10,
+      borderRadius: 8,
+      backgroundColor: colors.GRAY[100],
+      borderWidth: 1,
+      borderColor: colors.GRAY[200],
+    },
+    fieldOptionActive: {
+      backgroundColor: colors.PRIMARY,
+      borderColor: colors.PRIMARY,
+    },
+    fieldOptionText: {
+      fontSize: 14,
+      color: colors.BLACK,
+    },
+    fieldOptionTextActive: {
+      color: colors.WHITE,
+      fontWeight: '500',
+    },
+    inputRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 8,
+      marginBottom: 16,
+    },
+    input: {
+      flex: 1,
+      borderWidth: 1,
+      borderColor: colors.GRAY[300],
+      borderRadius: 8,
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+      fontSize: 16,
+      color: colors.BLACK,
+    },
+    historyButton: {
+      padding: 10,
+      backgroundColor: colors.GRAY[100],
+      borderRadius: 8,
+    },
+    applyButton: {
+      backgroundColor: colors.PRIMARY,
+      borderRadius: 8,
+      paddingVertical: 14,
+      alignItems: 'center',
+    },
+    applyButtonText: {
+      fontSize: 16,
+      fontWeight: 'bold',
+      color: colors.WHITE,
+    },
   }), [colors])
 
   const loadAvatars = React.useCallback(async () => {
@@ -216,6 +344,89 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
     return result
   }, [ranking, searchQuery, searchType, filters])
+
+  const toggleSelection = React.useCallback((idolName: string) => {
+    setSelectedIdols(prev => {
+      const newSet = new Set(prev)
+      if (newSet.has(idolName)) {
+        newSet.delete(idolName)
+      } else {
+        newSet.add(idolName)
+      }
+      return newSet
+    })
+  }, [])
+
+  const enterSelectionMode = React.useCallback((idolName: string) => {
+    setSelectionMode(true)
+    setSelectedIdols(new Set([idolName]))
+  }, [])
+
+  const exitSelectionMode = React.useCallback(() => {
+    setSelectionMode(false)
+    setSelectedIdols(new Set())
+  }, [])
+
+  const selectAll = React.useCallback(() => {
+    setSelectedIdols(new Set(filteredRanking.map(item => item.idolName)))
+  }, [filteredRanking])
+
+  const handleBatchDelete = React.useCallback(() => {
+    const count = selectedIdols.size
+    Alert.alert(
+      '批量删除',
+      `确定要删除 ${count} 个偶像的所有记录吗？此操作不可撤销。`,
+      [
+        { text: '取消', style: 'cancel' },
+        {
+          text: '删除',
+          style: 'destructive',
+          onPress: async () => {
+            const idolNames = Array.from(selectedIdols)
+            for (const name of idolNames) {
+              await removeAvatar(name)
+            }
+            const { success, data: deletedCount } = await deleteRecordsByIdolNames(idolNames)
+            if (success) {
+              Alert.alert('删除成功', `已删除 ${deletedCount} 条记录`)
+              exitSelectionMode()
+              refreshAll()
+              loadAvatars()
+            } else {
+              Alert.alert('删除失败', '请稍后重试')
+            }
+          },
+        },
+      ],
+    )
+  }, [selectedIdols, exitSelectionMode, refreshAll, loadAvatars])
+
+  const handleBatchEdit = React.useCallback(() => {
+    setBatchEditValue('')
+    setShowBatchEdit(true)
+  }, [])
+
+  const applyBatchEdit = React.useCallback(async () => {
+    if (!batchEditValue.trim()) {
+      Alert.alert('提示', '请输入值')
+      return
+    }
+
+    const idolNames = Array.from(selectedIdols)
+    const updates: Record<string, string | undefined> = {
+      [batchEditField]: batchEditValue.trim(),
+    }
+
+    const { success, data: updatedCount } = await updateRecordsByIdolNames(idolNames, updates)
+    if (success) {
+      Alert.alert('修改成功', `已更新 ${updatedCount} 条记录`)
+      setShowBatchEdit(false)
+      exitSelectionMode()
+      refreshAll()
+    } else {
+      Alert.alert('修改失败', '请稍后重试')
+    }
+  }, [selectedIdols, batchEditField, batchEditValue, exitSelectionMode, refreshAll])
 
   const showExportOptions = () => {
     if (Platform.OS === 'ios') {
@@ -410,24 +621,38 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   return (
     <View style={styles.container}>
       <View style={styles.header}>
-        <Text style={styles.title}>我的拍立得收藏</Text>
-        <View style={styles.headerButtons}>
-          <TouchableOpacity
-            style={styles.iconButton}
-            onPress={showExportOptions}
-          >
-            <Ionicons name='download-outline' size={24} color={colors.WHITE} />
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.iconButton} onPress={showMoreOptions}>
-            <Ionicons name='settings-outline' size={24} color={colors.WHITE} />
-          </TouchableOpacity>
-          <TouchableOpacity
-            style={styles.addButton}
-            onPress={() => navigation.navigate('Upload')}
-          >
-            <Ionicons name='add' size={24} color={colors.WHITE} />
-          </TouchableOpacity>
-        </View>
+        {selectionMode ? (
+          <>
+            <TouchableOpacity onPress={exitSelectionMode} style={styles.iconButton}>
+              <Ionicons name='close' size={24} color={colors.WHITE} />
+            </TouchableOpacity>
+            <Text style={styles.title}>已选择 {selectedIdols.size} 个</Text>
+            <TouchableOpacity onPress={selectAll} style={styles.iconButton}>
+              <Text style={styles.selectAllText}>全选</Text>
+            </TouchableOpacity>
+          </>
+        ) : (
+          <>
+            <Text style={styles.title}>我的拍立得收藏</Text>
+            <View style={styles.headerButtons}>
+              <TouchableOpacity
+                style={styles.iconButton}
+                onPress={showExportOptions}
+              >
+                <Ionicons name='download-outline' size={24} color={colors.WHITE} />
+              </TouchableOpacity>
+              <TouchableOpacity style={styles.iconButton} onPress={showMoreOptions}>
+                <Ionicons name='settings-outline' size={24} color={colors.WHITE} />
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.addButton}
+                onPress={() => navigation.navigate('Upload')}
+              >
+                <Ionicons name='add' size={24} color={colors.WHITE} />
+              </TouchableOpacity>
+            </View>
+          </>
+        )}
       </View>
 
       {statistics && (
@@ -540,16 +765,145 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
               onPress={() =>
                 navigation.navigate('Detail', { idolName: item.idolName })
               }
+              onLongPress={() => enterSelectionMode(item.idolName)}
+              selected={selectedIdols.has(item.idolName)}
+              selectionMode={selectionMode}
+              onSelect={() => toggleSelection(item.idolName)}
             />
           ))
         )}
       </ScrollView>
+
+      {selectionMode && selectedIdols.size > 0 && (
+        <View style={styles.batchActionBar}>
+          <TouchableOpacity
+            style={styles.batchActionButton}
+            onPress={handleBatchEdit}
+          >
+            <Ionicons name='create-outline' size={20} color={colors.WHITE} />
+            <Text style={styles.batchActionText}>修改</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={[styles.batchActionButton, styles.deleteButton]}
+            onPress={handleBatchDelete}
+          >
+            <Ionicons name='trash-outline' size={20} color={colors.WHITE} />
+            <Text style={styles.batchActionText}>删除</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       <AdvancedFilter
         visible={showFilter}
         onClose={() => setShowFilter(false)}
         currentFilters={filters}
         onApply={setFilters}
+      />
+
+      <Modal
+        visible={showBatchEdit}
+        transparent
+        animationType='slide'
+        onRequestClose={() => setShowBatchEdit(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>批量修改字段</Text>
+              <TouchableOpacity onPress={() => setShowBatchEdit(false)}>
+                <Ionicons name='close' size={24} color={colors.BLACK} />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalHint}>
+                将修改 {selectedIdols.size} 个偶像的所有记录
+              </Text>
+              <View style={styles.fieldSelector}>
+                <TouchableOpacity
+                  style={[
+                    styles.fieldOption,
+                    batchEditField === 'groupName' && styles.fieldOptionActive,
+                  ]}
+                  onPress={() => setBatchEditField('groupName')}
+                >
+                  <Text
+                    style={[
+                      styles.fieldOptionText,
+                      batchEditField === 'groupName' && styles.fieldOptionTextActive,
+                    ]}
+                  >
+                    团体
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.fieldOption,
+                    batchEditField === 'city' && styles.fieldOptionActive,
+                  ]}
+                  onPress={() => setBatchEditField('city')}
+                >
+                  <Text
+                    style={[
+                      styles.fieldOptionText,
+                      batchEditField === 'city' && styles.fieldOptionTextActive,
+                    ]}
+                  >
+                    城市
+                  </Text>
+                </TouchableOpacity>
+                <TouchableOpacity
+                  style={[
+                    styles.fieldOption,
+                    batchEditField === 'venue' && styles.fieldOptionActive,
+                  ]}
+                  onPress={() => setBatchEditField('venue')}
+                >
+                  <Text
+                    style={[
+                      styles.fieldOptionText,
+                      batchEditField === 'venue' && styles.fieldOptionTextActive,
+                    ]}
+                  >
+                    场馆
+                  </Text>
+                </TouchableOpacity>
+              </View>
+              <View style={styles.inputRow}>
+                <TextInput
+                  style={styles.input}
+                  value={batchEditValue}
+                  onChangeText={setBatchEditValue}
+                  placeholder='输入新的值...'
+                  placeholderTextColor={colors.GRAY[400]}
+                />
+                <TouchableOpacity
+                  style={styles.historyButton}
+                  onPress={() => setShowFieldHistory(true)}
+                >
+                  <Ionicons name='time-outline' size={20} color={colors.PRIMARY} />
+                </TouchableOpacity>
+              </View>
+              <TouchableOpacity
+                style={styles.applyButton}
+                onPress={applyBatchEdit}
+              >
+                <Text style={styles.applyButtonText}>应用修改</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
+
+      <FieldHistorySelector
+        visible={showFieldHistory}
+        field={batchEditField}
+        title={batchEditField === 'groupName' ? '团体' : batchEditField === 'city' ? '城市' : '场馆'}
+        currentValue={batchEditValue}
+        onSelect={(value) => {
+          setBatchEditValue(value)
+          setShowFieldHistory(false)
+        }}
+        onClose={() => setShowFieldHistory(false)}
       />
     </View>
   )

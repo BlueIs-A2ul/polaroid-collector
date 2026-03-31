@@ -246,6 +246,90 @@ export const deleteRecord = async (
   }
 }
 
+export const deleteRecordsByIdolNames = async (
+  idolNames: string[],
+): Promise<ServiceResult<number>> => {
+  try {
+    const { success, data: records } = await getAllRecords()
+    if (!success || !records) {
+      return {
+        success: false,
+        data: null,
+        error: '获取记录失败',
+      }
+    }
+
+    const filteredRecords = records.filter(r => !idolNames.includes(r.idolName))
+    const deletedCount = records.length - filteredRecords.length
+    await AsyncStorage.setItem(
+      STORAGE_KEYS.RECORDS,
+      JSON.stringify(filteredRecords),
+    )
+    await updateLastUpdated()
+
+    return {
+      success: true,
+      data: deletedCount,
+      error: null,
+    }
+  } catch (error) {
+    console.error('批量删除记录失败:', error)
+    return {
+      success: false,
+      data: null,
+      error: error instanceof Error ? error.message : String(error),
+    }
+  }
+}
+
+export const updateRecordsByIdolNames = async (
+  idolNames: string[],
+  updates: Partial<PolaroidRecord>,
+): Promise<ServiceResult<number>> => {
+  try {
+    const { success, data: records } = await getAllRecords()
+    if (!success || !records) {
+      return {
+        success: false,
+        data: null,
+        error: '获取记录失败',
+      }
+    }
+
+    let updatedCount = 0
+    const updatedRecords = records.map(r => {
+      if (idolNames.includes(r.idolName)) {
+        updatedCount++
+        return {
+          ...r,
+          ...updates,
+          updatedAt: Date.now(),
+        }
+      }
+      return r
+    })
+
+    await AsyncStorage.setItem(
+      STORAGE_KEYS.RECORDS,
+      JSON.stringify(updatedRecords),
+    )
+    await updateLastUpdated()
+
+    return {
+      success: true,
+      data: updatedCount,
+      error: null,
+    }
+  } catch (error) {
+    console.error('批量更新记录失败:', error)
+    return {
+      success: false,
+      data: null,
+      error: error instanceof Error ? error.message : String(error),
+    }
+  }
+}
+
 /**
  * 清空所有记录
  * @returns 清空结果
