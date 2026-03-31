@@ -20,7 +20,7 @@ import { useRecords } from '../hooks/useRecords'
 import IdolCard from '../components/features/IdolCard'
 import LoadingSpinner from '../components/common/LoadingSpinner'
 import EmptyState from '../components/common/EmptyState'
-import SearchBar from '../components/common/SearchBar'
+import SearchBar, { SearchType } from '../components/common/SearchBar'
 import AdvancedFilter, { FilterOptions } from '../components/features/AdvancedFilter'
 import { HomeSkeleton } from '../components/common/Skeleton'
 import {
@@ -49,6 +49,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const { colors } = useTheme()
   const { ranking, statistics, loading, error, refreshAll } = useRecords()
   const [searchQuery, setSearchQuery] = React.useState('')
+  const [searchType, setSearchType] = React.useState<SearchType>('idolName')
   const [refreshing, setRefreshing] = React.useState(false)
   const [avatarMap, setAvatarMap] = React.useState<Record<string, string>>({})
   const [showFilter, setShowFilter] = React.useState(false)
@@ -177,9 +178,28 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   )
 
   const filteredRanking = React.useMemo(() => {
-    let result = ranking.filter(item =>
-      item.idolName.toLowerCase().includes(searchQuery.toLowerCase()),
-    )
+    let result = ranking
+
+    if (searchQuery.length > 0) {
+      const query = searchQuery.toLowerCase()
+      result = result.filter(item => {
+        if (searchType === 'idolName') {
+          return item.idolName.toLowerCase().includes(query)
+        }
+
+        const records = item.records
+        if (searchType === 'groupName') {
+          return records.some(r => r.groupName?.toLowerCase().includes(query))
+        }
+        if (searchType === 'city') {
+          return records.some(r => r.city?.toLowerCase().includes(query))
+        }
+        if (searchType === 'venue') {
+          return records.some(r => r.venue?.toLowerCase().includes(query))
+        }
+        return false
+      })
+    }
 
     if (filters.groupName || filters.city || filters.venue || filters.polaroidType) {
       result = result.filter(item => {
@@ -195,7 +215,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     }
 
     return result
-  }, [ranking, searchQuery, filters])
+  }, [ranking, searchQuery, searchType, filters])
 
   const showExportOptions = () => {
     if (Platform.OS === 'ios') {
@@ -473,7 +493,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         <SearchBar
           value={searchQuery}
           onChangeText={setSearchQuery}
-          placeholder='搜索偶像...'
+          searchType={searchType}
+          onSearchTypeChange={setSearchType}
         />
       )}
 
