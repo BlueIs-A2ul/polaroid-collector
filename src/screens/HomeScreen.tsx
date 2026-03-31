@@ -24,6 +24,25 @@ import SwipeableIdolCard from '../components/features/SwipeableIdolCard'
 import LoadingSpinner from '../components/common/LoadingSpinner'
 import EmptyState from '../components/common/EmptyState'
 import SearchBar, { SearchType } from '../components/common/SearchBar'
+
+export type SortType = 'date' | 'count' | 'price'
+export type SortOrder = 'asc' | 'desc'
+
+interface SortOption {
+  type: SortType
+  order: SortOrder
+  label: string
+}
+
+const SORT_OPTIONS: SortOption[] = [
+  { type: 'date', order: 'desc', label: '最新日期' },
+  { type: 'date', order: 'asc', label: '最早日期' },
+  { type: 'count', order: 'desc', label: '数量最多' },
+  { type: 'count', order: 'asc', label: '数量最少' },
+  { type: 'price', order: 'desc', label: '花费最高' },
+  { type: 'price', order: 'asc', label: '花费最低' },
+]
+
 import AdvancedFilter, { FilterOptions } from '../components/features/AdvancedFilter'
 import FieldHistorySelector from '../components/features/FieldHistorySelector'
 import { HomeSkeleton } from '../components/common/Skeleton'
@@ -70,6 +89,9 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const [batchEditField, setBatchEditField] = React.useState<'groupName' | 'city' | 'venue'>('groupName')
   const [batchEditValue, setBatchEditValue] = React.useState('')
   const [showFieldHistory, setShowFieldHistory] = React.useState(false)
+  const [sortBy, setSortBy] = React.useState<SortType>('date')
+  const [sortOrder, setSortOrder] = React.useState<SortOrder>('desc')
+  const [showSortOptions, setShowSortOptions] = React.useState(false)
 
   const styles = React.useMemo(() => StyleSheet.create({
     container: {
@@ -290,6 +312,46 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       fontWeight: 'bold',
       color: colors.WHITE,
     },
+    sortButton: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 4,
+    },
+    sortText: {
+      fontSize: 12,
+      color: colors.PRIMARY,
+    },
+    sortOption: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: 16,
+      paddingHorizontal: 12,
+      borderRadius: 8,
+      marginBottom: 8,
+      backgroundColor: colors.GRAY[100],
+      gap: 12,
+    },
+    sortOptionActive: {
+      backgroundColor: colors.PRIMARY + '20',
+      borderWidth: 2,
+      borderColor: colors.PRIMARY,
+    },
+    sortOptionIcon: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      backgroundColor: colors.PRIMARY + '30',
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    sortOptionText: {
+      fontSize: 16,
+      color: colors.BLACK,
+      fontWeight: '500',
+    },
+    sortOptionTextActive: {
+      color: colors.PRIMARY,
+    },
   }), [colors])
 
   const loadAvatars = React.useCallback(async () => {
@@ -343,8 +405,23 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       })
     }
 
+    result = result.sort((a, b) => {
+      if (sortBy === 'date') {
+        const dateA = a.latestDate ? new Date(a.latestDate).getTime() : 0
+        const dateB = b.latestDate ? new Date(b.latestDate).getTime() : 0
+        return sortOrder === 'desc' ? dateB - dateA : dateA - dateB
+      }
+      if (sortBy === 'count') {
+        return sortOrder === 'desc' ? b.totalCount - a.totalCount : a.totalCount - b.totalCount
+      }
+      if (sortBy === 'price') {
+        return sortOrder === 'desc' ? b.totalPrice - a.totalPrice : a.totalPrice - b.totalPrice
+      }
+      return 0
+    })
+
     return result
-  }, [ranking, searchQuery, searchType, filters])
+  }, [ranking, searchQuery, searchType, filters, sortBy, sortOrder])
 
   const toggleSelection = React.useCallback((idolName: string) => {
     setSelectedIdols(prev => {
@@ -751,9 +828,20 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
       <View style={styles.sectionHeader}>
         <Text style={styles.sectionTitle}>偶像排行榜</Text>
-        <TouchableOpacity onPress={refreshAll}>
-          <Ionicons name='refresh' size={20} color={colors.PRIMARY} />
-        </TouchableOpacity>
+        <View style={{ flexDirection: 'row', gap: 8 }}>
+          <TouchableOpacity
+            style={styles.sortButton}
+            onPress={() => setShowSortOptions(true)}
+          >
+            <Ionicons name='swap-vertical' size={18} color={colors.PRIMARY} />
+            <Text style={styles.sortText}>
+              {SORT_OPTIONS.find(o => o.type === sortBy && o.order === sortOrder)?.label}
+            </Text>
+          </TouchableOpacity>
+          <TouchableOpacity onPress={refreshAll}>
+            <Ionicons name='refresh' size={20} color={colors.PRIMARY} />
+          </TouchableOpacity>
+        </View>
       </View>
 
       <ScrollView
@@ -932,6 +1020,68 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         }}
         onClose={() => setShowFieldHistory(false)}
       />
+
+      <Modal
+        visible={showSortOptions}
+        transparent
+        animationType='slide'
+        onRequestClose={() => setShowSortOptions(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>排序方式</Text>
+              <TouchableOpacity onPress={() => setShowSortOptions(false)}>
+                <Ionicons name='close' size={24} color={colors.BLACK} />
+              </TouchableOpacity>
+            </View>
+            <ScrollView style={styles.modalContent}>
+              {SORT_OPTIONS.map(option => (
+                <TouchableOpacity
+                  key={`${option.type}-${option.order}`}
+                  style={[
+                    styles.sortOption,
+                    sortBy === option.type && sortOrder === option.order && styles.sortOptionActive,
+                  ]}
+                  onPress={() => {
+                    setSortBy(option.type)
+                    setSortOrder(option.order)
+                    setShowSortOptions(false)
+                  }}
+                >
+                  <View style={styles.sortOptionIcon}>
+                    <Ionicons
+                      name={
+                        option.type === 'date' ? 'calendar' :
+                        option.type === 'count' ? 'camera' :
+                        'wallet'
+                      }
+                      size={18}
+                      color={colors.PRIMARY}
+                    />
+                  </View>
+                  <Text
+                    style={[
+                      styles.sortOptionText,
+                      sortBy === option.type && sortOrder === option.order && styles.sortOptionTextActive,
+                    ]}
+                  >
+                    {option.label}
+                  </Text>
+                  {sortBy === option.type && sortOrder === option.order && (
+                    <Ionicons
+                      name='checkmark'
+                      size={20}
+                      color={colors.PRIMARY}
+                      style={{ marginLeft: 'auto' }}
+                    />
+                  )}
+                </TouchableOpacity>
+              ))}
+            </ScrollView>
+          </View>
+        </View>
+      </Modal>
     </View>
   )
 }
