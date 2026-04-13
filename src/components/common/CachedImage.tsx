@@ -19,8 +19,6 @@ const CachedImage: React.FC<CachedImageProps> = ({
       style={style}
       contentFit={resizeMode}
       transition={200}
-      placeholder={{ blurhash: 'L6PZfSjE.AyE_3t7axV@DgM|RPV@' }}
-      placeholderContentFit='cover'
       cachePolicy='memory-disk'
     />
   )
