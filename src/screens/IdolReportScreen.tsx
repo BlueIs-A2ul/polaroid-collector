@@ -11,6 +11,7 @@ import {
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '../contexts/ThemeContext'
+import { useNavigation } from '@react-navigation/native'
 import { getIdolReport, IdolReport } from '../services/idolReportService'
 import { formatDate } from '../utils/rankingUtils'
 
@@ -29,6 +30,7 @@ interface IdolReportScreenProps {
 const IdolReportScreen: React.FC<IdolReportScreenProps> = ({ route }) => {
   const { idolName, avatarUri } = route.params
   const { colors } = useTheme()
+  const navigation = useNavigation()
   const [report, setReport] = useState<IdolReport | null>(null)
   const [loading, setLoading] = useState(true)
   const [currentPage, setCurrentPage] = useState(0)
@@ -274,13 +276,19 @@ const IdolReportScreen: React.FC<IdolReportScreenProps> = ({ route }) => {
     monthBarContainer: {
       flexDirection: 'row',
       alignItems: 'flex-end',
-      height: 100,
+      justifyContent: 'space-between',
+      height: 120,
       width: '100%',
       marginTop: 16,
-      gap: 4,
+      paddingHorizontal: 4,
+    },
+    monthBarWrapper: {
+      flex: 1,
+      alignItems: 'center',
     },
     monthBar: {
-      flex: 1,
+      width: '100%',
+      maxWidth: 30,
       backgroundColor: `${colors.PRIMARY}30`,
       borderRadius: 4,
       minHeight: 4,
@@ -293,6 +301,13 @@ const IdolReportScreen: React.FC<IdolReportScreenProps> = ({ route }) => {
       color: colors.GRAY[400],
       textAlign: 'center',
       marginTop: 4,
+    },
+    closeButton: {
+      position: 'absolute',
+      top: 50,
+      right: 20,
+      zIndex: 10,
+      padding: 8,
     },
   }), [colors])
 
@@ -322,6 +337,13 @@ const IdolReportScreen: React.FC<IdolReportScreenProps> = ({ route }) => {
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity
+        style={styles.closeButton}
+        onPress={() => navigation.goBack()}
+      >
+        <Ionicons name='close' size={28} color={colors.WHITE} />
+      </TouchableOpacity>
+
       <ScrollView
         ref={scrollViewRef}
         horizontal
@@ -496,7 +518,7 @@ const IdolReportScreen: React.FC<IdolReportScreenProps> = ({ route }) => {
                 {report.monthlyData.map((m) => {
                   const height = Math.max((m.photos / maxMonthPhotos) * 100, 4)
                   return (
-                    <View key={m.month} style={{ flex: 1, alignItems: 'center' }}>
+                    <View key={m.month} style={styles.monthBarWrapper}>
                       <View style={[styles.monthBar, { height }, m.photos > 0 && styles.monthBarActive]} />
                       <Text style={styles.monthBarLabel}>{m.month.split('-')[1]}月</Text>
                     </View>

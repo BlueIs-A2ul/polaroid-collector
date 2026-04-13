@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 import { NavigationContainer } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack'
 import { useTheme } from '../contexts/ThemeContext'
@@ -15,7 +15,7 @@ import IdolReportScreen from '../screens/IdolReportScreen'
 
 export type RootStackParamList = {
   Home: undefined
-  Upload: undefined
+  Upload: { idolName?: string }
   Detail: { idolName: string }
   Edit: { recordId: string }
   Statistics: undefined
@@ -43,6 +43,24 @@ const AppNavigator = () => {
             fontWeight: 'bold',
           },
           headerTitleAlign: 'center',
+          cardStyleInterpolator: ({ current, layouts }) => ({
+            cardStyle: {
+              transform: [
+                {
+                  translateX: current.progress.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [layouts.screen.width, 0],
+                  }),
+                },
+              ],
+              opacity: current.progress.interpolate({
+                inputRange: [0, 1],
+                outputRange: [0.5, 1],
+              }),
+            },
+          }),
+          gestureEnabled: true,
+          gestureDirection: 'horizontal',
         }}
       >
         <Stack.Screen
@@ -83,12 +101,12 @@ const AppNavigator = () => {
         <Stack.Screen
           name='YearlyReport'
           component={YearlyReportEntryScreen}
-          options={{ headerShown: false }}
+          options={{ headerShown: false, gestureEnabled: false }}
         />
         <Stack.Screen
           name='IdolReport'
           component={IdolReportScreen}
-          options={{ headerShown: false }}
+          options={{ headerShown: false, gestureEnabled: false }}
         />
       </Stack.Navigator>
     </NavigationContainer>

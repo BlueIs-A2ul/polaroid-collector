@@ -6,11 +6,11 @@ import {
   ScrollView,
   TouchableOpacity,
   Dimensions,
-  Animated,
   Image as RNImage,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '../contexts/ThemeContext'
+import { useNavigation } from '@react-navigation/native'
 import { YearlyReport } from '../services/reportService'
 import { formatDate } from '../utils/rankingUtils'
 
@@ -24,6 +24,7 @@ interface YearlyReportScreenProps {
 
 const YearlyReportScreen: React.FC<YearlyReportScreenProps> = ({ report, avatarMap }) => {
   const { colors } = useTheme()
+  const navigation = useNavigation()
   const [currentPage, setCurrentPage] = useState(0)
   const scrollViewRef = useRef<ScrollView>(null)
 
@@ -252,6 +253,13 @@ const YearlyReportScreen: React.FC<YearlyReportScreenProps> = ({ report, avatarM
       alignItems: 'center',
       marginBottom: 16,
     },
+    closeButton: {
+      position: 'absolute',
+      top: 50,
+      right: 20,
+      zIndex: 10,
+      padding: 8,
+    },
   }), [colors])
 
   const handleScroll = (event: any) => {
@@ -276,6 +284,13 @@ const YearlyReportScreen: React.FC<YearlyReportScreenProps> = ({ report, avatarM
 
   return (
     <View style={styles.container}>
+      <TouchableOpacity
+        style={styles.closeButton}
+        onPress={() => navigation.goBack()}
+      >
+        <Ionicons name='close' size={28} color={colors.WHITE} />
+      </TouchableOpacity>
+
       <ScrollView
         ref={scrollViewRef}
         horizontal
