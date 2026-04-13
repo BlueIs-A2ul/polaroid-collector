@@ -678,19 +678,9 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation, route }) => {
       fontWeight: 'bold',
       color: colors.WHITE,
     },
-    priceInputWrapper: {
-      flex: 1,
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      backgroundColor: colors.GRAY[100],
-      borderRadius: 6,
+    priceSelectButton: {
       padding: 6,
-      paddingHorizontal: 10,
-    },
-    priceInputText: {
-      fontSize: 14,
-      color: colors.BLACK,
+      marginLeft: 4,
     },
     globalFieldsRow: {
       flexDirection: 'row',
@@ -910,17 +900,21 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation, route }) => {
                   </View>
                   <View style={styles.countInputContainer}>
                     <Text style={styles.countLabel}>价格:</Text>
-                    <TouchableOpacity
-                      style={styles.priceInputWrapper}
-                      onPress={() => setShowPriceSelector(photo.uri)}
-                    >
-                      <Text style={[styles.priceInputText, photo.price ? null : styles.extraFieldPlaceholder]}>
-                        {photo.price ? `¥${photo.price}` : '选填'}
-                      </Text>
-                      {priceOptions.length > 0 && (
-                        <Ionicons name='chevron-down' size={16} color={colors.GRAY[500]} />
-                      )}
-                    </TouchableOpacity>
+                    <TextInput
+                      style={styles.countInput}
+                      value={photo.price ? String(photo.price) : ''}
+                      onChangeText={text => updatePhotoPrice(photo.uri, parseFloat(text) || 0)}
+                      keyboardType='decimal-pad'
+                      placeholder='选填'
+                    />
+                    {priceOptions.length > 0 && (
+                      <TouchableOpacity
+                        style={styles.priceSelectButton}
+                        onPress={() => setShowPriceSelector(photo.uri)}
+                      >
+                        <Ionicons name='pricetag' size={16} color={colors.PRIMARY} />
+                      </TouchableOpacity>
+                    )}
                   </View>
                   <View style={styles.noteInputContainer}>
                     <Text style={styles.countLabel}>备注:</Text>
