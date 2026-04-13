@@ -1,33 +1,69 @@
-# Polaroid App 📸
+# 电子切盒
 
-一个基于 React Native 和 Expo 开发的移动应用，专注于拍立得风格的拍照和照片处理体验。
+一个基于 React Native 和 Expo 开发的拍立得收藏管理应用，专注于记录和管理偶像拍立得收藏。
 
-## 🚀 项目简介
+## 项目简介
 
-Polaroid App 是一个现代化的移动应用项目，旨在为用户提供类似拍立得相机的拍照体验。该项目使用 Expo 框架构建，支持 iOS、Android 和 Web 平台，具有跨平台兼容性。
+电子切盒是一个现代化的移动应用，帮助用户记录和管理偶像拍立得收藏。支持多照片上传、花费记录、统计分析、年度报告等功能，使用 Expo 框架构建，支持 iOS、Android 和 Web 平台。
 
-## 🛠️ 技术栈
+## 技术栈
 
-- **React Native**: 0.83.2 - 移动应用开发框架
-- **React**: 19.2.0 - UI 组件库
-- **Expo**: ~55.0.8 - React Native 开发工具链
-- **expo-status-bar**: ~55.0.4 - 状态栏组件
+- React Native 0.83.2
+- React 19.2.0
+- Expo SDK 55
+- TypeScript 5.9.3
+- React Navigation 7.x
+- AsyncStorage (本地存储)
+- expo-image-picker (图片选择)
+- expo-image (图片缓存)
+- Jest (测试)
 
-## ✨ 功能特性
+## 功能特性
 
-- 📱 跨平台支持（iOS、Android、Web）
-- 🎨 现代化的用户界面设计
-- 📸 拍立得风格的拍照体验
-- 🌓 浅色主题界面
-- 🖼️ 自定义图标和启动屏幕
+### 核心功能
+- 偶像拍立得记录管理（上传、编辑、删除）
+- 多照片批量上传
+- 照片备注、背签照片支持
+- 花费记录与统计
 
-## 📦 安装和运行
+### 拍立得属性
+- 团体、城市、场馆信息
+- 拍立得类型（无签、带签、主题、宿题）
+- 拍立得人数（单人、双人、团切）
+- 价格记录与智能推荐
+
+### 统计分析
+- 偶像排行（数量/花费）
+- 团体、城市、场馆统计
+- 月度花费趋势图表
+- 拍摄日历视图
+
+### 特色功能
+- 年度报告（类似网易云年度报告风格）
+- 偶像个人报告
+- 分享卡片生成
+- CSV 数据导入导出
+- 数据备份与恢复（含照片）
+
+### 个性化
+- 6 套预设主题（经典棕、海洋蓝、樱花粉、森林绿、薰衣草、日落橙）
+- 主题自定义调整（色相、饱和度、亮度）
+- 偶像头像设置
+- 偶像团体绑定
+
+### 高级功能
+- 高级筛选（团体、城市、场馆、类型）
+- 批量操作（批量删除、批量编辑）
+- 偶像列表排序（日期、数量、花费）
+- 字段历史记录快速选择
+
+## 安装和运行
 
 ### 环境要求
 
 - Node.js
 - npm 或 yarn
-- Expo CLI（可选，推荐使用 Expo Go 应用）
+- Expo Go 应用（推荐）
 
 ### 安装依赖
 
@@ -37,119 +73,119 @@ npm install
 
 ### 运行项目
 
-#### 启动开发服务器
-
 ```bash
-npm start
+npm start              # 启动 Expo 开发服务器
+npm run android        # 启动 Android 开发
+npm run ios            # 启动 iOS 开发
+npm run web            # 启动 Web 开发
 ```
 
-#### 在特定平台运行
+### 使用 Expo Go
 
-**Android:**
-
-```bash
-npm run android
-```
-
-**iOS:**
-
-```bash
-npm run ios
-```
-
-**Web:**
-
-```bash
-npm run web
-```
-
-### 使用 Expo Go（推荐）
-
-1. 在手机上下载 Expo Go 应用（Android 或 iOS）
+1. 在手机上下载 Expo Go 应用
 2. 运行 `npm start`
 3. 使用 Expo Go 扫描终端显示的 QR 码
 
-## 📁 项目结构
+## 项目结构
 
 ```
-polaroid-app/
-├── assets/              # 应用资源文件
-│   ├── android-icon-background.png
-│   ├── android-icon-foreground.png
-│   ├── android-icon-monochrome.png
-│   ├── favicon.png
-│   ├── icon.png
-│   └── splash-icon.png
-├── App.js               # 主应用组件
-├── app.json             # Expo 应用配置
-├── package.json         # 项目依赖和脚本
-├── index.js             # 应用入口文件
-├── .gitignore           # Git 忽略文件配置
-└── README.md            # 项目文档
+src/
+├── components/          # 可复用组件
+│   ├── common/          # 通用组件
+│   │   ├── CachedImage.tsx
+│   │   ├── LoadingSpinner.tsx
+│   │   ├── Skeleton.tsx
+│   │   └── OptionsSelector.tsx
+│   └── features/        # 功能组件
+│       ├── IdolSelector.tsx
+│       ├── FieldHistorySelector.tsx
+│       ├── Calendar.tsx
+│       ├── AdvancedFilter.tsx
+│       └── ...
+├── screens/             # 页面组件
+│   ├── HomeScreen.tsx
+│   ├── UploadScreen.tsx
+│   ├── DetailScreen.tsx
+│   ├── EditScreen.tsx
+│   ├── StatisticsScreen.tsx
+│   ├── CalendarScreen.tsx
+│   ├── ThemeSettingsScreen.tsx
+│   ├── YearlyReportScreen.tsx
+│   └── IdolReportScreen.tsx
+├── services/            # 业务逻辑服务
+│   ├── storageService.ts
+│   ├── recordService.ts
+│   ├── photoService.ts
+│   ├── exportService.ts
+│   ├── themeService.ts
+│   ├── idolBindingService.ts
+│   ├── priceStatsService.ts
+│   └── ...
+├── hooks/               # 自定义 Hooks
+│   └── useRecords.ts
+├── contexts/            # React Context
+│   └ ThemeContext.tsx
+├── utils/               # 工具函数
+│   ├── rankingUtils.ts
+│   └ colorUtils.ts
+├── constants/           # 常量定义
+│   ├── storageKeys.ts
+│   ├── polaroidOptions.ts
+│   └ themes.ts
+├── navigation/          # 导航配置
+│   └ AppNavigator.tsx
+└── types/               # TypeScript 类型定义
+    └ index.ts
+    └ theme.ts
 ```
 
-## 🎯 开发指南
+## 脚本命令
 
-### 主要文件说明
+| 命令 | 说明 |
+|------|------|
+| `npm start` | 启动 Expo 开发服务器 |
+| `npm run android` | 在 Android 上运行 |
+| `npm run ios` | 在 iOS 上运行 |
+| `npm run web` | 在 Web 浏览器中运行 |
+| `npm run typecheck` | TypeScript 类型检查 |
+| `npm test` | 运行所有测试 |
+| `npm run test:coverage` | 运行测试并生成覆盖率报告 |
 
-- **App.js**: 应用的主组件，包含核心 UI 和业务逻辑
-- **app.json**: Expo 应用配置文件，包含应用名称、图标、启动屏幕等设置
-- **package.json**: 定义项目依赖和可用的 npm 脚本
+## 数据结构
 
-### 添加新功能
+```typescript
+interface PolaroidRecord {
+  id: string
+  idolName: string
+  photoCount: number
+  photoDate: string
+  photoUri: string
+  backPhotoUri?: string
+  price?: number
+  note?: string
+  groupName?: string
+  city?: string
+  venue?: string
+  polaroidType?: string
+  memberCount?: string
+  createdAt: number
+  updatedAt: number
+}
+```
 
-当前项目处于初始阶段，你可以根据需要添加以下功能：
+## 开发指南
 
-- 相机拍照功能
-- 照片滤镜效果
-- 照片库管理
-- 照片分享功能
-- 用户设置界面
+详见 [AGENTS.md](./AGENTS.md)，包含：
+- Build/Lint/Test 命令
+- 代码风格指南
+- 项目结构详解
+- Git Commit 规范
+- Pre-commit 检查清单
 
-## 🔧 配置说明
+## 工作日志
 
-### 应用图标和启动屏幕
+详见 [WORKLOG.md](./WORKLOG.md)，记录项目开发进度和重要变更。
 
-- 应用图标位于 `assets/icon.png`
-- 启动屏幕图片位于 `assets/splash-icon.png`
-- Android 自适应图标支持背景、前景和单色版本
+## 许可证
 
-### 平台特定配置
-
-**iOS:**
-
-- 支持平板设备
-
-**Android:**
-
-- 支持自适应图标
-- 背景颜色：#E6F4FE
-
-**Web:**
-
-- 自定义 favicon
-
-## 📝 脚本命令
-
-| 命令              | 说明                          |
-| ----------------- | ----------------------------- |
-| `npm start`       | 启动 Expo 开发服务器          |
-| `npm run android` | 在 Android 模拟器或设备上运行 |
-| `npm run ios`     | 在 iOS 模拟器或设备上运行     |
-| `npm run web`     | 在 Web 浏览器中运行           |
-
-## 🤝 贡献指南
-
-欢迎提交 Issue 和 Pull Request 来帮助改进项目！
-
-## 📄 许可证
-
-此项目为私有项目（在 package.json 中标记为 `"private": true`）。
-
-## 📞 联系方式
-
-如有问题或建议，请通过项目 Issue 联系。
-
----
-
-**注意**: 这是一个初始项目模板，目前 App.js 只包含示例代码。请根据实际需求开发具体功能。
+私有项目
