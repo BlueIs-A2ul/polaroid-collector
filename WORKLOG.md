@@ -2,6 +2,115 @@
 
 本文档记录项目的开发进度和重要变更，供 AI 助手在每次开始工作时阅读，了解项目当前状态。
 
+## 2026-04-12 开发记录
+
+### 性能与体验优化
+
+1. **首页列表虚拟化**
+   - 将 ScrollView 改为 FlatList，支持虚拟化渲染
+   - 提升大量数据时的渲染性能
+   - 减少内存占用
+
+2. **大文件拆分优化**
+   - HomeScreen.tsx (1089行) 拆分为 6 个独立组件
+   - DetailScreen.tsx (1097行) 拆分为 6 个独立组件
+   - 提高代码可维护性和复用性
+
+3. **页面切换动画**
+   - 添加自定义过渡动画（滑入 + 透明度变化）
+   - 支持手势返回操作
+   - 提升导航体验流畅度
+
+4. **列表项进入动画**
+   - 每个偶像卡片添加淡入 + 上滑动画
+   - 动画延迟递增，形成流畅的瀑布效果
+   - 提升列表加载体验
+
+5. **键盘遮挡问题修复**
+   - UploadScreen 和 EditScreen 添加 KeyboardAvoidingView
+   - 键盘弹出时自动调整界面位置
+   - 解决输入框被遮挡的问题
+
+6. **多张上传逻辑修复**
+   - 修复点击"多张"按钮时实际只上传一张的问题
+   - 分离处理逻辑，多张上传直接调用独立函数
+
+### 轻量化优化
+
+1. **清理未使用代码**
+   - 移除废弃的 themeColors.ts 文件
+   - 清理 StatisticsScreen 中未使用的 import
+   - 移除 7 个多余的 dev packages (expo-dev-client 等)
+
+2. **移除 blurhash 占位符**
+   - CachedImage 移除 blurhash 占位符
+   - 减少图片加载时的内存占用
+
+3. **页面懒加载**
+   - 移除 React.lazy 懒加载（React Native 手势兼容性问题）
+   - 改为直接导入组件
+
+4. **删除功能位置调整**
+   - 移除首页滑动删除功能
+   - 删除功能移至偶像详情页（右上角垃圾桶图标）
+   - 简化首页卡片组件为 IdolCardAnimated
+   - 删除 SwipeableIdolCard.tsx 和 IdolCard.tsx
+
+### 新增功能
+
+1. **偶像团体绑定**
+   - 新增 idolBindingService 存储偶像绑定的团体
+   - 偶像详情页可绑定/修改团体（右上角人员图标）
+   - 从详情页上传时自动填充绑定的团体
+   - 用户可自行修改团体字段
+
+2. **价格统计与智能推荐**
+   - 新增 priceStatsService 统计每个偶像的历史价格
+   - 上传时自动填充使用最多的默认价格
+   - 提供价格选择器（最多5个历史价格）
+   - 用户可选择或手动输入价格
+
+3. **多张上传公共信息优化**
+   - 团体、城市、场馆改为全局字段（所有照片共用）
+   - 只需填写一次，自动应用到所有照片
+   - 照片列表上方显示公共信息设置区域
+
+### 文件变更
+
+| 文件 | 变更类型 | 说明 |
+|------|----------|------|
+| `src/screens/HomeScreen.tsx` | 重构 | 使用 FlatList、拆分组件、减少代码量 |
+| `src/screens/DetailScreen.tsx` | 重构 | 拆分组件、减少代码量 |
+| `src/navigation/AppNavigator.tsx` | 修改 | 添加页面切换动画配置 |
+| `src/components/features/HomeHeader.tsx` | 新增 | 首页头部组件 |
+| `src/components/features/StatsCard.tsx` | 新增 | 统计卡片组件 |
+| `src/components/features/QuickActions.tsx` | 新增 | 快捷操作栏组件 |
+| `src/components/features/BatchActionBar.tsx` | 新增 | 批量操作栏组件 |
+| `src/components/features/BatchEditModal.tsx` | 新增 | 批量编辑弹窗组件 |
+| `src/components/features/SortOptionsModal.tsx` | 新增 | 排序选项弹窗组件 |
+| `src/components/features/DetailHeader.tsx` | 新增 | 详情页头部组件 |
+| `src/components/features/PhotoGridItem.tsx` | 新增 | 照片网格项组件 |
+| `src/components/features/DateGroupCard.tsx` | 新增 | 日期分组卡片组件 |
+| `src/components/features/PhotoModal.tsx` | 新增 | 全屏照片弹窗组件 |
+| `src/components/features/DetailBatchEditModal.tsx` | 新增 | 详情页批量编辑弹窗 |
+| `src/components/features/ShareModal.tsx` | 新增 | 分享弹窗组件 |
+| `src/components/features/SwipeableIdolCard.tsx` | 删除 | 移除滑动删除功能 |
+| `src/components/features/IdolCard.tsx` | 删除 | 合并为 IdolCardAnimated |
+| `src/components/features/IdolCardAnimated.tsx` | 新增 | 简化的偶像卡片组件 |
+| `src/components/common/FadeIn.tsx` | 删除 | 未使用组件 |
+| `src/constants/themeColors.ts` | 删除 | 废弃文件 |
+| `src/screens/StatisticsScreen.tsx` | 修改 | 清理未使用 import |
+| `src/components/common/CachedImage.tsx` | 修改 | 移除 blurhash 占位符 |
+| `package.json` | 修改 | 移除 7 个多余 dev packages |
+| `src/services/idolBindingService.ts` | 新增 | 偶像团体绑定服务 |
+| `src/services/priceStatsService.ts` | 新增 | 偶像价格统计服务 |
+| `src/screens/DetailScreen.tsx` | 修改 | 添加团体绑定功能、上传按钮 |
+| `src/screens/UploadScreen.tsx` | 修改 | 接收偶像参数、全局字段设置、价格智能推荐、键盘遮挡修复 |
+| `src/screens/EditScreen.tsx` | 修改 | 键盘遮挡修复 |
+| `src/navigation/AppNavigator.tsx` | 修改 | Upload 页面支持偶像参数 |
+
+---
+
 ## 2026-03-24 开发记录
 
 ### 新增功能
