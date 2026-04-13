@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react'
+import React, { useState, useMemo, useEffect } from 'react'
 import {
   View,
   Text,
@@ -11,6 +11,7 @@ import {
   Platform,
   Modal,
   Switch,
+  KeyboardAvoidingView,
 } from 'react-native'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { Ionicons } from '@expo/vector-icons'
@@ -27,6 +28,8 @@ import FieldHistorySelector from '../components/features/FieldHistorySelector'
 import OptionsSelector from '../components/common/OptionsSelector'
 import { POLAROID_TYPE_OPTIONS, MEMBER_COUNT_OPTIONS } from '../constants/polaroidOptions'
 import { PhotoItem } from '../types'
+import { getIdolGroupBinding } from '../services/idolBindingService'
+import { getIdolDefaultPrice, getIdolPriceOptions } from '../services/priceStatsService'
 
 type UploadScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -39,9 +42,10 @@ interface UploadScreenProps {
   route: UploadScreenRouteProp
 }
 
-const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
+const UploadScreen: React.FC<UploadScreenProps> = ({ navigation, route }) => {
   const { colors } = useTheme()
-  const [idolName, setIdolName] = useState<string>('')
+  const routeIdolName = route.params?.idolName
+  const [idolName, setIdolName] = useState<string>(routeIdolName || '')
   const [photoDate, setPhotoDate] = useState<string>(
     new Date().toISOString().split('T')[0],
   )
@@ -54,15 +58,37 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
   const [allowCrop, setAllowCrop] = useState<boolean>(false)
   const [cropWidth, setCropWidth] = useState<number>(4)
   const [cropHeight, setCropHeight] = useState<number>(3)
-  const [pendingSource, setPendingSource] = useState<'camera' | 'library' | 'multiple'>(
-    'library',
-  )
+  const [pendingSource, setPendingSource] = useState<'camera' | 'library'>('library')
   const [pendingBackPhotoUri, setPendingBackPhotoUri] = useState<string | null>(null)
-  const [showFieldSelector, setShowFieldSelector] = useState<{
-    visible: boolean
-    field: 'groupName' | 'city' | 'venue'
-    photoUri: string
-  } | null>(null)
+  const [showFieldSelector, setShowFieldSelector] = useState<'groupName' | 'city' | 'venue' | null>(null)
+  const [globalGroupName, setGlobalGroupName] = useState<string>('')
+  const [globalCity, setGlobalCity] = useState<string>('')
+  const [globalVenue, setGlobalVenue] = useState<string>('')
+  const [defaultGroupName, setDefaultGroupName] = useState<string | null>(null)
+  const [defaultPrice, setDefaultPrice] = useState<number | null>(null)
+  const [priceOptions, setPriceOptions] = useState<number[]>([])
+  const [showPriceSelector, setShowPriceSelector] = useState<string | null>(null)
+
+  useEffect(() => {
+    if (routeIdolName) {
+      getIdolGroupBinding(routeIdolName).then(({ success, data }) => {
+        if (success && data) {
+          setDefaultGroupName(data)
+          setGlobalGroupName(data)
+        }
+      })
+      getIdolDefaultPrice(routeIdolName).then(({ success, data }) => {
+        if (success && data) {
+          setDefaultPrice(data)
+        }
+      })
+      getIdolPriceOptions(routeIdolName).then(({ success, data }) => {
+        if (success && data) {
+          setPriceOptions(data)
+        }
+      })
+    }
+  }, [routeIdolName])
 
   const formatDateToString = (date: Date): string => {
     const year = date.getFullYear()
@@ -93,11 +119,37 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
   }
 
   const handleShowCropOptions = (source: 'camera' | 'library' | 'multiple') => {
-    setPendingSource(source)
     if (source === 'multiple') {
-      handleConfirmCropOptions()
+      handleConfirmCropOptionsForMultiple()
     } else {
+      setPendingSource(source)
       setShowCropOptions(true)
+    }
+  }
+
+  const handleConfirmCropOptionsForMultiple = async () => {
+    const today = new Date().toISOString().split('T')[0]
+
+    const { success, data, error } = await pickMultiplePhotos({
+      allowCrop,
+      cropWidth,
+      cropHeight,
+    })
+
+    if (success && data) {
+      const newPhotos: PhotoItem[] = data.map(p => ({
+        uri: p.uri,
+        count: 1,
+        price: defaultPrice || undefined,
+      }))
+      setPhotos(prev => [...prev, ...newPhotos])
+
+      const firstDate = data[0]?.capturedDate
+      if (firstDate && photoDate === today) {
+        setPhotoDate(firstDate)
+      }
+    } else if (error !== '用户取消选择') {
+      Alert.alert('错误', error || '选择照片失败')
     }
   }
 
@@ -106,40 +158,24 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
 
     const today = new Date().toISOString().split('T')[0]
 
-    if (pendingSource === 'multiple') {
-      const { success, data, error } = await pickMultiplePhotos({
-        allowCrop,
-        cropWidth,
-        cropHeight,
-      })
+    const { success, data, error } = await pickPhoto(pendingSource, {
+      allowCrop,
+      cropWidth,
+      cropHeight,
+    })
 
-      if (success && data) {
-        const newPhotos: PhotoItem[] = data.map(p => ({ uri: p.uri, count: 1 }))
-        setPhotos([...photos, ...newPhotos])
+    if (success && data) {
+      setPhotos(prev => [...prev, {
+        uri: data.uri,
+        count: 1,
+        price: defaultPrice || undefined,
+      }])
 
-        const firstDate = data[0]?.capturedDate
-        if (firstDate && photoDate === today) {
-          setPhotoDate(firstDate)
-        }
-      } else if (error !== '用户取消选择') {
-        Alert.alert('错误', error || '选择照片失败')
+      if (data.capturedDate && photoDate === today) {
+        setPhotoDate(data.capturedDate)
       }
-    } else {
-      const { success, data, error } = await pickPhoto(pendingSource, {
-        allowCrop,
-        cropWidth,
-        cropHeight,
-      })
-
-      if (success && data) {
-        setPhotos([...photos, { uri: data.uri, count: 1 }])
-
-        if (data.capturedDate && photoDate === today) {
-          setPhotoDate(data.capturedDate)
-        }
-      } else if (error !== '用户取消选择') {
-        Alert.alert('错误', error || '选择照片失败')
-      }
+    } else if (error !== '用户取消选择') {
+      Alert.alert('错误', error || '选择照片失败')
     }
   }
 
@@ -233,9 +269,9 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
       backPhotoUri: p.backPhotoUri,
       price: p.price,
       note: p.note,
-      groupName: p.groupName,
-      city: p.city,
-      venue: p.venue,
+      groupName: globalGroupName.trim() || undefined,
+      city: globalCity.trim() || undefined,
+      venue: globalVenue.trim() || undefined,
       polaroidType: p.polaroidType,
       memberCount: p.memberCount,
     }))
@@ -642,6 +678,48 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
       fontWeight: 'bold',
       color: colors.WHITE,
     },
+    priceInputWrapper: {
+      flex: 1,
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      backgroundColor: colors.GRAY[100],
+      borderRadius: 6,
+      padding: 6,
+      paddingHorizontal: 10,
+    },
+    priceInputText: {
+      fontSize: 14,
+      color: colors.BLACK,
+    },
+    globalFieldsRow: {
+      flexDirection: 'row',
+      gap: 8,
+      marginTop: 8,
+    },
+    globalFieldHalf: {
+      flex: 1,
+    },
+    globalFieldFull: {
+      flex: 1,
+    },
+    priceOption: {
+      backgroundColor: colors.GRAY[100],
+      borderRadius: 8,
+      padding: 14,
+      marginBottom: 10,
+      alignItems: 'center',
+    },
+    priceOptionText: {
+      fontSize: 18,
+      fontWeight: 'bold',
+      color: colors.PRIMARY,
+    },
+    priceOptionManual: {
+      fontSize: 14,
+      color: colors.GRAY[600],
+      fontWeight: 'normal',
+    },
   }), [colors])
 
   if (loading) {
@@ -649,7 +727,12 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
   }
 
   return (
-    <ScrollView style={styles.container}>
+    <KeyboardAvoidingView
+      style={{ flex: 1 }}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+      keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+    >
+      <ScrollView style={styles.container} keyboardShouldPersistTaps='handled'>
       <View style={styles.header}>
         <TouchableOpacity
           style={styles.backButton}
@@ -741,6 +824,52 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
 
         {photos.length > 0 && (
           <View style={styles.formGroup}>
+            <Text style={styles.label}>公共信息（应用到所有照片）</Text>
+            <View style={styles.globalFieldsRow}>
+              <View style={styles.globalFieldHalf}>
+                <Text style={styles.extraFieldLabel}>团体</Text>
+                <TouchableOpacity
+                  style={styles.extraFieldInputWrapper}
+                  onPress={() => setShowFieldSelector('groupName')}
+                >
+                  <Text style={[styles.extraFieldInputText, globalGroupName ? null : styles.extraFieldPlaceholder]}>
+                    {globalGroupName || '选填'}
+                  </Text>
+                  <Ionicons name='chevron-down' size={16} color={colors.GRAY[500]} />
+                </TouchableOpacity>
+              </View>
+              <View style={styles.globalFieldHalf}>
+                <Text style={styles.extraFieldLabel}>城市</Text>
+                <TouchableOpacity
+                  style={styles.extraFieldInputWrapper}
+                  onPress={() => setShowFieldSelector('city')}
+                >
+                  <Text style={[styles.extraFieldInputText, globalCity ? null : styles.extraFieldPlaceholder]}>
+                    {globalCity || '选填'}
+                  </Text>
+                  <Ionicons name='chevron-down' size={16} color={colors.GRAY[500]} />
+                </TouchableOpacity>
+              </View>
+            </View>
+            <View style={styles.globalFieldsRow}>
+              <View style={styles.globalFieldFull}>
+                <Text style={styles.extraFieldLabel}>场馆</Text>
+                <TouchableOpacity
+                  style={styles.extraFieldInputWrapper}
+                  onPress={() => setShowFieldSelector('venue')}
+                >
+                  <Text style={[styles.extraFieldInputText, globalVenue ? null : styles.extraFieldPlaceholder]}>
+                    {globalVenue || '选填'}
+                  </Text>
+                  <Ionicons name='chevron-down' size={16} color={colors.GRAY[500]} />
+                </TouchableOpacity>
+              </View>
+            </View>
+          </View>
+        )}
+
+        {photos.length > 0 && (
+          <View style={styles.formGroup}>
             <View style={styles.photoListHeader}>
               <Text style={styles.label}>已选照片 ({photos.length})</Text>
               <View style={styles.photoListSummary}>
@@ -781,13 +910,17 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
                   </View>
                   <View style={styles.countInputContainer}>
                     <Text style={styles.countLabel}>价格:</Text>
-                    <TextInput
-                      style={styles.countInput}
-                      value={photo.price ? String(photo.price) : ''}
-                      onChangeText={text => updatePhotoPrice(photo.uri, parseFloat(text) || 0)}
-                      keyboardType='decimal-pad'
-                      placeholder='选填'
-                    />
+                    <TouchableOpacity
+                      style={styles.priceInputWrapper}
+                      onPress={() => setShowPriceSelector(photo.uri)}
+                    >
+                      <Text style={[styles.priceInputText, photo.price ? null : styles.extraFieldPlaceholder]}>
+                        {photo.price ? `¥${photo.price}` : '选填'}
+                      </Text>
+                      {priceOptions.length > 0 && (
+                        <Ionicons name='chevron-down' size={16} color={colors.GRAY[500]} />
+                      )}
+                    </TouchableOpacity>
                   </View>
                   <View style={styles.noteInputContainer}>
                     <Text style={styles.countLabel}>备注:</Text>
@@ -800,32 +933,6 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
                     />
                   </View>
                   <View style={styles.extraFieldsContainer}>
-                    <View style={styles.extraFieldRow}>
-                      <View style={styles.extraFieldHalf}>
-                        <Text style={styles.extraFieldLabel}>团体</Text>
-                        <TouchableOpacity
-                          style={styles.extraFieldInputWrapper}
-                          onPress={() => setShowFieldSelector({ visible: true, field: 'groupName', photoUri: photo.uri })}
-                        >
-                          <Text style={[styles.extraFieldInputText, photo.groupName ? null : styles.extraFieldPlaceholder]}>
-                            {photo.groupName || '选填'}
-                          </Text>
-                          <Ionicons name='chevron-down' size={16} color={colors.GRAY[500]} />
-                        </TouchableOpacity>
-                      </View>
-                      <View style={styles.extraFieldHalf}>
-                        <Text style={styles.extraFieldLabel}>城市</Text>
-                        <TouchableOpacity
-                          style={styles.extraFieldInputWrapper}
-                          onPress={() => setShowFieldSelector({ visible: true, field: 'city', photoUri: photo.uri })}
-                        >
-                          <Text style={[styles.extraFieldInputText, photo.city ? null : styles.extraFieldPlaceholder]}>
-                            {photo.city || '选填'}
-                          </Text>
-                          <Ionicons name='chevron-down' size={16} color={colors.GRAY[500]} />
-                        </TouchableOpacity>
-                      </View>
-                    </View>
                     <View style={styles.extraFieldRow}>
                       <View style={styles.extraFieldHalf}>
                         <OptionsSelector
@@ -845,18 +952,6 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
                           onChange={value => updatePhotoField(photo.uri, 'memberCount', value)}
                         />
                       </View>
-                    </View>
-                    <View style={styles.extraFieldFull}>
-                      <Text style={styles.extraFieldLabel}>场馆</Text>
-                      <TouchableOpacity
-                        style={styles.extraFieldInputWrapper}
-                        onPress={() => setShowFieldSelector({ visible: true, field: 'venue', photoUri: photo.uri })}
-                      >
-                        <Text style={[styles.extraFieldInputText, photo.venue ? null : styles.extraFieldPlaceholder]}>
-                          {photo.venue || '选填'}
-                        </Text>
-                        <Ionicons name='chevron-down' size={16} color={colors.GRAY[500]} />
-                      </TouchableOpacity>
                     </View>
                   </View>
                   <View style={styles.photoActions}>
@@ -904,17 +999,57 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
       />
 
       <FieldHistorySelector
-        visible={showFieldSelector?.visible || false}
-        field={showFieldSelector?.field || 'groupName'}
-        title={showFieldSelector?.field === 'groupName' ? '团体' : showFieldSelector?.field === 'city' ? '城市' : '场馆'}
-        currentValue={showFieldSelector ? (photos.find(p => p.uri === showFieldSelector.photoUri)?.[showFieldSelector.field] as string) || '' : ''}
+        visible={showFieldSelector !== null}
+        field={showFieldSelector || 'groupName'}
+        title={showFieldSelector === 'groupName' ? '团体' : showFieldSelector === 'city' ? '城市' : '场馆'}
+        currentValue={showFieldSelector === 'groupName' ? globalGroupName : showFieldSelector === 'city' ? globalCity : globalVenue}
         onClose={() => setShowFieldSelector(null)}
         onSelect={(value) => {
-          if (showFieldSelector) {
-            updatePhotoField(showFieldSelector.photoUri, showFieldSelector.field, value)
-          }
+          if (showFieldSelector === 'groupName') setGlobalGroupName(value)
+          else if (showFieldSelector === 'city') setGlobalCity(value)
+          else if (showFieldSelector === 'venue') setGlobalVenue(value)
         }}
       />
+
+      <Modal
+        visible={showPriceSelector !== null}
+        transparent={true}
+        animationType='slide'
+        onRequestClose={() => setShowPriceSelector(null)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.modalContainer}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>选择价格</Text>
+              <TouchableOpacity onPress={() => setShowPriceSelector(null)}>
+                <Ionicons name='close' size={24} color={colors.BLACK} />
+              </TouchableOpacity>
+            </View>
+            <View style={styles.modalContent}>
+              {priceOptions.map(price => (
+                <TouchableOpacity
+                  key={price}
+                  style={styles.priceOption}
+                  onPress={() => {
+                    if (showPriceSelector) {
+                      updatePhotoPrice(showPriceSelector, price)
+                    }
+                    setShowPriceSelector(null)
+                  }}
+                >
+                  <Text style={styles.priceOptionText}>¥{price}</Text>
+                </TouchableOpacity>
+              ))}
+              <TouchableOpacity
+                style={styles.priceOption}
+                onPress={() => setShowPriceSelector(null)}
+              >
+                <Text style={[styles.priceOptionText, styles.priceOptionManual]}>手动输入</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
 
       <Modal
         visible={showCropOptions}
@@ -982,6 +1117,7 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation }) => {
         </View>
       </Modal>
     </ScrollView>
+    </KeyboardAvoidingView>
   )
 }
 

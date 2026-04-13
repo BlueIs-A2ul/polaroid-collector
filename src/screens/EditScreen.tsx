@@ -11,6 +11,7 @@ import {
   Platform,
   Modal,
   Switch,
+  KeyboardAvoidingView,
 } from 'react-native'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { Ionicons } from '@expo/vector-icons'
@@ -694,7 +695,12 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
 
   return (
     <Fragment>
-      <ScrollView style={styles.container}>
+      <KeyboardAvoidingView
+        style={{ flex: 1 }}
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}
+      >
+        <ScrollView style={styles.container} keyboardShouldPersistTaps='handled'>
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={handleCancel}>
             <Ionicons name='arrow-back' size={24} color={colors.WHITE} />
@@ -1012,6 +1018,7 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
         </View>
       </Modal>
     </ScrollView>
+    </KeyboardAvoidingView>
 
     <FieldHistorySelector
       visible={showFieldSelector !== null}
