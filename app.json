@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "polaroid-app",
+    "name": "电子切盒",
     "slug": "polaroid-app",
     "version": "1.0.0",
     "orientation": "portrait",
@@ -12,7 +12,8 @@
       "backgroundColor": "#ffffff"
     },
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "bundleIdentifier": "com.lizhiyu.polaroidapp"
     },
     "android": {
       "package": "com.lizhiyu.polaroidapp",
