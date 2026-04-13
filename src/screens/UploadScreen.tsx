@@ -70,25 +70,31 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation, route }) => {
   const [showPriceSelector, setShowPriceSelector] = useState<string | null>(null)
 
   useEffect(() => {
-    if (routeIdolName) {
-      getIdolGroupBinding(routeIdolName).then(({ success, data }) => {
-        if (success && data) {
-          setDefaultGroupName(data)
-          setGlobalGroupName(data)
-        }
-      })
-      getIdolDefaultPrice(routeIdolName).then(({ success, data }) => {
-        if (success && data) {
-          setDefaultPrice(data)
-        }
-      })
-      getIdolPriceOptions(routeIdolName).then(({ success, data }) => {
-        if (success && data) {
-          setPriceOptions(data)
-        }
-      })
+    if (!idolName.trim()) {
+      setDefaultPrice(null)
+      setPriceOptions([])
+      setDefaultGroupName(null)
+      setGlobalGroupName('')
+      return
     }
-  }, [routeIdolName])
+    
+    getIdolGroupBinding(idolName).then(({ success, data }) => {
+      if (success && data) {
+        setDefaultGroupName(data)
+        setGlobalGroupName(data)
+      }
+    })
+    getIdolDefaultPrice(idolName).then(({ success, data }) => {
+      if (success && data) {
+        setDefaultPrice(data)
+      }
+    })
+    getIdolPriceOptions(idolName).then(({ success, data }) => {
+      if (success && data) {
+        setPriceOptions(data)
+      }
+    })
+  }, [idolName])
 
   const formatDateToString = (date: Date): string => {
     const year = date.getFullYear()
