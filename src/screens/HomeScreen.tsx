@@ -41,6 +41,7 @@ import {
 } from '../services/backupService'
 import { getAllAvatars, removeAvatar } from '../services/avatarService'
 import { deleteRecordsByIdolNames, updateRecordsByIdolNames } from '../services/storageService'
+import { mergeSameDayRecords, previewMergeResult } from '../services/mergeService'
 import * as DocumentPicker from 'expo-document-picker'
 import { RankingItem } from '../types'
 
@@ -361,15 +362,17 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       ActionSheetIOS.showActionSheetWithOptions(
         {
           title: '更多选项',
-          options: ['主题设置', '创建备份', '恢复备份', '取消'],
-          cancelButtonIndex: 3,
+          options: ['主题设置', '合并同日记录', '创建备份', '恢复备份', '取消'],
+          cancelButtonIndex: 4,
         },
         async buttonIndex => {
           if (buttonIndex === 0) {
             navigation.navigate('ThemeSettings')
           } else if (buttonIndex === 1) {
-            await handleCreateBackup()
+            await handleMergeSameDayRecords()
           } else if (buttonIndex === 2) {
+            await handleCreateBackup()
+          } else if (buttonIndex === 3) {
             await handleRestoreBackup()
           }
         },
@@ -377,11 +380,66 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     } else {
       Alert.alert('更多选项', '请选择操作', [
         { text: '主题设置', onPress: () => navigation.navigate('ThemeSettings') },
+        { text: '合并同日记录', onPress: handleMergeSameDayRecords },
         { text: '创建备份', onPress: handleCreateBackup },
         { text: '恢复备份', onPress: handleRestoreBackup },
         { text: '取消', style: 'cancel' },
       ])
     }
+  }
+
+  const handleMergeSameDayRecords = async () => {
+    // 先预览可以合并的记录
+    const previewResult = await previewMergeResult()
+    if (!previewResult.success || !previewResult.data) {
+      Alert.alert('错误', '无法预览合并结果')
+      return
+    }
+
+    const { groups, totalGroups, totalRecords } = previewResult.data
+
+    if (totalGroups === 0) {
+      Alert.alert('提示', '没有需要合并的记录（所有偶像的同一天都只有一条记录）')
+      return
+    }
+
+    // 构建预览信息
+    const previewText = groups
+      .slice(0, 5)
+      .map(g => `• ${g.idolName} - ${g.date}: ${g.count}条记录，共${g.totalPhotos}张`)
+      .join('\n')
+
+    const moreText = groups.length > 5 ? `\n...还有 ${groups.length - 5} 个分组` : ''
+
+    Alert.alert(
+      '确认合并',
+      `发现 ${totalGroups} 个分组需要合并，共涉及 ${totalRecords} 条记录\n\n${previewText}${moreText}\n\n是否继续合并？`,
+      [
+        { text: '取消', style: 'cancel' },
+        {
+          text: '合并',
+          style: 'destructive',
+          onPress: async () => {
+            const result = await mergeSameDayRecords()
+            if (result.success && result.data) {
+              const { mergedCount, deletedCount, affectedIdols } = result.data
+              Alert.alert(
+                '合并完成',
+                `成功合并 ${mergedCount} 个分组\n删除了 ${deletedCount} 条重复记录\n涉及 ${affectedIdols.length} 位偶像`,
+                [
+                  {
+                    text: '确定',
+                    onPress: () => refreshAll(),
+                  },
+                ],
+              )
+            } else {
+              Alert.alert('合并失败', result.error || '未知错误')
+            }
+          },
+        },
+      ],
+    )
   }
 
   const handleCreateBackup = async () => {
