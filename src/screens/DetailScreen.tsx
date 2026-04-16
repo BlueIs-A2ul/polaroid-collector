@@ -50,6 +50,7 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
   const [batchEdit, setBatchEdit] = React.useState<BatchEditState>({
     visible: false,
     date: '',
+    newDate: '',
     recordIds: [],
     groupName: '',
     city: '',
@@ -57,6 +58,7 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
   })
   const [saving, setSaving] = React.useState(false)
   const [showFieldSelector, setShowFieldSelector] = React.useState<'groupName' | 'city' | 'venue' | null>(null)
+  const [showDatePicker, setShowDatePicker] = React.useState(false)
   const [shareModalVisible, setShareModalVisible] = React.useState(false)
   const [boundGroup, setBoundGroup] = React.useState<string | null>(null)
   const [showGroupBindingSelector, setShowGroupBindingSelector] = React.useState(false)
@@ -226,6 +228,7 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
     setBatchEdit({
       visible: true,
       date: group.date,
+      newDate: group.date,
       recordIds: group.records.map(r => r.id),
       groupName: firstRecord.groupName || '',
       city: firstRecord.city || '',
@@ -237,11 +240,17 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
     setBatchEdit({
       visible: false,
       date: '',
+      newDate: '',
       recordIds: [],
       groupName: '',
       city: '',
       venue: '',
     })
+    setShowDatePicker(false)
+  }
+
+  const handleDateChange = (newDate: string) => {
+    setBatchEdit(prev => ({ ...prev, newDate }))
   }
 
   const handleBatchEdit = async () => {
@@ -251,12 +260,22 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
     let successCount = 0
     let failCount = 0
 
+    // 检查是否需要修改日期
+    const shouldChangeDate = batchEdit.date !== batchEdit.newDate
+
     for (const recordId of batchEdit.recordIds) {
-      const { success } = await updateRecordData(recordId, {
+      const updateData: Parameters<typeof updateRecordData>[1] = {
         groupName: batchEdit.groupName || undefined,
         city: batchEdit.city || undefined,
         venue: batchEdit.venue || undefined,
-      })
+      }
+
+      // 如果需要修改日期，添加到更新数据
+      if (shouldChangeDate) {
+        updateData.photoDate = batchEdit.newDate
+      }
+
+      const { success } = await updateRecordData(recordId, updateData)
       if (success) {
         successCount++
       } else {
@@ -268,7 +287,11 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
     closeBatchEdit()
 
     if (failCount === 0) {
-      Alert.alert('成功', `已更新 ${successCount} 条记录`)
+      if (shouldChangeDate) {
+        Alert.alert('成功', `已更新 ${successCount} 条记录，日期已修改为 ${batchEdit.newDate}`)
+      } else {
+        Alert.alert('成功', `已更新 ${successCount} 条记录`)
+      }
       refreshDetail()
     } else {
       Alert.alert('部分成功', `成功 ${successCount} 条，失败 ${failCount} 条`)
@@ -439,9 +462,13 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
         onFieldChange={(field, value) => {
           setBatchEdit(prev => ({ ...prev, [field]: value }))
         }}
+        onDateChange={handleDateChange}
         onShowFieldSelector={setShowFieldSelector}
         showFieldSelector={showFieldSelector}
         onHideFieldSelector={() => setShowFieldSelector(null)}
+        showDatePicker={showDatePicker}
+        onShowDatePicker={() => setShowDatePicker(true)}
+        onHideDatePicker={() => setShowDatePicker(false)}
       />
 
       <ShareModal
