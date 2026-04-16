@@ -21,7 +21,7 @@ import { useTheme } from '../contexts/ThemeContext'
 import { CARD_SHADOW } from '../constants/themes'
 import { RootStackParamList } from '../navigation/AppNavigator'
 import { pickPhoto, pickMultiplePhotos, PhotoWithDate } from '../services/photoService'
-import { createMultipleRecords } from '../services/recordService'
+import { createRecord, createMultipleRecords } from '../services/recordService'
 import LoadingSpinner from '../components/common/LoadingSpinner'
 import IdolSelector from '../components/features/IdolSelector'
 import FieldHistorySelector from '../components/features/FieldHistorySelector'
@@ -68,6 +68,7 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation, route }) => {
   const [defaultPrice, setDefaultPrice] = useState<number | null>(null)
   const [priceOptions, setPriceOptions] = useState<number[]>([])
   const [showPriceSelector, setShowPriceSelector] = useState<string | null>(null)
+  const [mergeAsOneRecord, setMergeAsOneRecord] = useState<boolean>(false)
 
   useEffect(() => {
     if (!idolName.trim()) {
@@ -267,41 +268,96 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation, route }) => {
 
     setLoading(true)
 
-    const recordsData = photos.map(p => ({
-      idolName: idolName.trim(),
-      photoCount: p.count,
-      photoDate,
-      photoUri: p.uri,
-      backPhotoUri: p.backPhotoUri,
-      price: p.price,
-      note: p.note,
-      groupName: globalGroupName.trim() || undefined,
-      city: globalCity.trim() || undefined,
-      venue: globalVenue.trim() || undefined,
-      polaroidType: p.polaroidType,
-      memberCount: p.memberCount,
-    }))
+    let success: boolean
+    let err: string | null = null
 
-    const { success, error: err } = await createMultipleRecords(recordsData)
+    if (mergeAsOneRecord && photos.length > 1) {
+      // 合并为一条记录
+      const totalCount = photos.reduce((sum, p) => sum + p.count, 0)
+      const totalPrice = photos.reduce((sum, p) => sum + (p.price || 0), 0)
+      const backPhotoCount = photos.filter(p => p.backPhotoUri).length
+      const notes = photos.map((p, i) => p.note ? `照片${i + 1}: ${p.note}` : '').filter(Boolean).join('\n')
+      
+      // 使用第一张照片作为主照片
+      const mainPhoto = photos[0]
+      
+      const recordData = {
+        idolName: idolName.trim(),
+        photoCount: totalCount,
+        photoDate,
+        photoUri: mainPhoto.uri,
+        backPhotoUri: mainPhoto.backPhotoUri,
+        price: totalPrice > 0 ? totalPrice : undefined,
+        note: notes || mainPhoto.note,
+        groupName: globalGroupName.trim() || undefined,
+        city: globalCity.trim() || undefined,
+        venue: globalVenue.trim() || undefined,
+        polaroidType: mainPhoto.polaroidType,
+        memberCount: mainPhoto.memberCount,
+      }
+
+      const result = await createRecord(recordData)
+      success = result.success
+      err = result.error
+
+      if (success) {
+        const backPhotoMsg = backPhotoCount > 0 ? `，其中 ${backPhotoCount} 张有背签` : ''
+        Alert.alert(
+          '成功',
+          `已保存 1 条记录，共 ${totalCount} 张拍立得${backPhotoMsg}（合并模式）`,
+          [
+            { text: '返回首页', onPress: () => navigation.goBack() },
+            {
+              text: '继续添加',
+              onPress: () => {
+                setPhotos([])
+              },
+            },
+          ],
+        )
+      }
+    } else {
+      // 分开多条记录（原有逻辑）
+      const recordsData = photos.map(p => ({
+        idolName: idolName.trim(),
+        photoCount: p.count,
+        photoDate,
+        photoUri: p.uri,
+        backPhotoUri: p.backPhotoUri,
+        price: p.price,
+        note: p.note,
+        groupName: globalGroupName.trim() || undefined,
+        city: globalCity.trim() || undefined,
+        venue: globalVenue.trim() || undefined,
+        polaroidType: p.polaroidType,
+        memberCount: p.memberCount,
+      }))
+
+      const result = await createMultipleRecords(recordsData)
+      success = result.success
+      err = result.error
+
+      if (success) {
+        const backPhotoMsg = getBackPhotoCount() > 0 ? `，其中 ${getBackPhotoCount()} 张有背签` : ''
+        Alert.alert(
+          '成功',
+          `已保存 ${photos.length} 条记录，共 ${getTotalCount()} 张拍立得${backPhotoMsg}`,
+          [
+            { text: '返回首页', onPress: () => navigation.goBack() },
+            {
+              text: '继续添加',
+              onPress: () => {
+                setPhotos([])
+              },
+            },
+          ],
+        )
+      }
+    }
 
     setLoading(false)
 
-    if (success) {
-      const backPhotoMsg = getBackPhotoCount() > 0 ? `，其中 ${getBackPhotoCount()} 张有背签` : ''
-      Alert.alert(
-        '成功',
-        `已保存 ${photos.length} 条记录，共 ${getTotalCount()} 张拍立得${backPhotoMsg}`,
-        [
-          { text: '返回首页', onPress: () => navigation.goBack() },
-          {
-            text: '继续添加',
-            onPress: () => {
-              setPhotos([])
-            },
-          },
-        ],
-      )
-    } else {
+    if (!success) {
       Alert.alert('错误', err || '保存失败')
     }
   }
@@ -431,6 +487,21 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation, route }) => {
       fontSize: 14,
       color: colors.PRIMARY,
       fontWeight: 'bold',
+    },
+    mergeToggleContainer: {
+      flexDirection: 'row',
+      justifyContent: 'space-between',
+      alignItems: 'center',
+      backgroundColor: `${colors.PRIMARY}10`,
+      borderRadius: 8,
+      paddingHorizontal: 12,
+      paddingVertical: 10,
+      marginBottom: 12,
+    },
+    mergeToggleLabel: {
+      fontSize: 14,
+      color: colors.BLACK,
+      fontWeight: '500',
     },
     photoItem: {
       flexDirection: 'row',
@@ -875,6 +946,24 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation, route }) => {
                 )}
               </View>
             </View>
+            
+            {photos.length > 1 && (
+              <View style={styles.mergeToggleContainer}>
+                <Text style={styles.mergeToggleLabel}>
+                  {mergeAsOneRecord ? '合并为 1 条记录（推荐）' : '每条照片作为独立记录'}
+                </Text>
+                <Switch
+                  value={mergeAsOneRecord}
+                  onValueChange={setMergeAsOneRecord}
+                  trackColor={{
+                    false: colors.GRAY[300],
+                    true: colors.PRIMARY,
+                  }}
+                  thumbColor={colors.WHITE}
+                />
+              </View>
+            )}
+            
             {photos.map((photo, index) => (
               <View key={photo.uri} style={styles.photoItem}>
                 <View style={styles.photoThumbnailContainer}>
