@@ -11,6 +11,7 @@ import {
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '../../contexts/ThemeContext'
+import { MODAL_OVERLAY } from '../../constants/themes'
 import CachedImage from '../common/CachedImage'
 import { PolaroidRecord } from '../../types'
 import { formatDate } from '../../utils/rankingUtils'
@@ -50,8 +51,12 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
       photos.push({ uri: record.backPhotoUri, isBack: true })
     }
     if (record.additionalPhotoUris && record.additionalPhotoUris.length > 0) {
-      record.additionalPhotoUris.forEach(uri => {
+      record.additionalPhotoUris.forEach((uri, i) => {
         photos.push({ uri, isBack: false })
+        const backUri = record.additionalBackPhotoUris?.[i]
+        if (backUri) {
+          photos.push({ uri: backUri, isBack: true })
+        }
       })
     }
     return photos
@@ -66,6 +71,14 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
   const viewabilityConfig = useRef({
     itemVisiblePercentThreshold: 50,
   }).current
+
+  const handleToggle = () => {
+    const targetIndex = currentPhotoItem?.isBack ? currentIndex - 1 : currentIndex + 1
+    if (targetIndex >= 0 && targetIndex < allPhotos.length) {
+      flatListRef.current?.scrollToIndex({ index: targetIndex, animated: true })
+    }
+    onToggleBack()
+  }
 
   const styles = useMemo(() => StyleSheet.create({
     modalContainer: {
@@ -115,7 +128,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
       position: 'absolute',
       top: 50,
       left: 20,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      backgroundColor: MODAL_OVERLAY,
       paddingHorizontal: 12,
       paddingVertical: 6,
       borderRadius: 16,
@@ -278,7 +291,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
                 {record.price !== undefined && record.price > 0 && ` · ¥${record.price}`}
               </Text>
               {currentPhotoItem && currentPhotoItem.isBack ? (
-                <TouchableOpacity style={styles.toggleButton} onPress={onToggleBack}>
+                <TouchableOpacity style={styles.toggleButton} onPress={handleToggle}>
                   <Ionicons
                     name='image-outline'
                     size={16}
@@ -286,8 +299,8 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
                   />
                   <Text style={styles.toggleButtonText}>查看正面</Text>
                 </TouchableOpacity>
-              ) : record.backPhotoUri ? (
-                <TouchableOpacity style={styles.toggleButton} onPress={onToggleBack}>
+              ) : allPhotos[currentIndex + 1]?.isBack ? (
+                <TouchableOpacity style={styles.toggleButton} onPress={handleToggle}>
                   <Ionicons
                     name='document-text-outline'
                     size={16}
