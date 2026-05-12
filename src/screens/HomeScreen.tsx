@@ -6,8 +6,6 @@ import {
   StyleSheet,
   TouchableOpacity,
   Alert,
-  ActionSheetIOS,
-  Platform,
   RefreshControl,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
@@ -27,6 +25,7 @@ import QuickActions from '../components/features/QuickActions'
 import BatchActionBar from '../components/features/BatchActionBar'
 import BatchEditModal from '../components/features/BatchEditModal'
 import SortOptionsModal, { SortType, SortOrder, SORT_OPTIONS } from '../components/features/SortOptionsModal'
+import ActionSheetModal, { ActionSheetOption } from '../components/features/ActionSheetModal'
 import AdvancedFilter, { FilterOptions } from '../components/features/AdvancedFilter'
 import {
   exportToJSON,
@@ -75,6 +74,9 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const [sortBy, setSortBy] = React.useState<SortType>('date')
   const [sortOrder, setSortOrder] = React.useState<SortOrder>('desc')
   const [showSortOptions, setShowSortOptions] = React.useState(false)
+  const [actionSheetVisible, setActionSheetVisible] = React.useState(false)
+  const [actionSheetTitle, setActionSheetTitle] = React.useState('')
+  const [actionSheetOptions, setActionSheetOptions] = React.useState<ActionSheetOption[]>([])
 
   const styles = React.useMemo(() => StyleSheet.create({
     container: {
@@ -264,31 +266,13 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   }, [selectedIdols, batchEditField, batchEditValue, exitSelectionMode, refreshAll])
 
   const showExportOptions = () => {
-    if (Platform.OS === 'ios') {
-      ActionSheetIOS.showActionSheetWithOptions(
-        {
-          title: '数据导入导出',
-          options: ['导出为 JSON', '导出为 CSV', '从 CSV 导入', '取消'],
-          cancelButtonIndex: 3,
-        },
-        async buttonIndex => {
-          if (buttonIndex === 0) {
-            await handleExportJSON()
-          } else if (buttonIndex === 1) {
-            await handleExportCSV()
-          } else if (buttonIndex === 2) {
-            await handleImportCSV()
-          }
-        },
-      )
-    } else {
-      Alert.alert('数据导入导出', '请选择操作', [
-        { text: '导出为 JSON', onPress: handleExportJSON },
-        { text: '导出为 CSV', onPress: handleExportCSV },
-        { text: '从 CSV 导入', onPress: handleImportCSV },
-        { text: '取消', style: 'cancel' },
-      ])
-    }
+    setActionSheetTitle('数据导入导出')
+    setActionSheetOptions([
+      { text: '导出为 JSON', icon: 'document-text-outline', onPress: handleExportJSON },
+      { text: '导出为 CSV', icon: 'grid-outline', onPress: handleExportCSV },
+      { text: '从 CSV 导入', icon: 'download-outline', onPress: handleImportCSV },
+    ])
+    setActionSheetVisible(true)
   }
 
   const handleExportJSON = async () => {
@@ -358,34 +342,14 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   }, [refreshAll])
 
   const showMoreOptions = () => {
-    if (Platform.OS === 'ios') {
-      ActionSheetIOS.showActionSheetWithOptions(
-        {
-          title: '更多选项',
-          options: ['主题设置', '合并同日记录', '创建备份', '恢复备份', '取消'],
-          cancelButtonIndex: 4,
-        },
-        async buttonIndex => {
-          if (buttonIndex === 0) {
-            navigation.navigate('ThemeSettings')
-          } else if (buttonIndex === 1) {
-            await handleMergeSameDayRecords()
-          } else if (buttonIndex === 2) {
-            await handleCreateBackup()
-          } else if (buttonIndex === 3) {
-            await handleRestoreBackup()
-          }
-        },
-      )
-    } else {
-      Alert.alert('更多选项', '请选择操作', [
-        { text: '主题设置', onPress: () => navigation.navigate('ThemeSettings') },
-        { text: '合并同日记录', onPress: handleMergeSameDayRecords },
-        { text: '创建备份', onPress: handleCreateBackup },
-        { text: '恢复备份', onPress: handleRestoreBackup },
-        { text: '取消', style: 'cancel' },
-      ])
-    }
+    setActionSheetTitle('更多选项')
+    setActionSheetOptions([
+      { text: '主题设置', icon: 'color-palette-outline', onPress: () => navigation.navigate('ThemeSettings') },
+      { text: '合并同日记录', icon: 'copy-outline', onPress: handleMergeSameDayRecords },
+      { text: '创建备份', icon: 'cloud-upload-outline', onPress: handleCreateBackup },
+      { text: '恢复备份', icon: 'cloud-download-outline', onPress: handleRestoreBackup },
+    ])
+    setActionSheetVisible(true)
   }
 
   const handleMergeSameDayRecords = async () => {
@@ -650,6 +614,13 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
           setSortOrder(order)
         }}
         onClose={() => setShowSortOptions(false)}
+      />
+
+      <ActionSheetModal
+        visible={actionSheetVisible}
+        title={actionSheetTitle}
+        options={actionSheetOptions}
+        onClose={() => setActionSheetVisible(false)}
       />
     </View>
   )

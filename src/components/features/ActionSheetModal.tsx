@@ -1,0 +1,173 @@
+import React from 'react'
+import {
+  View,
+  Text,
+  Modal,
+  TouchableOpacity,
+  StyleSheet,
+  Pressable,
+} from 'react-native'
+import { Ionicons } from '@expo/vector-icons'
+import { useTheme } from '../../contexts/ThemeContext'
+import { MODAL_OVERLAY } from '../../constants/themes'
+import { withOpacity } from '../../utils/colorUtils'
+
+export interface ActionSheetOption {
+  text: string
+  icon: string
+  onPress: () => void
+  destructive?: boolean
+}
+
+interface ActionSheetModalProps {
+  visible: boolean
+  title?: string
+  options: ActionSheetOption[]
+  cancelText?: string
+  onClose: () => void
+}
+
+const ActionSheetModal: React.FC<ActionSheetModalProps> = ({
+  visible,
+  title,
+  options,
+  cancelText = '取消',
+  onClose,
+}) => {
+  const { colors } = useTheme()
+
+  const styles = React.useMemo(() => StyleSheet.create({
+    overlay: {
+      flex: 1,
+      backgroundColor: MODAL_OVERLAY,
+      justifyContent: 'flex-end',
+    },
+    container: {
+      backgroundColor: colors.SECONDARY,
+      borderTopLeftRadius: 20,
+      borderTopRightRadius: 20,
+      paddingTop: 12,
+      paddingBottom: 34,
+      paddingHorizontal: 16,
+    },
+    dragHandle: {
+      width: 36,
+      height: 4,
+      borderRadius: 2,
+      backgroundColor: colors.GRAY[300],
+      alignSelf: 'center',
+      marginBottom: 12,
+    },
+    title: {
+      fontSize: 14,
+      color: colors.GRAY[500],
+      textAlign: 'center',
+      marginBottom: 12,
+    },
+    optionRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      paddingVertical: 14,
+      paddingHorizontal: 16,
+      borderRadius: 12,
+      marginBottom: 4,
+      backgroundColor: colors.WHITE,
+      gap: 12,
+    },
+    optionIcon: {
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    optionText: {
+      fontSize: 16,
+      color: colors.BLACK,
+      fontWeight: '500',
+      flex: 1,
+    },
+    optionTextDestructive: {
+      color: colors.ERROR,
+    },
+    cancelRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'center',
+      paddingVertical: 14,
+      paddingHorizontal: 16,
+      borderRadius: 12,
+      marginTop: 8,
+      backgroundColor: colors.WHITE,
+    },
+    cancelText: {
+      fontSize: 16,
+      color: colors.GRAY[500],
+      fontWeight: '600',
+    },
+  }), [colors])
+
+  return (
+    <Modal
+      visible={visible}
+      transparent
+      animationType='slide'
+      onRequestClose={onClose}
+      statusBarTranslucent
+    >
+      <Pressable style={styles.overlay} onPress={onClose}>
+        <Pressable onPress={() => {}}>
+          <View style={styles.container}>
+            <View style={styles.dragHandle} />
+
+            {title ? <Text style={styles.title}>{title}</Text> : null}
+
+            {options.map((option, index) => (
+              <TouchableOpacity
+                key={index}
+                style={styles.optionRow}
+                onPress={() => {
+                  onClose()
+                  option.onPress()
+                }}
+                activeOpacity={0.7}
+              >
+                <View
+                  style={[
+                    styles.optionIcon,
+                    { backgroundColor: option.destructive ? withOpacity(colors.ERROR, 0.08) : withOpacity(colors.PRIMARY, 0.08) },
+                  ]}
+                >
+                  <Ionicons
+                    name={option.icon as any}
+                    size={18}
+                    color={option.destructive ? colors.ERROR : colors.PRIMARY}
+                  />
+                </View>
+                <Text
+                  style={[
+                    styles.optionText,
+                    option.destructive && styles.optionTextDestructive,
+                  ]}
+                >
+                  {option.text}
+                </Text>
+                <Ionicons name='chevron-forward' size={18} color={colors.GRAY[400]} />
+              </TouchableOpacity>
+            ))}
+
+            <TouchableOpacity
+              style={styles.cancelRow}
+              onPress={onClose}
+              activeOpacity={0.7}
+            >
+              <Text style={styles.cancelText}>{cancelText}</Text>
+            </TouchableOpacity>
+          </View>
+        </Pressable>
+      </Pressable>
+    </Modal>
+  )
+}
+
+export default ActionSheetModal
