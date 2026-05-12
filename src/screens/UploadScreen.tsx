@@ -18,7 +18,8 @@ import { Ionicons } from '@expo/vector-icons'
 import { StackNavigationProp } from '@react-navigation/stack'
 import { RouteProp } from '@react-navigation/native'
 import { useTheme } from '../contexts/ThemeContext'
-import { CARD_SHADOW } from '../constants/themes'
+import { CARD_SHADOW, HEADER_PADDING_TOP, MODAL_OVERLAY } from '../constants/themes'
+import { withOpacity } from '../utils/colorUtils'
 import { RootStackParamList } from '../navigation/AppNavigator'
 import { pickPhoto, pickMultiplePhotos, PhotoWithDate } from '../services/photoService'
 import { createRecord, createMultipleRecords } from '../services/recordService'
@@ -291,6 +292,7 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation, route }) => {
         photoUri: mainPhoto.uri,
         backPhotoUri: mainPhoto.backPhotoUri,
         additionalPhotoUris,
+        additionalBackPhotoUris: additionalBackPhotoUris.length > 0 ? additionalBackPhotoUris : undefined,
         price: totalPrice > 0 ? totalPrice : undefined,
         note: notes || mainPhoto.note,
         groupName: globalGroupName.trim() || undefined,
@@ -376,7 +378,7 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation, route }) => {
       justifyContent: 'space-between',
       alignItems: 'center',
       padding: 20,
-      paddingTop: 40,
+      paddingTop: HEADER_PADDING_TOP,
       backgroundColor: colors.PRIMARY,
     },
     backButton: {
@@ -496,7 +498,7 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation, route }) => {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      backgroundColor: `${colors.PRIMARY}10`,
+      backgroundColor: withOpacity(colors.PRIMARY, 0.06),
       borderRadius: 8,
       paddingHorizontal: 12,
       paddingVertical: 10,
@@ -549,7 +551,7 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation, route }) => {
     backPhotoTag: {
       flexDirection: 'row',
       alignItems: 'center',
-      backgroundColor: `${colors.SUCCESS}20`,
+      backgroundColor: withOpacity(colors.SUCCESS, 0.12),
       paddingHorizontal: 6,
       paddingVertical: 2,
       borderRadius: 4,
@@ -640,7 +642,7 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation, route }) => {
       alignItems: 'center',
       paddingVertical: 4,
       paddingHorizontal: 8,
-      backgroundColor: `${colors.PRIMARY}10`,
+      backgroundColor: withOpacity(colors.PRIMARY, 0.06),
       borderRadius: 4,
     },
     addBackPhotoText: {
@@ -653,7 +655,7 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation, route }) => {
       alignItems: 'center',
       paddingVertical: 4,
       paddingHorizontal: 8,
-      backgroundColor: `${colors.ERROR}10`,
+      backgroundColor: withOpacity(colors.ERROR, 0.06),
       borderRadius: 4,
     },
     removeBackPhotoText: {
@@ -682,7 +684,7 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation, route }) => {
     },
     modalOverlay: {
       flex: 1,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      backgroundColor: MODAL_OVERLAY,
       justifyContent: 'center',
       alignItems: 'center',
     },

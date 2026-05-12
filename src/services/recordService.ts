@@ -90,6 +90,36 @@ export const createRecord = async (
       }
     }
 
+    // 保存额外照片到本地（如果有）
+    let additionalPhotoUris: string[] | undefined
+    if (data.additionalPhotoUris && data.additionalPhotoUris.length > 0) {
+      const saved: string[] = []
+      for (const uri of data.additionalPhotoUris) {
+        const result = await savePhoto(uri)
+        if (result.success && result.data) {
+          saved.push(result.data)
+        }
+      }
+      if (saved.length > 0) {
+        additionalPhotoUris = saved
+      }
+    }
+
+    // 保存额外背签照片到本地（如果有）
+    let additionalBackPhotoUris: string[] | undefined
+    if (data.additionalBackPhotoUris && data.additionalBackPhotoUris.length > 0) {
+      const saved: string[] = []
+      for (const uri of data.additionalBackPhotoUris) {
+        const result = await savePhoto(uri)
+        if (result.success && result.data) {
+          saved.push(result.data)
+        }
+      }
+      if (saved.length > 0) {
+        additionalBackPhotoUris = saved
+      }
+    }
+
     // 创建记录对象
     const record: PolaroidRecord = {
       id: generateId(),
@@ -98,6 +128,8 @@ export const createRecord = async (
       photoDate: data.photoDate,
       photoUri: photoResult.data,
       backPhotoUri,
+      additionalPhotoUris,
+      additionalBackPhotoUris,
       price: data.price,
       note: data.note,
       groupName: data.groupName,
@@ -299,11 +331,57 @@ export const updateRecordData = async (
       }
     }
 
+    // 处理额外照片
+    let newAdditionalPhotoUris = oldRecord.additionalPhotoUris
+    if (data.additionalPhotoUris !== undefined) {
+      if (oldRecord.additionalPhotoUris) {
+        for (const uri of oldRecord.additionalPhotoUris) {
+          await deletePhoto(uri)
+        }
+      }
+      if (data.additionalPhotoUris.length > 0) {
+        const saved: string[] = []
+        for (const uri of data.additionalPhotoUris) {
+          const result = await savePhoto(uri)
+          if (result.success && result.data) {
+            saved.push(result.data)
+          }
+        }
+        newAdditionalPhotoUris = saved.length > 0 ? saved : undefined
+      } else {
+        newAdditionalPhotoUris = undefined
+      }
+    }
+
+    // 处理额外背签照片
+    let newAdditionalBackPhotoUris = oldRecord.additionalBackPhotoUris
+    if (data.additionalBackPhotoUris !== undefined) {
+      if (oldRecord.additionalBackPhotoUris) {
+        for (const uri of oldRecord.additionalBackPhotoUris) {
+          await deletePhoto(uri)
+        }
+      }
+      if (data.additionalBackPhotoUris.length > 0) {
+        const saved: string[] = []
+        for (const uri of data.additionalBackPhotoUris) {
+          const result = await savePhoto(uri)
+          if (result.success && result.data) {
+            saved.push(result.data)
+          }
+        }
+        newAdditionalBackPhotoUris = saved.length > 0 ? saved : undefined
+      } else {
+        newAdditionalBackPhotoUris = undefined
+      }
+    }
+
     // 准备更新数据
     const updateData: Partial<PolaroidRecord> = {
       ...data,
       photoUri: newPhotoUri,
       backPhotoUri: newBackPhotoUri,
+      additionalPhotoUris: newAdditionalPhotoUris,
+      additionalBackPhotoUris: newAdditionalBackPhotoUris,
     }
 
     // 更新记录
@@ -362,6 +440,19 @@ export const deleteRecordData = async (
 
     // 删除照片
     await deletePhoto(record.photoUri)
+    if (record.backPhotoUri) {
+      await deletePhoto(record.backPhotoUri)
+    }
+    if (record.additionalPhotoUris) {
+      for (const uri of record.additionalPhotoUris) {
+        await deletePhoto(uri)
+      }
+    }
+    if (record.additionalBackPhotoUris) {
+      for (const uri of record.additionalBackPhotoUris) {
+        await deletePhoto(uri)
+      }
+    }
 
     // 删除记录
     const { success: deleteSuccess, error: deleteError } =

@@ -6,6 +6,7 @@ export interface PolaroidRecord {
   photoUri: string
   backPhotoUri?: string
   additionalPhotoUris?: string[]
+  additionalBackPhotoUris?: string[]
   price?: number
   note?: string
   groupName?: string
@@ -64,6 +65,7 @@ export interface CreateRecordData {
   photoUri: string
   backPhotoUri?: string
   additionalPhotoUris?: string[]
+  additionalBackPhotoUris?: string[]
   price?: number
   note?: string
   groupName?: string
@@ -80,6 +82,7 @@ export interface UpdateRecordData {
   photoUri?: string
   backPhotoUri?: string
   additionalPhotoUris?: string[]
+  additionalBackPhotoUris?: string[]
   price?: number
   note?: string
   groupName?: string

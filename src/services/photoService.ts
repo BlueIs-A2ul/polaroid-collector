@@ -348,8 +348,6 @@ export const pickMultiplePhotos = async (
   },
 ): Promise<ServiceResult<PhotoWithDate[]>> => {
   try {
-    const { allowCrop = false } = options || {}
-
     const permissionResult = await ImagePicker.requestMediaLibraryPermissionsAsync()
 
     if (!permissionResult.granted) {
@@ -364,7 +362,7 @@ export const pickMultiplePhotos = async (
       mediaTypes: ['images'],
       allowsMultipleSelection: true,
       selectionLimit: 10,
-      allowsEditing: allowCrop,
+      allowsEditing: false,
       quality: 0.6,
       exif: true,
     })
