@@ -10,6 +10,8 @@ import {
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '../../contexts/ThemeContext'
+import { MODAL_OVERLAY } from '../../constants/themes'
+import { withOpacity } from '../../utils/colorUtils'
 import { getFieldHistory, addFieldHistory, removeFieldHistory } from '../../services/fieldHistoryService'
 
 interface FieldHistorySelectorProps {
@@ -37,7 +39,7 @@ const FieldHistorySelector: React.FC<FieldHistorySelectorProps> = ({
   const styles = useMemo(() => StyleSheet.create({
     modalOverlay: {
       flex: 1,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      backgroundColor: MODAL_OVERLAY,
       justifyContent: 'flex-end',
     },
     modalContainer: {
@@ -113,7 +115,7 @@ const FieldHistorySelector: React.FC<FieldHistorySelectorProps> = ({
       borderColor: colors.GRAY[200],
     },
     historyItemSelected: {
-      backgroundColor: `${colors.PRIMARY}15`,
+      backgroundColor: withOpacity(colors.PRIMARY, 0.08),
       borderWidth: 1,
       borderColor: colors.PRIMARY,
     },

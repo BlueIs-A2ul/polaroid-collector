@@ -10,6 +10,8 @@ import {
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '../contexts/ThemeContext'
+import { REPORT_CARD_SHADOW } from '../constants/themes'
+import { withOpacity } from '../utils/colorUtils'
 import { useNavigation } from '@react-navigation/native'
 import { YearlyReport } from '../services/reportService'
 import { formatDate } from '../utils/rankingUtils'
@@ -53,11 +55,7 @@ const YearlyReportScreen: React.FC<YearlyReportScreenProps> = ({ report, avatarM
       borderRadius: 24,
       padding: 28,
       alignItems: 'center',
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.15,
-      shadowRadius: 12,
-      elevation: 8,
+      ...REPORT_CARD_SHADOW,
     },
     pageTitle: {
       fontSize: 14,
@@ -179,7 +177,7 @@ const YearlyReportScreen: React.FC<YearlyReportScreenProps> = ({ report, avatarM
       alignItems: 'center',
     },
     monthItemActive: {
-      backgroundColor: `${colors.PRIMARY}20`,
+      backgroundColor: withOpacity(colors.PRIMARY, 0.12),
     },
     monthItemInactive: {
       backgroundColor: colors.GRAY[100],
@@ -248,7 +246,7 @@ const YearlyReportScreen: React.FC<YearlyReportScreenProps> = ({ report, avatarM
       width: 60,
       height: 60,
       borderRadius: 30,
-      backgroundColor: `${colors.PRIMARY}15`,
+      backgroundColor: withOpacity(colors.PRIMARY, 0.08),
       justifyContent: 'center',
       alignItems: 'center',
       marginBottom: 16,

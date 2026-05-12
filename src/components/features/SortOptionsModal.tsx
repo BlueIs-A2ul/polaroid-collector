@@ -9,6 +9,8 @@ import {
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '../../contexts/ThemeContext'
+import { MODAL_OVERLAY } from '../../constants/themes'
+import { withOpacity } from '../../utils/colorUtils'
 
 export type SortType = 'date' | 'count' | 'price'
 export type SortOrder = 'asc' | 'desc'
@@ -48,7 +50,7 @@ const SortOptionsModal: React.FC<SortOptionsModalProps> = ({
   const styles = React.useMemo(() => StyleSheet.create({
     modalOverlay: {
       flex: 1,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      backgroundColor: MODAL_OVERLAY,
       justifyContent: 'flex-end',
     },
     modalContainer: {
@@ -83,7 +85,7 @@ const SortOptionsModal: React.FC<SortOptionsModalProps> = ({
       gap: 12,
     },
     sortOptionActive: {
-      backgroundColor: colors.PRIMARY + '20',
+      backgroundColor: withOpacity(colors.PRIMARY, 0.12),
       borderWidth: 2,
       borderColor: colors.PRIMARY,
     },
@@ -91,7 +93,7 @@ const SortOptionsModal: React.FC<SortOptionsModalProps> = ({
       width: 36,
       height: 36,
       borderRadius: 18,
-      backgroundColor: colors.PRIMARY + '30',
+      backgroundColor: withOpacity(colors.PRIMARY, 0.19),
       alignItems: 'center',
       justifyContent: 'center',
     },

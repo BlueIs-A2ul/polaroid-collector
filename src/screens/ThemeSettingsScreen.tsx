@@ -9,7 +9,7 @@ import {
 import Slider from '@react-native-community/slider'
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '../contexts/ThemeContext'
-import { PRESET_THEMES } from '../constants/themes'
+import { PRESET_THEMES, HEADER_PADDING_TOP } from '../constants/themes'
 import { ThemeAdjustment } from '../types/theme'
 
 const ThemeSettingsScreen: React.FC = () => {
@@ -31,7 +31,7 @@ const ThemeSettingsScreen: React.FC = () => {
     header: {
       backgroundColor: colors.PRIMARY,
       padding: 20,
-      paddingTop: 60,
+      paddingTop: HEADER_PADDING_TOP,
       alignItems: 'center',
     },
     headerTitle: {

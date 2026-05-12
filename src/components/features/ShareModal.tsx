@@ -8,6 +8,7 @@ import {
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '../../contexts/ThemeContext'
+import { MODAL_OVERLAY } from '../../constants/themes'
 import ShareCard from './ShareCard'
 import { captureAndShare } from '../../services/shareService'
 import { PolaroidRecord } from '../../types'
@@ -40,7 +41,7 @@ const ShareModal: React.FC<ShareModalProps> = ({
   const styles = React.useMemo(() => StyleSheet.create({
     shareModalOverlay: {
       flex: 1,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      backgroundColor: MODAL_OVERLAY,
       justifyContent: 'center',
       alignItems: 'center',
     },

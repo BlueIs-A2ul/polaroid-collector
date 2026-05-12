@@ -18,7 +18,8 @@ import { Ionicons } from '@expo/vector-icons'
 import { StackNavigationProp } from '@react-navigation/stack'
 import { RouteProp } from '@react-navigation/native'
 import { useTheme } from '../contexts/ThemeContext'
-import { CARD_SHADOW } from '../constants/themes'
+import { CARD_SHADOW, HEADER_PADDING_TOP, MODAL_OVERLAY } from '../constants/themes'
+import { withOpacity } from '../utils/colorUtils'
 import { RootStackParamList } from '../navigation/AppNavigator'
 import { pickPhoto } from '../services/photoService'
 import { getRecordById } from '../services/storageService'
@@ -378,7 +379,7 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
       justifyContent: 'space-between',
       alignItems: 'center',
       padding: 20,
-      paddingTop: 40,
+      paddingTop: HEADER_PADDING_TOP,
       backgroundColor: colors.PRIMARY,
     },
     backButton: {
@@ -493,7 +494,7 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
       flexDirection: 'row',
       alignItems: 'center',
       marginLeft: 10,
-      backgroundColor: `${colors.SUCCESS}20`,
+      backgroundColor: withOpacity(colors.SUCCESS, 0.12),
       paddingHorizontal: 8,
       paddingVertical: 2,
       borderRadius: 4,
@@ -561,7 +562,7 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
     addBackPhotoButton: {
       flexDirection: 'row',
       alignItems: 'center',
-      backgroundColor: `${colors.PRIMARY}10`,
+      backgroundColor: withOpacity(colors.PRIMARY, 0.06),
       paddingVertical: 12,
       paddingHorizontal: 20,
       borderRadius: 8,
@@ -606,7 +607,7 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
     },
     modalOverlay: {
       flex: 1,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      backgroundColor: MODAL_OVERLAY,
       justifyContent: 'center',
       alignItems: 'center',
     },

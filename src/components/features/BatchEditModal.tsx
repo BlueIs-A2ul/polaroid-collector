@@ -9,6 +9,7 @@ import {
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '../../contexts/ThemeContext'
+import { MODAL_OVERLAY } from '../../constants/themes'
 import FieldHistorySelector from './FieldHistorySelector'
 
 interface BatchEditModalProps {
@@ -38,7 +39,7 @@ const BatchEditModal: React.FC<BatchEditModalProps> = ({
   const styles = React.useMemo(() => StyleSheet.create({
     modalOverlay: {
       flex: 1,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      backgroundColor: MODAL_OVERLAY,
       justifyContent: 'flex-end',
     },
     modalContainer: {

@@ -8,6 +8,7 @@ import {
 import { Ionicons } from '@expo/vector-icons'
 import { ThemeColors } from '../../types/theme'
 import { PolaroidRecord } from '../../types'
+import { withOpacity } from '../../utils/colorUtils'
 
 interface ShareCardProps {
   idolName: string
@@ -157,7 +158,7 @@ const ShareCard = forwardRef<View, ShareCardProps>(({
     priceTag: {
       flexDirection: 'row',
       alignItems: 'center',
-      backgroundColor: `${colors.PRIMARY}15`,
+      backgroundColor: withOpacity(colors.PRIMARY, 0.08),
       paddingHorizontal: 12,
       paddingVertical: 6,
       borderRadius: 16,

@@ -122,6 +122,32 @@ export const CARD_SHADOW = {
   elevation: 3,
 }
 
+export const CARD_SHADOW_SMALL = {
+  shadowColor: '#000',
+  shadowOffset: {
+    width: 0,
+    height: 1,
+  },
+  shadowOpacity: 0.1,
+  shadowRadius: 2,
+  elevation: 2,
+}
+
+export const REPORT_CARD_SHADOW = {
+  shadowColor: '#000',
+  shadowOffset: {
+    width: 0,
+    height: 4,
+  },
+  shadowOpacity: 0.15,
+  shadowRadius: 12,
+  elevation: 8,
+}
+
+export const MODAL_OVERLAY = 'rgba(0, 0, 0, 0.5)'
+
+export const HEADER_PADDING_TOP = 40
+
 export const POLAROID_BORDER_WIDTH = 8
 export const POLAROID_BORDER_COLOR = '#FFFFFF'
 

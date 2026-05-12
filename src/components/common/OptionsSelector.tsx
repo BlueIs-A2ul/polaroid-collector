@@ -10,6 +10,8 @@ import {
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '../../contexts/ThemeContext'
+import { MODAL_OVERLAY } from '../../constants/themes'
+import { withOpacity } from '../../utils/colorUtils'
 
 interface OptionsSelectorProps {
   label: string
@@ -62,7 +64,7 @@ const OptionsSelector: React.FC<OptionsSelectorProps> = ({
     },
     modalOverlay: {
       flex: 1,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      backgroundColor: MODAL_OVERLAY,
       justifyContent: 'flex-end',
     },
     modalContent: {
@@ -100,7 +102,7 @@ const OptionsSelector: React.FC<OptionsSelectorProps> = ({
       borderColor: colors.GRAY[200],
     },
     optionSelected: {
-      backgroundColor: `${colors.PRIMARY}15`,
+      backgroundColor: withOpacity(colors.PRIMARY, 0.08),
     },
     optionText: {
       fontSize: 16,

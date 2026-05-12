@@ -10,7 +10,8 @@ import {
 import { Ionicons } from '@expo/vector-icons'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { useTheme } from '../../contexts/ThemeContext'
-import { CARD_SHADOW } from '../../constants/themes'
+import { CARD_SHADOW, MODAL_OVERLAY } from '../../constants/themes'
+import { withOpacity } from '../../utils/colorUtils'
 import FieldHistorySelector from './FieldHistorySelector'
 import { formatDate } from '../../utils/rankingUtils'
 
@@ -58,7 +59,7 @@ const DetailBatchEditModal: React.FC<DetailBatchEditModalProps> = ({
   const styles = React.useMemo(() => StyleSheet.create({
     batchEditModal: {
       flex: 1,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      backgroundColor: MODAL_OVERLAY,
       justifyContent: 'center',
       alignItems: 'center',
     },
@@ -253,7 +254,7 @@ const DetailBatchEditModal: React.FC<DetailBatchEditModalProps> = ({
                   </View>
                   <Ionicons name='arrow-forward' size={20} color={colors.GRAY[400]} />
                   <TouchableOpacity
-                    style={[styles.dateDisplay, { backgroundColor: `${colors.PRIMARY}15` }]}
+                    style={[styles.dateDisplay, { backgroundColor: withOpacity(colors.PRIMARY, 0.08) }]}
                     onPress={onShowDatePicker}
                   >
                     <Text style={[styles.dateText, { color: colors.PRIMARY }]}>

@@ -7,6 +7,7 @@ import {
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '../../contexts/ThemeContext'
+import { CARD_SHADOW_SMALL } from '../../constants/themes'
 import { FilterOptions } from './AdvancedFilter'
 
 interface QuickActionsProps {
@@ -41,11 +42,7 @@ const QuickActions: React.FC<QuickActionsProps> = ({
       paddingVertical: 10,
       borderRadius: 20,
       gap: 8,
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 1 },
-      shadowOpacity: 0.1,
-      shadowRadius: 2,
-      elevation: 2,
+      ...CARD_SHADOW_SMALL,
     },
     quickActionText: {
       fontSize: 14,

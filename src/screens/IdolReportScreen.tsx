@@ -11,6 +11,8 @@ import {
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '../contexts/ThemeContext'
+import { REPORT_CARD_SHADOW } from '../constants/themes'
+import { withOpacity } from '../utils/colorUtils'
 import { useNavigation } from '@react-navigation/native'
 import { getIdolReport, IdolReport } from '../services/idolReportService'
 import { formatDate } from '../utils/rankingUtils'
@@ -74,11 +76,7 @@ const IdolReportScreen: React.FC<IdolReportScreenProps> = ({ route }) => {
       borderRadius: 24,
       padding: 28,
       alignItems: 'center',
-      shadowColor: '#000',
-      shadowOffset: { width: 0, height: 4 },
-      shadowOpacity: 0.15,
-      shadowRadius: 12,
-      elevation: 8,
+      ...REPORT_CARD_SHADOW,
     },
     pageTitle: {
       fontSize: 14,
@@ -247,7 +245,7 @@ const IdolReportScreen: React.FC<IdolReportScreenProps> = ({ route }) => {
       width: 56,
       height: 56,
       borderRadius: 28,
-      backgroundColor: `${colors.PRIMARY}15`,
+      backgroundColor: withOpacity(colors.PRIMARY, 0.08),
       justifyContent: 'center',
       alignItems: 'center',
       marginBottom: 12,
@@ -289,7 +287,7 @@ const IdolReportScreen: React.FC<IdolReportScreenProps> = ({ route }) => {
     monthBar: {
       width: '100%',
       maxWidth: 30,
-      backgroundColor: `${colors.PRIMARY}30`,
+      backgroundColor: withOpacity(colors.PRIMARY, 0.19),
       borderRadius: 4,
       minHeight: 4,
     },

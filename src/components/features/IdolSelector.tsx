@@ -11,7 +11,8 @@ import {
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '../../contexts/ThemeContext'
-import { CARD_SHADOW } from '../../constants/themes'
+import { CARD_SHADOW, MODAL_OVERLAY } from '../../constants/themes'
+import { withOpacity } from '../../utils/colorUtils'
 import { getIdolListWithCount } from '../../services/recordService'
 
 interface IdolItem {
@@ -41,7 +42,7 @@ const IdolSelector: React.FC<IdolSelectorProps> = ({
   const styles = useMemo(() => StyleSheet.create({
     modalContainer: {
       flex: 1,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      backgroundColor: MODAL_OVERLAY,
       justifyContent: 'flex-end',
     },
     modalContent: {
@@ -72,7 +73,7 @@ const IdolSelector: React.FC<IdolSelectorProps> = ({
       alignItems: 'center',
       paddingHorizontal: 20,
       paddingVertical: 10,
-      backgroundColor: `${colors.PRIMARY}10`,
+      backgroundColor: withOpacity(colors.PRIMARY, 0.06),
     },
     hintText: {
       marginLeft: 6,
@@ -93,7 +94,7 @@ const IdolSelector: React.FC<IdolSelectorProps> = ({
       ...CARD_SHADOW,
     },
     selectedIdolItem: {
-      backgroundColor: `${colors.PRIMARY}20`,
+      backgroundColor: withOpacity(colors.PRIMARY, 0.12),
       borderWidth: 2,
       borderColor: colors.PRIMARY,
     },
@@ -140,7 +141,7 @@ const IdolSelector: React.FC<IdolSelectorProps> = ({
       justifyContent: 'center',
       paddingVertical: 12,
       marginTop: 10,
-      backgroundColor: `${colors.PRIMARY}10`,
+      backgroundColor: withOpacity(colors.PRIMARY, 0.06),
       borderRadius: 8,
     },
     expandButtonText: {

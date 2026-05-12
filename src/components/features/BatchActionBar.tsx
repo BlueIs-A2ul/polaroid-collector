@@ -40,7 +40,7 @@ const BatchActionBar: React.FC<BatchActionBarProps> = ({
       gap: 8,
     },
     deleteButton: {
-      backgroundColor: '#EF4444',
+      backgroundColor: colors.ERROR,
     },
     batchActionText: {
       fontSize: 16,

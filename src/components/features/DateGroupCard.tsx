@@ -8,6 +8,7 @@ import {
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '../../contexts/ThemeContext'
 import { CARD_SHADOW } from '../../constants/themes'
+import { withOpacity } from '../../utils/colorUtils'
 import { formatDate } from '../../utils/rankingUtils'
 import { PolaroidRecord } from '../../types'
 import PhotoGridItem from './PhotoGridItem'
@@ -67,7 +68,7 @@ const DateGroupCard: React.FC<DateGroupCardProps> = ({
     batchEditButton: {
       flexDirection: 'row',
       alignItems: 'center',
-      backgroundColor: `${colors.PRIMARY}15`,
+      backgroundColor: withOpacity(colors.PRIMARY, 0.08),
       paddingHorizontal: 10,
       paddingVertical: 4,
       borderRadius: 12,

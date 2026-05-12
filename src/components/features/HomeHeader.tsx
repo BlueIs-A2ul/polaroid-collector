@@ -7,6 +7,7 @@ import {
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '../../contexts/ThemeContext'
+import { HEADER_PADDING_TOP } from '../../constants/themes'
 
 interface HomeHeaderProps {
   selectionMode: boolean
@@ -35,7 +36,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
       justifyContent: 'space-between',
       alignItems: 'center',
       padding: 20,
-      paddingTop: 40,
+      paddingTop: HEADER_PADDING_TOP,
       backgroundColor: colors.PRIMARY,
     },
     title: {

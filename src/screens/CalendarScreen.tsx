@@ -12,7 +12,7 @@ import { StackNavigationProp } from '@react-navigation/stack'
 import { RouteProp } from '@react-navigation/native'
 import { useFocusEffect } from '@react-navigation/native'
 import { useTheme } from '../contexts/ThemeContext'
-import { CARD_SHADOW } from '../constants/themes'
+import { CARD_SHADOW, HEADER_PADDING_TOP } from '../constants/themes'
 import { RootStackParamList } from '../navigation/AppNavigator'
 import { getAllRecords } from '../services/storageService'
 import { PolaroidRecord } from '../types'
@@ -86,7 +86,7 @@ const CalendarScreen: React.FC<CalendarScreenProps> = ({ navigation }) => {
     header: {
       backgroundColor: colors.PRIMARY,
       padding: 20,
-      paddingTop: 60,
+      paddingTop: HEADER_PADDING_TOP,
       alignItems: 'center',
     },
     headerTitle: {

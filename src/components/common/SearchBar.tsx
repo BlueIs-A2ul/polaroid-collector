@@ -2,6 +2,8 @@ import React, { useMemo, useState } from 'react'
 import { View, TextInput, StyleSheet, TouchableOpacity, Modal, Text, ScrollView } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '../../contexts/ThemeContext'
+import { MODAL_OVERLAY } from '../../constants/themes'
+import { withOpacity } from '../../utils/colorUtils'
 
 export type SearchType = 'idolName' | 'groupName' | 'city' | 'venue'
 
@@ -53,7 +55,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
     typeButton: {
       flexDirection: 'row',
       alignItems: 'center',
-      backgroundColor: colors.PRIMARY + '20',
+      backgroundColor: withOpacity(colors.PRIMARY, 0.12),
       borderRadius: 6,
       paddingHorizontal: 10,
       paddingVertical: 6,
@@ -71,7 +73,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
     },
     modalOverlay: {
       flex: 1,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      backgroundColor: MODAL_OVERLAY,
       justifyContent: 'flex-end',
     },
     modalContainer: {
@@ -107,13 +109,13 @@ const SearchBar: React.FC<SearchBarProps> = ({
       gap: 12,
     },
     typeOptionActive: {
-      backgroundColor: colors.PRIMARY + '20',
+      backgroundColor: withOpacity(colors.PRIMARY, 0.12),
     },
     typeOptionIcon: {
       width: 40,
       height: 40,
       borderRadius: 20,
-      backgroundColor: colors.PRIMARY + '30',
+      backgroundColor: withOpacity(colors.PRIMARY, 0.19),
       alignItems: 'center',
       justifyContent: 'center',
     },

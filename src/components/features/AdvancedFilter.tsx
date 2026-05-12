@@ -9,7 +9,7 @@ import {
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '../../contexts/ThemeContext'
-import { CARD_SHADOW } from '../../constants/themes'
+import { CARD_SHADOW, MODAL_OVERLAY } from '../../constants/themes'
 import { getAllRecords } from '../../services/storageService'
 import { PolaroidRecord } from '../../types'
 
@@ -45,7 +45,7 @@ const AdvancedFilter: React.FC<AdvancedFilterProps> = ({
   const styles = useMemo(() => StyleSheet.create({
     modalOverlay: {
       flex: 1,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      backgroundColor: MODAL_OVERLAY,
       justifyContent: 'flex-end',
     },
     modalContainer: {
