@@ -1,10 +1,13 @@
-import React from 'react'
+import React, { useState, useRef, useMemo } from 'react'
 import {
   View,
   Text,
   Modal,
   TouchableOpacity,
   StyleSheet,
+  FlatList,
+  Dimensions,
+  Image,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '../../contexts/ThemeContext'
@@ -21,6 +24,13 @@ interface PhotoModalProps {
   onEdit: () => void
 }
 
+interface PhotoUriItem {
+  uri: string
+  isBack: boolean
+}
+
+const { width: SCREEN_WIDTH } = Dimensions.get('window')
+
 const PhotoModal: React.FC<PhotoModalProps> = ({
   visible,
   record,
@@ -30,8 +40,34 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
   onEdit,
 }) => {
   const { colors } = useTheme()
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const flatListRef = useRef<FlatList>(null)
 
-  const styles = React.useMemo(() => StyleSheet.create({
+  const allPhotos = useMemo((): PhotoUriItem[] => {
+    if (!record) return []
+    const photos: PhotoUriItem[] = [{ uri: record.photoUri, isBack: false }]
+    if (record.backPhotoUri) {
+      photos.push({ uri: record.backPhotoUri, isBack: true })
+    }
+    if (record.additionalPhotoUris && record.additionalPhotoUris.length > 0) {
+      record.additionalPhotoUris.forEach(uri => {
+        photos.push({ uri, isBack: false })
+      })
+    }
+    return photos
+  }, [record])
+
+  const handleViewableItemsChanged = useRef(({ viewableItems }: any) => {
+    if (viewableItems.length > 0) {
+      setCurrentIndex(viewableItems[0].index)
+    }
+  }).current
+
+  const viewabilityConfig = useRef({
+    itemVisiblePercentThreshold: 50,
+  }).current
+
+  const styles = useMemo(() => StyleSheet.create({
     modalContainer: {
       flex: 1,
       backgroundColor: 'rgba(0, 0, 0, 0.85)',
@@ -46,17 +82,24 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
       padding: 8,
     },
     modalContent: {
-      width: '90%',
+      flex: 1,
+      width: '100%',
+      justifyContent: 'center',
+    },
+    photoItem: {
+      width: SCREEN_WIDTH,
+      justifyContent: 'center',
       alignItems: 'center',
     },
     modalImageContainer: {
-      width: '100%',
+      width: '90%',
+      aspectRatio: 1,
       borderRadius: 12,
       overflow: 'hidden',
     },
     modalImage: {
       width: '100%',
-      aspectRatio: 1,
+      height: '100%',
       resizeMode: 'contain',
       backgroundColor: colors.GRAY[100],
     },
@@ -68,12 +111,27 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
       fontSize: 16,
       color: colors.WHITE,
     },
+    pageIndicator: {
+      position: 'absolute',
+      top: 50,
+      left: 20,
+      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      paddingHorizontal: 12,
+      paddingVertical: 6,
+      borderRadius: 16,
+    },
+    pageIndicatorText: {
+      fontSize: 14,
+      color: colors.WHITE,
+      fontWeight: 'bold',
+    },
     modalInfo: {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
       marginTop: 16,
-      width: '100%',
+      width: '90%',
+      alignSelf: 'center',
     },
     modalDate: {
       fontSize: 14,
@@ -100,7 +158,8 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
       paddingVertical: 8,
       borderRadius: 8,
       marginTop: 12,
-      width: '100%',
+      width: '90%',
+      alignSelf: 'center',
     },
     noteText: {
       fontSize: 13,
@@ -112,8 +171,9 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
       flexDirection: 'row',
       flexWrap: 'wrap',
       marginTop: 12,
-      width: '100%',
+      width: '90%',
       gap: 8,
+      alignSelf: 'center',
     },
     extraInfoItem: {
       flexDirection: 'row',
@@ -141,17 +201,37 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
       paddingVertical: 8,
       borderRadius: 16,
       marginTop: 12,
+      alignSelf: 'center',
     },
     editButtonText: {
       fontSize: 13,
       color: colors.WHITE,
       marginLeft: 6,
     },
+    emptyContainer: {
+      flex: 1,
+      justifyContent: 'center',
+      alignItems: 'center',
+    },
   }), [colors])
 
-  const currentUri = showingBack && record?.backPhotoUri
-    ? record.backPhotoUri
-    : record?.photoUri
+  const renderPhotoItem = ({ item }: { item: PhotoUriItem }) => (
+    <View style={styles.photoItem}>
+      <TouchableOpacity
+        style={styles.modalImageContainer}
+        onPress={item.isBack ? onToggleBack : undefined}
+        activeOpacity={item.isBack ? 0.9 : 1}
+      >
+        <CachedImage
+          uri={item.uri}
+          style={styles.modalImage}
+          resizeMode='contain'
+        />
+      </TouchableOpacity>
+    </View>
+  )
+
+  const currentPhotoItem = allPhotos[currentIndex]
 
   return (
     <Modal
@@ -166,33 +246,56 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
           <Ionicons name='close' size={28} color={colors.WHITE} />
         </TouchableOpacity>
 
-        {record && currentUri ? (
-          <View style={styles.modalContent}>
-            <TouchableOpacity onPress={onToggleBack} activeOpacity={0.9} style={styles.modalImageContainer}>
-              <CachedImage
-                uri={currentUri}
-                style={styles.modalImage}
-                resizeMode='contain'
-              />
-            </TouchableOpacity>
+        {allPhotos.length > 1 && (
+          <View style={styles.pageIndicator}>
+            <Text style={styles.pageIndicatorText}>
+              {currentIndex + 1}/{allPhotos.length}
+            </Text>
+          </View>
+        )}
+
+        {record && allPhotos.length > 0 ? (
+          <>
+            <FlatList
+              ref={flatListRef}
+              data={allPhotos}
+              renderItem={renderPhotoItem}
+              keyExtractor={(item, index) => `${item.uri}-${index}`}
+              horizontal
+              pagingEnabled
+              showsHorizontalScrollIndicator={false}
+              onViewableItemsChanged={handleViewableItemsChanged}
+              viewabilityConfig={viewabilityConfig}
+              onMomentumScrollEnd={(e) => {
+                const newIndex = Math.round(e.nativeEvent.contentOffset.x / SCREEN_WIDTH)
+                setCurrentIndex(newIndex)
+              }}
+            />
 
             <View style={styles.modalInfo}>
               <Text style={styles.modalDate}>
                 {formatDate(record.photoDate)} · {record.photoCount} 张
                 {record.price !== undefined && record.price > 0 && ` · ¥${record.price}`}
               </Text>
-              {record.backPhotoUri && (
+              {currentPhotoItem && currentPhotoItem.isBack ? (
                 <TouchableOpacity style={styles.toggleButton} onPress={onToggleBack}>
                   <Ionicons
-                    name={showingBack ? 'image-outline' : 'document-text-outline'}
+                    name='image-outline'
                     size={16}
                     color={colors.PRIMARY}
                   />
-                  <Text style={styles.toggleButtonText}>
-                    {showingBack ? '查看正面' : '查看背签'}
-                  </Text>
+                  <Text style={styles.toggleButtonText}>查看正面</Text>
                 </TouchableOpacity>
-              )}
+              ) : record.backPhotoUri ? (
+                <TouchableOpacity style={styles.toggleButton} onPress={onToggleBack}>
+                  <Ionicons
+                    name='document-text-outline'
+                    size={16}
+                    color={colors.PRIMARY}
+                  />
+                  <Text style={styles.toggleButtonText}>查看背签</Text>
+                </TouchableOpacity>
+              ) : null}
             </View>
 
             {record.note && (
@@ -244,9 +347,9 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
               <Ionicons name='create-outline' size={16} color={colors.WHITE} />
               <Text style={styles.editButtonText}>编辑</Text>
             </TouchableOpacity>
-          </View>
+          </>
         ) : (
-          <View style={styles.loadingContainer}>
+          <View style={styles.emptyContainer}>
             <Text style={styles.loadingText}>加载中...</Text>
           </View>
         )}

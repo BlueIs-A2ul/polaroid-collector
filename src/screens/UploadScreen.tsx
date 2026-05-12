@@ -280,6 +280,9 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation, route }) => {
       
       // 使用第一张照片作为主照片
       const mainPhoto = photos[0]
+      // 其余照片的 URI 存储在 additionalPhotoUris 中
+      const additionalPhotoUris = photos.slice(1).map(p => p.uri)
+      const additionalBackPhotoUris = photos.slice(1).filter(p => p.backPhotoUri).map(p => p.backPhotoUri as string)
       
       const recordData = {
         idolName: idolName.trim(),
@@ -287,6 +290,7 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation, route }) => {
         photoDate,
         photoUri: mainPhoto.uri,
         backPhotoUri: mainPhoto.backPhotoUri,
+        additionalPhotoUris,
         price: totalPrice > 0 ? totalPrice : undefined,
         note: notes || mainPhoto.note,
         groupName: globalGroupName.trim() || undefined,
