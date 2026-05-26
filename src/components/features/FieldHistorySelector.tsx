@@ -4,15 +4,14 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  Modal,
   FlatList,
   TextInput,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '../../contexts/ThemeContext'
-import { MODAL_OVERLAY } from '../../constants/themes'
 import { withOpacity } from '../../utils/colorUtils'
 import { getFieldHistory, addFieldHistory, removeFieldHistory } from '../../services/fieldHistoryService'
+import AnimatedBottomSheet from '../common/AnimatedBottomSheet'
 
 interface FieldHistorySelectorProps {
   visible: boolean
@@ -37,31 +36,6 @@ const FieldHistorySelector: React.FC<FieldHistorySelectorProps> = ({
   const [loading, setLoading] = useState(false)
 
   const styles = useMemo(() => StyleSheet.create({
-    modalOverlay: {
-      flex: 1,
-      backgroundColor: MODAL_OVERLAY,
-      justifyContent: 'flex-end',
-    },
-    modalContainer: {
-      backgroundColor: colors.WHITE,
-      borderTopLeftRadius: 20,
-      borderTopRightRadius: 20,
-      maxHeight: '70%',
-      paddingBottom: 20,
-    },
-    modalHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      padding: 16,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.GRAY[200],
-    },
-    modalTitle: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: colors.BLACK,
-    },
     inputContainer: {
       flexDirection: 'row',
       padding: 16,
@@ -71,11 +45,12 @@ const FieldHistorySelector: React.FC<FieldHistorySelectorProps> = ({
     },
     customInput: {
       flex: 1,
-      backgroundColor: colors.GRAY[100],
+      backgroundColor: colors.WHITE,
       borderRadius: 8,
       paddingHorizontal: 12,
       paddingVertical: 10,
       fontSize: 16,
+      color: colors.BLACK,
     },
     submitButton: {
       backgroundColor: colors.PRIMARY,
@@ -206,54 +181,43 @@ const FieldHistorySelector: React.FC<FieldHistorySelectorProps> = ({
   )
 
   return (
-    <Modal
+    <AnimatedBottomSheet
       visible={visible}
-      transparent={true}
-      animationType='slide'
-      onRequestClose={onClose}
+      onClose={onClose}
+      title={title}
     >
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>{title}</Text>
-            <TouchableOpacity onPress={onClose}>
-              <Ionicons name='close' size={24} color={colors.BLACK} />
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.inputContainer}>
-            <TextInput
-              style={styles.customInput}
-              placeholder={`输入${title}`}
-              value={customInput}
-              onChangeText={setCustomInput}
-            />
-            <TouchableOpacity
-              style={[styles.submitButton, customInput.trim() ? null : styles.submitButtonDisabled]}
-              onPress={handleCustomSubmit}
-              disabled={!customInput.trim()}
-            >
-              <Text style={styles.submitButtonText}>确定</Text>
-            </TouchableOpacity>
-          </View>
-
-          {history.length > 0 && (
-            <View style={styles.historySection}>
-              <Text style={styles.historyTitle}>历史记录</Text>
-              <FlatList
-                data={history}
-                renderItem={renderHistoryItem}
-                keyExtractor={item => item}
-                style={styles.historyList}
-                showsVerticalScrollIndicator={false}
-              />
-            </View>
-          )}
-
-          {history.length === 0 && !loading && renderEmptyState()}
-        </View>
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.customInput}
+          placeholder={`输入${title}`}
+          placeholderTextColor={colors.GRAY[400]}
+          value={customInput}
+          onChangeText={setCustomInput}
+        />
+        <TouchableOpacity
+          style={[styles.submitButton, customInput.trim() ? null : styles.submitButtonDisabled]}
+          onPress={handleCustomSubmit}
+          disabled={!customInput.trim()}
+        >
+          <Text style={styles.submitButtonText}>确定</Text>
+        </TouchableOpacity>
       </View>
-    </Modal>
+
+      {history.length > 0 && (
+        <View style={styles.historySection}>
+          <Text style={styles.historyTitle}>历史记录</Text>
+          <FlatList
+            data={history}
+            renderItem={renderHistoryItem}
+            keyExtractor={item => item}
+            style={styles.historyList}
+            showsVerticalScrollIndicator={false}
+          />
+        </View>
+      )}
+
+      {history.length === 0 && !loading && renderEmptyState()}
+    </AnimatedBottomSheet>
   )
 }
 

@@ -5,7 +5,6 @@ import {
   ScrollView,
   StyleSheet,
   TouchableOpacity,
-  Alert,
   RefreshControl,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
@@ -27,6 +26,7 @@ import { getAvatar, pickAndSetAvatar, removeAvatar } from '../services/avatarSer
 import { updateRecordData } from '../services/recordService'
 import { deleteRecordsByIdolNames } from '../services/storageService'
 import { getIdolGroupBinding, setIdolGroupBinding, removeIdolGroupBinding } from '../services/idolBindingService'
+import { Dialog } from '../services/dialogService'
 import FieldHistorySelector from '../components/features/FieldHistorySelector'
 
 type DetailScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Detail'>
@@ -141,40 +141,42 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
     }
   }
 
-  const handleRemoveAvatar = () => {
-    Alert.alert('移除头像', '确定要移除当前头像吗？', [
-      { text: '取消', style: 'cancel' },
-      {
-        text: '移除',
-        style: 'destructive',
-        onPress: async () => {
-          const { success } = await removeAvatar(idolName)
-          if (success) {
-            setAvatarUri(null)
-          }
-        },
-      },
-    ])
+  const handleRemoveAvatar = async () => {
+    const result = await Dialog.confirm({
+      title: '移除头像',
+      message: '确定要移除当前头像吗？',
+      buttons: [
+        { text: '取消', style: 'cancel' },
+        { text: '移除', style: 'destructive' },
+      ],
+    })
+    if (result === 1) {
+      const { success } = await removeAvatar(idolName)
+      if (success) {
+        setAvatarUri(null)
+      }
+    }
   }
 
-  const handleDeleteIdol = () => {
-    Alert.alert('删除偶像', `确定要删除 ${idolName} 的所有记录吗？此操作不可撤销。`, [
-      { text: '取消', style: 'cancel' },
-      {
-        text: '删除',
-        style: 'destructive',
-        onPress: async () => {
-          await removeAvatar(idolName)
-          await removeIdolGroupBinding(idolName)
-          const { success } = await deleteRecordsByIdolNames([idolName])
-          if (success) {
-            navigation.goBack()
-          } else {
-            Alert.alert('删除失败', '请稍后重试')
-          }
-        },
-      },
-    ])
+  const handleDeleteIdol = async () => {
+    const result = await Dialog.confirm({
+      title: '删除偶像',
+      message: `确定要删除 ${idolName} 的所有记录吗？此操作不可撤销。`,
+      buttons: [
+        { text: '取消', style: 'cancel' },
+        { text: '删除', style: 'destructive' },
+      ],
+    })
+    if (result === 1) {
+      await removeAvatar(idolName)
+      await removeIdolGroupBinding(idolName)
+      const { success } = await deleteRecordsByIdolNames([idolName])
+      if (success) {
+        navigation.goBack()
+      } else {
+        Dialog.toast('删除失败，请稍后重试', 'error')
+      }
+    }
   }
 
   const handleSetGroupBinding = async (groupName: string) => {
@@ -191,33 +193,60 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
     }
   }
 
-  const showGroupBindingOptions = () => {
+  const showGroupBindingOptions = async () => {
     if (boundGroup) {
-      Alert.alert('团体绑定', `当前绑定：${boundGroup}`, [
-        { text: '修改团体', onPress: () => setShowGroupBindingSelector(true) },
-        { text: '取消绑定', onPress: () => handleSetGroupBinding(''), style: 'destructive' },
-        { text: '取消', style: 'cancel' },
-      ])
+      const result = await Dialog.confirm({
+        title: '团体绑定',
+        message: `当前绑定：${boundGroup}`,
+        buttons: [
+          { text: '修改团体', style: 'primary' },
+          { text: '取消绑定', style: 'destructive' },
+          { text: '取消', style: 'cancel' },
+        ],
+      })
+      if (result === 0) {
+        setShowGroupBindingSelector(true)
+      } else if (result === 1) {
+        handleSetGroupBinding('')
+      }
     } else {
       setShowGroupBindingSelector(true)
     }
   }
 
-  const showCropOptions = () => {
-    Alert.alert('选择头像', '是否裁切为正方形？', [
-      { text: '不裁切', onPress: () => handleSetAvatar(false) },
-      { text: '裁切为正方形', onPress: () => handleSetAvatar(true) },
-      { text: '取消', style: 'cancel' },
-    ])
+  const showCropOptions = async () => {
+    const result = await Dialog.confirm({
+      title: '选择头像',
+      message: '是否裁切为正方形？',
+      buttons: [
+        { text: '不裁切', style: 'primary' },
+        { text: '裁切为正方形', style: 'primary' },
+        { text: '取消', style: 'cancel' },
+      ],
+    })
+    if (result === 0) {
+      handleSetAvatar(false)
+    } else if (result === 1) {
+      handleSetAvatar(true)
+    }
   }
 
-  const showAvatarOptions = () => {
+  const showAvatarOptions = async () => {
     if (avatarUri) {
-      Alert.alert('头像设置', '请选择操作', [
-        { text: '更换头像', onPress: showCropOptions },
-        { text: '移除头像', onPress: handleRemoveAvatar, style: 'destructive' },
-        { text: '取消', style: 'cancel' },
-      ])
+      const result = await Dialog.confirm({
+        title: '头像设置',
+        message: '请选择操作',
+        buttons: [
+          { text: '更换头像', style: 'primary' },
+          { text: '移除头像', style: 'destructive' },
+          { text: '取消', style: 'cancel' },
+        ],
+      })
+      if (result === 0) {
+        showCropOptions()
+      } else if (result === 1) {
+        handleRemoveAvatar()
+      }
     } else {
       showCropOptions()
     }
@@ -288,13 +317,13 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
 
     if (failCount === 0) {
       if (shouldChangeDate) {
-        Alert.alert('成功', `已更新 ${successCount} 条记录，日期已修改为 ${batchEdit.newDate}`)
+        Dialog.toast(`已更新 ${successCount} 条记录，日期已修改为 ${batchEdit.newDate}`, 'success')
       } else {
-        Alert.alert('成功', `已更新 ${successCount} 条记录`)
+        Dialog.toast(`已更新 ${successCount} 条记录`, 'success')
       }
       refreshDetail()
     } else {
-      Alert.alert('部分成功', `成功 ${successCount} 条，失败 ${failCount} 条`)
+      Dialog.toast(`成功 ${successCount} 条，失败 ${failCount} 条`, 'warning')
       refreshDetail()
     }
   }

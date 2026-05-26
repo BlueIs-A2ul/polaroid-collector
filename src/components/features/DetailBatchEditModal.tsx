@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import {
   View,
   Text,
@@ -6,11 +6,12 @@ import {
   TouchableOpacity,
   StyleSheet,
   Platform,
+  Animated,
+  Pressable,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import DateTimePicker from '@react-native-community/datetimepicker'
 import { useTheme } from '../../contexts/ThemeContext'
-import { CARD_SHADOW, MODAL_OVERLAY } from '../../constants/themes'
 import { withOpacity } from '../../utils/colorUtils'
 import FieldHistorySelector from './FieldHistorySelector'
 import { formatDate } from '../../utils/rankingUtils'
@@ -55,69 +56,80 @@ const DetailBatchEditModal: React.FC<DetailBatchEditModalProps> = ({
   onHideDatePicker,
 }) => {
   const { colors } = useTheme()
+  const [modalVisible, setModalVisible] = useState(false)
+  const scale = useRef(new Animated.Value(0.85)).current
+  const opacity = useRef(new Animated.Value(0)).current
+  const overlayOpacity = useRef(new Animated.Value(0)).current
 
   const styles = React.useMemo(() => StyleSheet.create({
-    batchEditModal: {
+    overlay: {
       flex: 1,
-      backgroundColor: MODAL_OVERLAY,
+      backgroundColor: 'rgba(0, 0, 0, 0.45)',
       justifyContent: 'center',
       alignItems: 'center',
+      paddingHorizontal: 20,
     },
-    batchEditContent: {
-      backgroundColor: colors.WHITE,
-      borderRadius: 16,
-      width: '90%',
+    content: {
+      backgroundColor: colors.SECONDARY,
+      borderRadius: 22,
+      width: '100%',
       maxWidth: 400,
-      ...CARD_SHADOW,
+      overflow: 'hidden',
+      shadowColor: colors.PRIMARY,
+      shadowOffset: { width: 0, height: 8 },
+      shadowOpacity: 0.2,
+      shadowRadius: 24,
+      elevation: 10,
     },
-    batchEditHeader: {
+    header: {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
       padding: 16,
       borderBottomWidth: 1,
-      borderBottomColor: colors.GRAY[200],
+      borderBottomColor: withOpacity(colors.BLACK, 0.08),
     },
-    batchEditTitle: {
-      fontSize: 18,
-      fontWeight: 'bold',
+    title: {
+      fontSize: 20,
+      fontWeight: '800',
       color: colors.BLACK,
+      letterSpacing: -0.3,
     },
-    batchEditBody: {
+    body: {
       padding: 16,
     },
-    batchEditDate: {
+    date: {
       fontSize: 14,
       color: colors.GRAY[600],
       marginBottom: 16,
       textAlign: 'center',
     },
-    batchEditField: {
+    field: {
       marginBottom: 16,
     },
-    batchEditLabel: {
+    label: {
       fontSize: 14,
       fontWeight: '500',
       color: colors.BLACK,
       marginBottom: 6,
     },
-    batchEditInputWrapper: {
+    inputWrapper: {
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      backgroundColor: colors.GRAY[100],
+      backgroundColor: colors.WHITE,
       borderRadius: 8,
       padding: 12,
     },
-    batchEditInputText: {
+    inputText: {
       fontSize: 15,
       color: colors.BLACK,
       flex: 1,
     },
-    batchEditPlaceholder: {
+    placeholder: {
       color: colors.GRAY[400],
     },
-    batchEditCount: {
+    count: {
       fontSize: 12,
       color: colors.GRAY[500],
       textAlign: 'center',
@@ -127,7 +139,7 @@ const DetailBatchEditModal: React.FC<DetailBatchEditModalProps> = ({
       marginTop: 8,
       paddingTop: 16,
       borderTopWidth: 1,
-      borderTopColor: colors.GRAY[200],
+      borderTopColor: withOpacity(colors.BLACK, 0.08),
     },
     dateChangeLabel: {
       fontSize: 14,
@@ -142,16 +154,13 @@ const DetailBatchEditModal: React.FC<DetailBatchEditModalProps> = ({
     },
     dateDisplay: {
       flex: 1,
-      backgroundColor: colors.GRAY[100],
+      backgroundColor: colors.WHITE,
       borderRadius: 8,
       padding: 12,
     },
     dateText: {
       fontSize: 15,
       color: colors.BLACK,
-    },
-    dateArrow: {
-      padding: 8,
     },
     datePickerWrapper: {
       backgroundColor: colors.WHITE,
@@ -164,36 +173,89 @@ const DetailBatchEditModal: React.FC<DetailBatchEditModalProps> = ({
       marginTop: 8,
       textAlign: 'center',
     },
-    batchEditButtons: {
+    buttons: {
       flexDirection: 'row',
       gap: 12,
       marginTop: 8,
     },
-    batchEditCancelButton: {
+    cancelButton: {
       flex: 1,
       backgroundColor: colors.GRAY[200],
       borderRadius: 8,
       padding: 14,
       alignItems: 'center',
     },
-    batchEditCancelText: {
+    cancelText: {
       fontSize: 15,
       color: colors.GRAY[700],
       fontWeight: '500',
     },
-    batchEditSaveButton: {
+    saveButton: {
       flex: 1,
       backgroundColor: colors.PRIMARY,
       borderRadius: 8,
       padding: 14,
       alignItems: 'center',
     },
-    batchEditSaveText: {
+    saveText: {
       fontSize: 15,
       color: colors.WHITE,
       fontWeight: 'bold',
     },
+    accentStrip: {
+      height: 4,
+      backgroundColor: colors.PRIMARY,
+    },
   }), [colors])
+
+  useEffect(() => {
+    if (batchEdit.visible && !modalVisible) {
+      setModalVisible(true)
+      scale.setValue(0.85)
+      opacity.setValue(0)
+      overlayOpacity.setValue(0)
+      requestAnimationFrame(() => {
+        Animated.parallel([
+          Animated.spring(scale, {
+            toValue: 1,
+            tension: 280,
+            friction: 16,
+            useNativeDriver: true,
+          }),
+          Animated.timing(opacity, {
+            toValue: 1,
+            duration: 200,
+            useNativeDriver: true,
+          }),
+          Animated.timing(overlayOpacity, {
+            toValue: 1,
+            duration: 200,
+            useNativeDriver: true,
+          }),
+        ]).start()
+      })
+    } else if (!batchEdit.visible && modalVisible) {
+      Animated.parallel([
+        Animated.timing(scale, {
+          toValue: 0.9,
+          duration: 150,
+          useNativeDriver: true,
+        }),
+        Animated.timing(opacity, {
+          toValue: 0,
+          duration: 150,
+          useNativeDriver: true,
+        }),
+        Animated.timing(overlayOpacity, {
+          toValue: 0,
+          duration: 150,
+          useNativeDriver: true,
+        }),
+      ]).start(() => {
+        setModalVisible(false)
+      })
+    }
+  }, [batchEdit.visible, modalVisible])
 
   const fieldLabels = {
     groupName: '团体',
@@ -205,119 +267,141 @@ const DetailBatchEditModal: React.FC<DetailBatchEditModalProps> = ({
     return batchEdit[field]
   }
 
+  if (!modalVisible) return null
+
+  const inner = (
+    <View style={styles.content}>
+      <View style={styles.header}>
+        <Text style={styles.title}>批量编辑</Text>
+        <TouchableOpacity onPress={onClose}>
+          <Ionicons name='close' size={24} color={colors.BLACK} />
+        </TouchableOpacity>
+      </View>
+
+      <View style={styles.body}>
+        <Text style={styles.date}>
+          {formatDate(batchEdit.date)}
+        </Text>
+
+        {(['groupName', 'city', 'venue'] as const).map(field => (
+          <View key={field} style={styles.field}>
+            <Text style={styles.label}>{fieldLabels[field]}</Text>
+            <TouchableOpacity
+              style={styles.inputWrapper}
+              onPress={() => onShowFieldSelector(field)}
+            >
+              <Text style={[styles.inputText, batchEdit[field] ? null : styles.placeholder]}>
+                {batchEdit[field] || '选填'}
+              </Text>
+              <Ionicons name='chevron-down' size={16} color={colors.GRAY[500]} />
+            </TouchableOpacity>
+          </View>
+        ))}
+
+        <Text style={styles.count}>
+          将同时更新 {batchEdit.recordIds.length} 条记录
+        </Text>
+
+        <View style={styles.dateChangeSection}>
+          <Text style={styles.dateChangeLabel}>修改日期（可选）</Text>
+          <View style={styles.dateRow}>
+            <View style={styles.dateDisplay}>
+              <Text style={styles.dateText}>{formatDate(batchEdit.date)}</Text>
+            </View>
+            <Ionicons name='arrow-forward' size={20} color={colors.GRAY[400]} />
+            <TouchableOpacity
+              style={[styles.dateDisplay, { backgroundColor: withOpacity(colors.PRIMARY, 0.08) }]}
+              onPress={onShowDatePicker}
+            >
+              <Text style={[styles.dateText, { color: colors.PRIMARY }]}>
+                {formatDate(batchEdit.newDate)}
+              </Text>
+            </TouchableOpacity>
+          </View>
+          {showDatePicker && (
+            <View style={styles.datePickerWrapper}>
+              <DateTimePicker
+                value={new Date(batchEdit.newDate)}
+                mode='date'
+                display='default'
+                onChange={(event, selectedDate) => {
+                  if (Platform.OS === 'android') {
+                    onHideDatePicker()
+                  }
+                  if (selectedDate) {
+                    const year = selectedDate.getFullYear()
+                    const month = String(selectedDate.getMonth() + 1).padStart(2, '0')
+                    const day = String(selectedDate.getDate()).padStart(2, '0')
+                    onDateChange(`${year}-${month}-${day}`)
+                  }
+                }}
+              />
+              {Platform.OS === 'ios' && (
+                <TouchableOpacity
+                  style={{ alignItems: 'center', padding: 8 }}
+                  onPress={onHideDatePicker}
+                >
+                  <Text style={{ color: colors.PRIMARY, fontWeight: '500' }}>完成</Text>
+                </TouchableOpacity>
+              )}
+            </View>
+          )}
+          {batchEdit.date !== batchEdit.newDate && (
+            <Text style={styles.dateChangeHint}>
+              保存后，这些记录将移动到 {formatDate(batchEdit.newDate)}
+            </Text>
+          )}
+        </View>
+
+        <View style={styles.buttons}>
+          <TouchableOpacity
+            style={styles.cancelButton}
+            onPress={onClose}
+            disabled={saving}
+          >
+            <Text style={styles.cancelText}>取消</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.saveButton}
+            onPress={onSave}
+            disabled={saving}
+          >
+            <Text style={styles.saveText}>
+              {saving ? '保存中...' : '保存'}
+            </Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+
+      <View style={styles.accentStrip} />
+    </View>
+  )
+
   return (
     <>
       <Modal
-        visible={batchEdit.visible}
-        transparent={true}
-        animationType='slide'
+        visible={modalVisible}
+        transparent
+        animationType='none'
         onRequestClose={onClose}
+        statusBarTranslucent
       >
-        <View style={styles.batchEditModal}>
-          <View style={styles.batchEditContent}>
-            <View style={styles.batchEditHeader}>
-              <Text style={styles.batchEditTitle}>批量编辑</Text>
-              <TouchableOpacity onPress={onClose}>
-                <Ionicons name='close' size={24} color={colors.BLACK} />
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.batchEditBody}>
-              <Text style={styles.batchEditDate}>
-                {formatDate(batchEdit.date)}
-              </Text>
-
-              {(['groupName', 'city', 'venue'] as const).map(field => (
-                <View key={field} style={styles.batchEditField}>
-                  <Text style={styles.batchEditLabel}>{fieldLabels[field]}</Text>
-                  <TouchableOpacity
-                    style={styles.batchEditInputWrapper}
-                    onPress={() => onShowFieldSelector(field)}
-                  >
-                    <Text style={[styles.batchEditInputText, batchEdit[field] ? null : styles.batchEditPlaceholder]}>
-                      {batchEdit[field] || '选填'}
-                    </Text>
-                    <Ionicons name='chevron-down' size={16} color={colors.GRAY[500]} />
-                  </TouchableOpacity>
-                </View>
-              ))}
-
-              <Text style={styles.batchEditCount}>
-                将同时更新 {batchEdit.recordIds.length} 条记录
-              </Text>
-
-              <View style={styles.dateChangeSection}>
-                <Text style={styles.dateChangeLabel}>修改日期（可选）</Text>
-                <View style={styles.dateRow}>
-                  <View style={styles.dateDisplay}>
-                    <Text style={styles.dateText}>{formatDate(batchEdit.date)}</Text>
-                  </View>
-                  <Ionicons name='arrow-forward' size={20} color={colors.GRAY[400]} />
-                  <TouchableOpacity
-                    style={[styles.dateDisplay, { backgroundColor: withOpacity(colors.PRIMARY, 0.08) }]}
-                    onPress={onShowDatePicker}
-                  >
-                    <Text style={[styles.dateText, { color: colors.PRIMARY }]}>
-                      {formatDate(batchEdit.newDate)}
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-                {showDatePicker && (
-                  <View style={styles.datePickerWrapper}>
-                    <DateTimePicker
-                      value={new Date(batchEdit.newDate)}
-                      mode='date'
-                      display='default'
-                      onChange={(event, selectedDate) => {
-                        if (Platform.OS === 'android') {
-                          onHideDatePicker()
-                        }
-                        if (selectedDate) {
-                          const year = selectedDate.getFullYear()
-                          const month = String(selectedDate.getMonth() + 1).padStart(2, '0')
-                          const day = String(selectedDate.getDate()).padStart(2, '0')
-                          onDateChange(`${year}-${month}-${day}`)
-                        }
-                      }}
-                    />
-                    {Platform.OS === 'ios' && (
-                      <TouchableOpacity
-                        style={{ alignItems: 'center', padding: 8 }}
-                        onPress={onHideDatePicker}
-                      >
-                        <Text style={{ color: colors.PRIMARY, fontWeight: '500' }}>完成</Text>
-                      </TouchableOpacity>
-                    )}
-                  </View>
-                )}
-                {batchEdit.date !== batchEdit.newDate && (
-                  <Text style={styles.dateChangeHint}>
-                    保存后，这些记录将移动到 {formatDate(batchEdit.newDate)}
-                  </Text>
-                )}
-              </View>
-
-              <View style={styles.batchEditButtons}>
-                <TouchableOpacity
-                  style={styles.batchEditCancelButton}
-                  onPress={onClose}
-                  disabled={saving}
-                >
-                  <Text style={styles.batchEditCancelText}>取消</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.batchEditSaveButton}
-                  onPress={onSave}
-                  disabled={saving}
-                >
-                  <Text style={styles.batchEditSaveText}>
-                    {saving ? '保存中...' : '保存'}
-                  </Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
-        </View>
+        <Animated.View style={[styles.overlay, { opacity: overlayOpacity }]}>
+          <Pressable style={{ flex: 1, width: '100%', justifyContent: 'center', alignItems: 'center' }}>
+            <Animated.View
+              style={{
+                transform: [{ scale }],
+                opacity,
+                width: '100%',
+                maxWidth: 400,
+              }}
+            >
+              <Pressable onPress={() => {}}>
+                {inner}
+              </Pressable>
+            </Animated.View>
+          </Pressable>
+        </Animated.View>
       </Modal>
 
       <FieldHistorySelector

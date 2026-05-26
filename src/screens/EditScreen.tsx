@@ -5,11 +5,9 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Alert,
   ScrollView,
   Image,
   Platform,
-  Modal,
   Switch,
   KeyboardAvoidingView,
 } from 'react-native'
@@ -18,8 +16,10 @@ import { Ionicons } from '@expo/vector-icons'
 import { StackNavigationProp } from '@react-navigation/stack'
 import { RouteProp } from '@react-navigation/native'
 import { useTheme } from '../contexts/ThemeContext'
-import { CARD_SHADOW, HEADER_PADDING_TOP, MODAL_OVERLAY } from '../constants/themes'
+import { CARD_SHADOW, HEADER_PADDING_TOP } from '../constants/themes'
+import AnimatedBottomSheet from '../components/common/AnimatedBottomSheet'
 import { withOpacity } from '../utils/colorUtils'
+import { Dialog } from '../services/dialogService'
 import { RootStackParamList } from '../navigation/AppNavigator'
 import { pickPhoto } from '../services/photoService'
 import { getRecordById } from '../services/storageService'
@@ -127,7 +127,7 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
         setBackPhotoUri(data.uri)
       }
     } else if (error !== '用户取消选择') {
-      Alert.alert('错误', error || '选择照片失败')
+      Dialog.toast(error || '选择照片失败', 'error')
     }
   }
 
@@ -166,9 +166,8 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
       setLoading(false)
     } else {
       setLoading(false)
-      Alert.alert('错误', error || '加载记录失败', [
-        { text: '确定', onPress: () => navigation.goBack() },
-      ])
+      Dialog.toast(error || '加载记录失败', 'error')
+      navigation.goBack()
     }
   }
 
@@ -184,34 +183,37 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
     if (success && data) {
       setBackPhotoUri(data.uri)
     } else if (error !== '用户取消选择') {
-      Alert.alert('错误', error || '选择背签照片失败')
+      Dialog.toast(error || '选择背签照片失败', 'error')
     }
   }
 
-  const handleRemoveBackPhoto = () => {
-    Alert.alert('删除背签', '确定要删除背签照片吗？', [
-      { text: '取消', style: 'cancel' },
-      {
-        text: '删除',
-        style: 'destructive',
-        onPress: () => setBackPhotoUri(null),
-      },
-    ])
+  const handleRemoveBackPhoto = async () => {
+    const result = await Dialog.confirm({
+      title: '删除背签',
+      message: '确定要删除背签照片吗？',
+      buttons: [
+        { text: '取消', style: 'cancel' },
+        { text: '确定', style: 'destructive' },
+      ],
+    })
+    if (result === 1) {
+      setBackPhotoUri(null)
+    }
   }
 
   const validateForm = (): boolean => {
     if (!idolName.trim()) {
-      Alert.alert('提示', '请输入偶像名称')
+      Dialog.toast('请输入偶像名称', 'warning')
       return false
     }
 
     if (!photoCount || parseInt(photoCount) <= 0) {
-      Alert.alert('提示', '请输入有效的拍立得数量')
+      Dialog.toast('请输入有效的拍立得数量', 'warning')
       return false
     }
 
     if (!photoDate) {
-      Alert.alert('提示', '请选择拍摄日期')
+      Dialog.toast('请选择拍摄日期', 'warning')
       return false
     }
 
@@ -298,38 +300,37 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
     setSaving(false)
 
     if (success) {
-      Alert.alert('成功', '记录已更新', [
-        { text: '确定', onPress: () => navigation.goBack() },
-      ])
+      Dialog.toast('记录已更新', 'success')
+      navigation.goBack()
     } else {
-      Alert.alert('错误', err || '更新失败')
+      Dialog.toast(err || '更新失败', 'error')
     }
   }
 
-  const handleDelete = () => {
-    Alert.alert('确认删除', '确定要删除这条记录吗？此操作无法撤销。', [
-      { text: '取消', style: 'cancel' },
-      {
-        text: '删除',
-        style: 'destructive',
-        onPress: async () => {
-          setSaving(true)
-          const { success, error: err } = await deleteRecordData(recordId)
-          setSaving(false)
+  const handleDelete = async () => {
+    const result = await Dialog.confirm({
+      title: '确认删除',
+      message: '确定要删除这条记录吗？此操作无法撤销。',
+      buttons: [
+        { text: '取消', style: 'cancel' },
+        { text: '删除', style: 'destructive' },
+      ],
+    })
+    if (result === 1) {
+      setSaving(true)
+      const { success, error: err } = await deleteRecordData(recordId)
+      setSaving(false)
 
-          if (success) {
-            Alert.alert('成功', '记录已删除', [
-              { text: '确定', onPress: () => navigation.goBack() },
-            ])
-          } else {
-            Alert.alert('错误', err || '删除失败')
-          }
-        },
-      },
-    ])
+      if (success) {
+        Dialog.toast('记录已删除', 'success')
+        navigation.goBack()
+      } else {
+        Dialog.toast(err || '删除失败', 'error')
+      }
+    }
   }
 
-  const handleCancel = () => {
+  const handleCancel = async () => {
     const hasChanges =
       idolName !== originalIdolName ||
       photoCount !== originalPhotoCount ||
@@ -345,28 +346,34 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
       memberCount !== originalMemberCount
 
     if (hasChanges) {
-      Alert.alert('放弃修改', '确定要放弃所有修改吗？', [
-        { text: '继续编辑', style: 'cancel' },
-        {
-          text: '放弃',
-          style: 'destructive',
-          onPress: () => navigation.goBack(),
-        },
-      ])
+      const result = await Dialog.confirm({
+        title: '放弃修改',
+        message: '确定要放弃所有修改吗？',
+        buttons: [
+          { text: '继续编辑', style: 'cancel' },
+          { text: '放弃', style: 'destructive' },
+        ],
+      })
+      if (result === 1) {
+        navigation.goBack()
+      }
     } else {
       navigation.goBack()
     }
   }
 
-  const handleRemovePhoto = () => {
-    Alert.alert('删除照片', '确定要删除当前照片吗？删除后需要重新选择。', [
-      { text: '取消', style: 'cancel' },
-      {
-        text: '删除',
-        style: 'destructive',
-        onPress: () => setPhotoUri(null),
-      },
-    ])
+  const handleRemovePhoto = async () => {
+    const result = await Dialog.confirm({
+      title: '删除照片',
+      message: '确定要删除当前照片吗？删除后需要重新选择。',
+      buttons: [
+        { text: '取消', style: 'cancel' },
+        { text: '删除', style: 'destructive' },
+      ],
+    })
+    if (result === 1) {
+      setPhotoUri(null)
+    }
   }
 
   const styles = useMemo(() => StyleSheet.create({
@@ -604,35 +611,6 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
       fontSize: 18,
       fontWeight: 'bold',
       color: colors.WHITE,
-    },
-    modalOverlay: {
-      flex: 1,
-      backgroundColor: MODAL_OVERLAY,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    modalContainer: {
-      backgroundColor: colors.WHITE,
-      borderRadius: 16,
-      width: '90%',
-      maxWidth: 400,
-      ...CARD_SHADOW,
-    },
-    modalHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      padding: 16,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.GRAY[200],
-    },
-    modalTitle: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: colors.BLACK,
-    },
-    modalContent: {
-      padding: 16,
     },
     cropOption: {
       flexDirection: 'row',
@@ -953,71 +931,59 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
         </TouchableOpacity>
       </View>
 
-      <Modal
+      <AnimatedBottomSheet
         visible={showCropOptions}
-        transparent={true}
-        animationType='slide'
-        onRequestClose={() => setShowCropOptions(false)}
+        onClose={() => setShowCropOptions(false)}
+        title='裁切选项'
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>裁切选项</Text>
-              <TouchableOpacity onPress={() => setShowCropOptions(false)}>
-                <Ionicons name='close' size={24} color={colors.BLACK} />
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.modalContent}>
-              <View style={styles.cropOption}>
-                <Text style={styles.cropLabel}>启用裁切</Text>
+        <View style={{ padding: 16 }}>
+          <View style={styles.cropOption}>
+            <Text style={styles.cropLabel}>启用裁切</Text>
 <Switch
-                   value={allowCrop}
-                   onValueChange={setAllowCrop}
-                   trackColor={{
-                     false: colors.GRAY[300],
-                     true: colors.PRIMARY,
-                   }}
-                   thumbColor={colors.WHITE}
-                 />
-              </View>
-
-              {allowCrop && (
-                <View style={styles.cropDimensions}>
-                  <Text style={styles.cropLabel}>裁切尺寸比例</Text>
-                  <View style={styles.dimensionInputs}>
-                    <TextInput
-                      style={styles.dimensionInput}
-                      value={String(cropWidth)}
-                      onChangeText={text => setCropWidth(Number(text) || 1)}
-                      keyboardType='number-pad'
-                      placeholder='宽'
-                    />
-                    <Text style={styles.dimensionSeparator}>:</Text>
-                    <TextInput
-                      style={styles.dimensionInput}
-                      value={String(cropHeight)}
-                      onChangeText={text => setCropHeight(Number(text) || 1)}
-                      keyboardType='number-pad'
-                      placeholder='高'
-                    />
-                  </View>
-                  <Text style={styles.cropHint}>
-                    例如：4:3 表示宽度为 4 份，高度为 3 份
-                  </Text>
-                </View>
-              )}
-
-              <TouchableOpacity
-                style={styles.confirmButton}
-                onPress={handleConfirmCropOptions}
-              >
-                <Text style={styles.confirmButtonText}>确定</Text>
-              </TouchableOpacity>
-            </View>
+               value={allowCrop}
+               onValueChange={setAllowCrop}
+               trackColor={{
+                 false: colors.GRAY[300],
+                 true: colors.PRIMARY,
+               }}
+               thumbColor={colors.WHITE}
+             />
           </View>
+
+          {allowCrop && (
+            <View style={styles.cropDimensions}>
+              <Text style={styles.cropLabel}>裁切尺寸比例</Text>
+              <View style={styles.dimensionInputs}>
+                <TextInput
+                  style={styles.dimensionInput}
+                  value={String(cropWidth)}
+                  onChangeText={text => setCropWidth(Number(text) || 1)}
+                  keyboardType='number-pad'
+                  placeholder='宽'
+                />
+                <Text style={styles.dimensionSeparator}>:</Text>
+                <TextInput
+                  style={styles.dimensionInput}
+                  value={String(cropHeight)}
+                  onChangeText={text => setCropHeight(Number(text) || 1)}
+                  keyboardType='number-pad'
+                  placeholder='高'
+                />
+              </View>
+              <Text style={styles.cropHint}>
+                例如：4:3 表示宽度为 4 份，高度为 3 份
+              </Text>
+            </View>
+          )}
+
+          <TouchableOpacity
+            style={styles.confirmButton}
+            onPress={handleConfirmCropOptions}
+          >
+            <Text style={styles.confirmButtonText}>确定</Text>
+          </TouchableOpacity>
         </View>
-      </Modal>
+      </AnimatedBottomSheet>
     </ScrollView>
     </KeyboardAvoidingView>
 

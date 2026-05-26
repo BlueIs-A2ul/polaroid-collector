@@ -5,7 +5,6 @@ import {
   FlatList,
   StyleSheet,
   TouchableOpacity,
-  Alert,
   RefreshControl,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
@@ -41,6 +40,7 @@ import {
 import { getAllAvatars, removeAvatar } from '../services/avatarService'
 import { deleteRecordsByIdolNames, updateRecordsByIdolNames } from '../services/storageService'
 import { mergeSameDayRecords, previewMergeResult } from '../services/mergeService'
+import { Dialog } from '../services/dialogService'
 import * as DocumentPicker from 'expo-document-picker'
 import { RankingItem } from '../types'
 
@@ -208,34 +208,31 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     setSelectedIdols(new Set(filteredRanking.map(item => item.idolName)))
   }, [filteredRanking])
 
-  const handleBatchDelete = React.useCallback(() => {
+  const handleBatchDelete = React.useCallback(async () => {
     const count = selectedIdols.size
-    Alert.alert(
-      '批量删除',
-      `确定要删除 ${count} 个偶像的所有记录吗？此操作不可撤销。`,
-      [
+    const deleteResult = await Dialog.confirm({
+      title: '批量删除',
+      message: `确定要删除 ${count} 个偶像的所有记录吗？此操作不可撤销。`,
+      buttons: [
         { text: '取消', style: 'cancel' },
-        {
-          text: '删除',
-          style: 'destructive',
-          onPress: async () => {
-            const idolNames = Array.from(selectedIdols)
-            for (const name of idolNames) {
-              await removeAvatar(name)
-            }
-            const { success, data: deletedCount } = await deleteRecordsByIdolNames(idolNames)
-            if (success) {
-              Alert.alert('删除成功', `已删除 ${deletedCount} 条记录`)
-              exitSelectionMode()
-              refreshAll()
-              loadAvatars()
-            } else {
-              Alert.alert('删除失败', '请稍后重试')
-            }
-          },
-        },
+        { text: '删除', style: 'destructive' },
       ],
-    )
+    })
+    if (deleteResult === 1) {
+      const idolNames = Array.from(selectedIdols)
+      for (const name of idolNames) {
+        await removeAvatar(name)
+      }
+      const { success, data: deletedCount } = await deleteRecordsByIdolNames(idolNames)
+      if (success) {
+        Dialog.toast(`已删除 ${deletedCount} 条记录`, 'success')
+        exitSelectionMode()
+        refreshAll()
+        loadAvatars()
+      } else {
+        Dialog.toast('请稍后重试', 'error')
+      }
+    }
   }, [selectedIdols, exitSelectionMode, refreshAll, loadAvatars])
 
   const handleBatchEdit = React.useCallback(() => {
@@ -245,7 +242,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
   const applyBatchEdit = React.useCallback(async () => {
     if (!batchEditValue.trim()) {
-      Alert.alert('提示', '请输入值')
+      Dialog.toast('请输入值', 'warning')
       return
     }
 
@@ -256,12 +253,12 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
     const { success, data: updatedCount } = await updateRecordsByIdolNames(idolNames, updates)
     if (success) {
-      Alert.alert('修改成功', `已更新 ${updatedCount} 条记录`)
+      Dialog.toast(`已更新 ${updatedCount} 条记录`, 'success')
       setShowBatchEdit(false)
       exitSelectionMode()
       refreshAll()
     } else {
-      Alert.alert('修改失败', '请稍后重试')
+      Dialog.toast('请稍后重试', 'error')
     }
   }, [selectedIdols, batchEditField, batchEditValue, exitSelectionMode, refreshAll])
 
@@ -278,30 +275,38 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const handleExportJSON = async () => {
     const { success, data: fileUri, error: err } = await exportToJSON()
     if (success && fileUri) {
-      Alert.alert('导出成功', 'JSON 文件已生成，是否分享？', [
-        { text: '取消', style: 'cancel' },
-        {
-          text: '分享',
-          onPress: () => shareExportedFile(fileUri),
-        },
-      ])
+      const exportJsonResult = await Dialog.confirm({
+        title: '导出成功',
+        message: 'JSON 文件已生成，是否分享？',
+        buttons: [
+          { text: '取消', style: 'cancel' },
+          { text: '分享', style: 'primary' },
+        ],
+      })
+      if (exportJsonResult === 1) {
+        shareExportedFile(fileUri)
+      }
     } else {
-      Alert.alert('导出失败', err || '未知错误')
+      Dialog.toast(err || '未知错误', 'error')
     }
   }
 
   const handleExportCSV = async () => {
     const { success, data: fileUri, error: err } = await exportToCSV()
     if (success && fileUri) {
-      Alert.alert('导出成功', 'CSV 文件已生成，是否分享？', [
-        { text: '取消', style: 'cancel' },
-        {
-          text: '分享',
-          onPress: () => shareExportedFile(fileUri),
-        },
-      ])
+      const exportCsvResult = await Dialog.confirm({
+        title: '导出成功',
+        message: 'CSV 文件已生成，是否分享？',
+        buttons: [
+          { text: '取消', style: 'cancel' },
+          { text: '分享', style: 'primary' },
+        ],
+      })
+      if (exportCsvResult === 1) {
+        shareExportedFile(fileUri)
+      }
     } else {
-      Alert.alert('导出失败', err || '未知错误')
+      Dialog.toast(err || '未知错误', 'error')
     }
   }
 
@@ -317,20 +322,16 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         )
 
         if (success) {
-          Alert.alert('导入成功', `成功导入 ${count} 条记录`, [
-            {
-              text: '确定',
-              onPress: () => refreshAll(),
-            },
-          ])
+          Dialog.toast(`成功导入 ${count} 条记录`, 'success')
+          refreshAll()
         } else {
-          Alert.alert('导入失败', err || '未知错误')
+          Dialog.toast(err || '未知错误', 'error')
         }
       }
     } catch (error) {
-      Alert.alert(
-        '导入失败',
+      Dialog.toast(
         error instanceof Error ? error.message : String(error),
+        'error',
       )
     }
   }
@@ -356,18 +357,17 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     // 先预览可以合并的记录
     const previewResult = await previewMergeResult()
     if (!previewResult.success || !previewResult.data) {
-      Alert.alert('错误', '无法预览合并结果')
+      Dialog.toast('无法预览合并结果', 'error')
       return
     }
 
     const { groups, totalGroups, totalRecords } = previewResult.data
 
     if (totalGroups === 0) {
-      Alert.alert('提示', '没有需要合并的记录（所有偶像的同一天都只有一条记录）')
+      Dialog.toast('没有需要合并的记录（所有偶像的同一天都只有一条记录）', 'info')
       return
     }
 
-    // 构建预览信息
     const previewText = groups
       .slice(0, 5)
       .map(g => `• ${g.idolName} - ${g.date}: ${g.count}条记录，共${g.totalPhotos}张`)
@@ -375,89 +375,82 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
 
     const moreText = groups.length > 5 ? `\n...还有 ${groups.length - 5} 个分组` : ''
 
-    Alert.alert(
-      '确认合并',
-      `发现 ${totalGroups} 个分组需要合并，共涉及 ${totalRecords} 条记录\n\n${previewText}${moreText}\n\n是否继续合并？`,
-      [
+    const mergeConfirmResult = await Dialog.confirm({
+      title: '确认合并',
+      message: `发现 ${totalGroups} 个分组需要合并，共涉及 ${totalRecords} 条记录\n\n${previewText}${moreText}\n\n是否继续合并？`,
+      buttons: [
         { text: '取消', style: 'cancel' },
-        {
-          text: '合并',
-          style: 'destructive',
-          onPress: async () => {
-            const result = await mergeSameDayRecords()
-            if (result.success && result.data) {
-              const { mergedCount, deletedCount, affectedIdols } = result.data
-              Alert.alert(
-                '合并完成',
-                `成功合并 ${mergedCount} 个分组\n删除了 ${deletedCount} 条重复记录\n涉及 ${affectedIdols.length} 位偶像`,
-                [
-                  {
-                    text: '确定',
-                    onPress: () => refreshAll(),
-                  },
-                ],
-              )
-            } else {
-              Alert.alert('合并失败', result.error || '未知错误')
-            }
-          },
-        },
+        { text: '合并', style: 'destructive' },
       ],
-    )
+    })
+    if (mergeConfirmResult === 1) {
+      const result = await mergeSameDayRecords()
+      if (result.success && result.data) {
+        const { mergedCount, deletedCount, affectedIdols } = result.data
+        Dialog.toast(
+          `成功合并 ${mergedCount} 个分组\n删除了 ${deletedCount} 条重复记录\n涉及 ${affectedIdols.length} 位偶像`,
+          'success',
+        )
+        refreshAll()
+      } else {
+        Dialog.toast(result.error || '未知错误', 'error')
+      }
+    }
   }
 
   const handleCreateBackup = async () => {
     const { success, data: fileUri, error: err } = await createBackup()
     if (success && fileUri) {
-      Alert.alert('备份成功', '备份文件已生成，是否分享？', [
-        { text: '取消', style: 'cancel' },
-        {
-          text: '分享',
-          onPress: () => shareBackupFile(fileUri),
-        },
-      ])
+      const backupResult = await Dialog.confirm({
+        title: '备份成功',
+        message: '备份文件已生成，是否分享？',
+        buttons: [
+          { text: '取消', style: 'cancel' },
+          { text: '分享', style: 'primary' },
+        ],
+      })
+      if (backupResult === 1) {
+        shareBackupFile(fileUri)
+      }
     } else {
-      Alert.alert('备份失败', err || '未知错误')
+      Dialog.toast(err || '未知错误', 'error')
     }
   }
 
   const handleRestoreBackup = async () => {
-    Alert.alert('恢复备份', '这将清除当前所有数据并从备份恢复，是否继续？', [
-      { text: '取消', style: 'cancel' },
-      {
-        text: '继续',
-        style: 'destructive',
-        onPress: async () => {
-          try {
-            const result = await DocumentPicker.getDocumentAsync({
-              type: 'application/json',
-            })
+    const restoreResult = await Dialog.confirm({
+      title: '恢复备份',
+      message: '这将清除当前所有数据并从备份恢复，是否继续？',
+      buttons: [
+        { text: '取消', style: 'cancel' },
+        { text: '继续', style: 'destructive' },
+      ],
+    })
+    if (restoreResult === 1) {
+      try {
+        const result = await DocumentPicker.getDocumentAsync({
+          type: 'application/json',
+        })
 
-            if (!result.canceled && result.assets && result.assets.length > 0) {
-              const { success, error: err } = await restoreFromBackup(
-                result.assets[0].uri,
-              )
+        if (!result.canceled && result.assets && result.assets.length > 0) {
+          const { success, error: err } = await restoreFromBackup(
+            result.assets[0].uri,
+          )
 
-              if (success) {
-                Alert.alert('恢复成功', '数据已恢复', [
-                  {
-                    text: '确定',
-                    onPress: () => refreshAll(),
-                  },
-                ])
-              } else {
-                Alert.alert('恢复失败', err || '未知错误')
-              }
-            }
-          } catch (error) {
-            Alert.alert(
-              '恢复失败',
-              error instanceof Error ? error.message : String(error),
-            )
+          if (success) {
+            Dialog.toast('数据已恢复', 'success')
+            refreshAll()
+          } else {
+            Dialog.toast(err || '未知错误', 'error')
           }
-        },
-      },
-    ])
+        }
+      } catch (error) {
+        Dialog.toast(
+          error instanceof Error ? error.message : String(error),
+          'error',
+        )
+      }
+    }
   }
 
   const renderItem = React.useCallback(({ item, index }: { item: RankingItem; index: number }) => (

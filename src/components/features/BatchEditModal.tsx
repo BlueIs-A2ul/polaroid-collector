@@ -2,14 +2,14 @@ import React from 'react'
 import {
   View,
   Text,
-  Modal,
   TouchableOpacity,
   TextInput,
   StyleSheet,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '../../contexts/ThemeContext'
-import { MODAL_OVERLAY } from '../../constants/themes'
+import { withOpacity } from '../../utils/colorUtils'
+import AnimatedBottomSheet from '../common/AnimatedBottomSheet'
 import FieldHistorySelector from './FieldHistorySelector'
 
 interface BatchEditModalProps {
@@ -37,47 +37,23 @@ const BatchEditModal: React.FC<BatchEditModalProps> = ({
   const [showFieldHistory, setShowFieldHistory] = React.useState(false)
 
   const styles = React.useMemo(() => StyleSheet.create({
-    modalOverlay: {
-      flex: 1,
-      backgroundColor: MODAL_OVERLAY,
-      justifyContent: 'flex-end',
-    },
-    modalContainer: {
-      backgroundColor: colors.WHITE,
-      borderTopLeftRadius: 20,
-      borderTopRightRadius: 20,
-    },
-    modalHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      padding: 16,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.GRAY[200],
-    },
-    modalTitle: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: colors.BLACK,
-    },
-    modalContent: {
-      padding: 16,
-    },
-    modalHint: {
+    hint: {
       fontSize: 14,
       color: colors.GRAY[600],
       marginBottom: 16,
+      paddingHorizontal: 16,
     },
     fieldSelector: {
       flexDirection: 'row',
       gap: 12,
       marginBottom: 16,
+      paddingHorizontal: 16,
     },
     fieldOption: {
       paddingHorizontal: 16,
       paddingVertical: 10,
       borderRadius: 8,
-      backgroundColor: colors.GRAY[100],
+      backgroundColor: colors.WHITE,
       borderWidth: 1,
       borderColor: colors.GRAY[200],
     },
@@ -98,6 +74,7 @@ const BatchEditModal: React.FC<BatchEditModalProps> = ({
       alignItems: 'center',
       gap: 8,
       marginBottom: 16,
+      paddingHorizontal: 16,
     },
     input: {
       flex: 1,
@@ -108,17 +85,22 @@ const BatchEditModal: React.FC<BatchEditModalProps> = ({
       paddingVertical: 10,
       fontSize: 16,
       color: colors.BLACK,
+      backgroundColor: colors.WHITE,
     },
     historyButton: {
       padding: 10,
-      backgroundColor: colors.GRAY[100],
+      backgroundColor: colors.WHITE,
       borderRadius: 8,
+      borderWidth: 1,
+      borderColor: colors.GRAY[200],
     },
     applyButton: {
       backgroundColor: colors.PRIMARY,
       borderRadius: 8,
       paddingVertical: 14,
       alignItems: 'center',
+      marginHorizontal: 16,
+      marginBottom: 16,
     },
     applyButtonText: {
       fontSize: 16,
@@ -135,70 +117,59 @@ const BatchEditModal: React.FC<BatchEditModalProps> = ({
 
   return (
     <>
-      <Modal
+      <AnimatedBottomSheet
         visible={visible}
-        transparent
-        animationType='slide'
-        onRequestClose={onClose}
+        onClose={onClose}
+        title='批量修改字段'
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>批量修改字段</Text>
-              <TouchableOpacity onPress={onClose}>
-                <Ionicons name='close' size={24} color={colors.BLACK} />
-              </TouchableOpacity>
-            </View>
-            <View style={styles.modalContent}>
-              <Text style={styles.modalHint}>
-                将修改 {selectedCount} 个偶像的所有记录
-              </Text>
-              <View style={styles.fieldSelector}>
-                {(['groupName', 'city', 'venue'] as const).map(field => (
-                  <TouchableOpacity
-                    key={field}
-                    style={[
-                      styles.fieldOption,
-                      batchEditField === field && styles.fieldOptionActive,
-                    ]}
-                    onPress={() => onFieldChange(field)}
-                  >
-                    <Text
-                      style={[
-                        styles.fieldOptionText,
-                        batchEditField === field && styles.fieldOptionTextActive,
-                      ]}
-                    >
-                      {fieldLabels[field]}
-                    </Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-              <View style={styles.inputRow}>
-                <TextInput
-                  style={styles.input}
-                  value={batchEditValue}
-                  onChangeText={onValueChange}
-                  placeholder='输入新的值...'
-                  placeholderTextColor={colors.GRAY[400]}
-                />
-                <TouchableOpacity
-                  style={styles.historyButton}
-                  onPress={() => setShowFieldHistory(true)}
-                >
-                  <Ionicons name='time-outline' size={20} color={colors.PRIMARY} />
-                </TouchableOpacity>
-              </View>
+        <View style={{ paddingVertical: 16 }}>
+          <Text style={styles.hint}>
+            将修改 {selectedCount} 个偶像的所有记录
+          </Text>
+          <View style={styles.fieldSelector}>
+            {(['groupName', 'city', 'venue'] as const).map(field => (
               <TouchableOpacity
-                style={styles.applyButton}
-                onPress={onApply}
+                key={field}
+                style={[
+                  styles.fieldOption,
+                  batchEditField === field && styles.fieldOptionActive,
+                ]}
+                onPress={() => onFieldChange(field)}
               >
-                <Text style={styles.applyButtonText}>应用修改</Text>
+                <Text
+                  style={[
+                    styles.fieldOptionText,
+                    batchEditField === field && styles.fieldOptionTextActive,
+                  ]}
+                >
+                  {fieldLabels[field]}
+                </Text>
               </TouchableOpacity>
-            </View>
+            ))}
           </View>
+          <View style={styles.inputRow}>
+            <TextInput
+              style={styles.input}
+              value={batchEditValue}
+              onChangeText={onValueChange}
+              placeholder='输入新的值...'
+              placeholderTextColor={colors.GRAY[400]}
+            />
+            <TouchableOpacity
+              style={styles.historyButton}
+              onPress={() => setShowFieldHistory(true)}
+            >
+              <Ionicons name='time-outline' size={20} color={colors.PRIMARY} />
+            </TouchableOpacity>
+          </View>
+          <TouchableOpacity
+            style={styles.applyButton}
+            onPress={onApply}
+          >
+            <Text style={styles.applyButtonText}>应用修改</Text>
+          </TouchableOpacity>
         </View>
-      </Modal>
+      </AnimatedBottomSheet>
 
       <FieldHistorySelector
         visible={showFieldHistory}

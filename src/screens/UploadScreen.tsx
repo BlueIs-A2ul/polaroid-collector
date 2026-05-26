@@ -5,11 +5,9 @@ import {
   TextInput,
   TouchableOpacity,
   StyleSheet,
-  Alert,
   ScrollView,
   Image,
   Platform,
-  Modal,
   Switch,
   KeyboardAvoidingView,
 } from 'react-native'
@@ -18,7 +16,8 @@ import { Ionicons } from '@expo/vector-icons'
 import { StackNavigationProp } from '@react-navigation/stack'
 import { RouteProp } from '@react-navigation/native'
 import { useTheme } from '../contexts/ThemeContext'
-import { CARD_SHADOW, HEADER_PADDING_TOP, MODAL_OVERLAY } from '../constants/themes'
+import { CARD_SHADOW, HEADER_PADDING_TOP } from '../constants/themes'
+import AnimatedBottomSheet from '../components/common/AnimatedBottomSheet'
 import { withOpacity } from '../utils/colorUtils'
 import { RootStackParamList } from '../navigation/AppNavigator'
 import { pickPhoto, pickMultiplePhotos, PhotoWithDate } from '../services/photoService'
@@ -31,6 +30,7 @@ import { POLAROID_TYPE_OPTIONS, MEMBER_COUNT_OPTIONS } from '../constants/polaro
 import { PhotoItem } from '../types'
 import { getIdolGroupBinding } from '../services/idolBindingService'
 import { getIdolDefaultPrice, getIdolPriceOptions } from '../services/priceStatsService'
+import { Dialog } from '../services/dialogService'
 
 type UploadScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -157,7 +157,7 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation, route }) => {
         setPhotoDate(firstDate)
       }
     } else if (error !== '用户取消选择') {
-      Alert.alert('错误', error || '选择照片失败')
+      Dialog.toast(error || '选择照片失败', 'error')
     }
   }
 
@@ -183,7 +183,7 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation, route }) => {
         setPhotoDate(data.capturedDate)
       }
     } else if (error !== '用户取消选择') {
-      Alert.alert('错误', error || '选择照片失败')
+      Dialog.toast(error || '选择照片失败', 'error')
     }
   }
 
@@ -223,7 +223,7 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation, route }) => {
     if (success && data) {
       setPhotos(photos.map(p => (p.uri === photoUri ? { ...p, backPhotoUri: data.uri } : p)))
     } else if (error !== '用户取消选择') {
-      Alert.alert('错误', error || '选择背签照片失败')
+      Dialog.toast(error || '选择背签照片失败', 'error')
     }
   }
 
@@ -245,17 +245,17 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation, route }) => {
 
   const validateForm = (): boolean => {
     if (!idolName.trim()) {
-      Alert.alert('提示', '请输入偶像名称')
+      Dialog.toast('请输入偶像名称', 'warning')
       return false
     }
 
     if (!photoDate) {
-      Alert.alert('提示', '请选择拍摄日期')
+      Dialog.toast('请选择拍摄日期', 'warning')
       return false
     }
 
     if (photos.length === 0) {
-      Alert.alert('提示', '请选择或拍摄照片')
+      Dialog.toast('请选择或拍摄照片', 'warning')
       return false
     }
 
@@ -308,19 +308,19 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation, route }) => {
 
       if (success) {
         const backPhotoMsg = backPhotoCount > 0 ? `，其中 ${backPhotoCount} 张有背签` : ''
-        Alert.alert(
-          '成功',
-          `已保存 1 条记录，共 ${totalCount} 张拍立得${backPhotoMsg}（合并模式）`,
-          [
-            { text: '返回首页', onPress: () => navigation.goBack() },
-            {
-              text: '继续添加',
-              onPress: () => {
-                setPhotos([])
-              },
-            },
+        const mergeButtonIndex = await Dialog.confirm({
+          title: '成功',
+          message: `已保存 1 条记录，共 ${totalCount} 张拍立得${backPhotoMsg}（合并模式）`,
+          buttons: [
+            { text: '返回首页', style: 'primary' },
+            { text: '继续添加', style: 'cancel' },
           ],
-        )
+        })
+        if (mergeButtonIndex === 0) {
+          navigation.goBack()
+        } else {
+          setPhotos([])
+        }
       }
     } else {
       // 分开多条记录（原有逻辑）
@@ -345,26 +345,26 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation, route }) => {
 
       if (success) {
         const backPhotoMsg = getBackPhotoCount() > 0 ? `，其中 ${getBackPhotoCount()} 张有背签` : ''
-        Alert.alert(
-          '成功',
-          `已保存 ${photos.length} 条记录，共 ${getTotalCount()} 张拍立得${backPhotoMsg}`,
-          [
-            { text: '返回首页', onPress: () => navigation.goBack() },
-            {
-              text: '继续添加',
-              onPress: () => {
-                setPhotos([])
-              },
-            },
+        const buttonIndex = await Dialog.confirm({
+          title: '成功',
+          message: `已保存 ${photos.length} 条记录，共 ${getTotalCount()} 张拍立得${backPhotoMsg}`,
+          buttons: [
+            { text: '返回首页', style: 'primary' },
+            { text: '继续添加', style: 'cancel' },
           ],
-        )
+        })
+        if (buttonIndex === 0) {
+          navigation.goBack()
+        } else {
+          setPhotos([])
+        }
       }
     }
 
     setLoading(false)
 
     if (!success) {
-      Alert.alert('错误', err || '保存失败')
+      Dialog.toast(err || '保存失败', 'error')
     }
   }
 
@@ -681,35 +681,6 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation, route }) => {
       fontSize: 18,
       fontWeight: 'bold',
       color: colors.WHITE,
-    },
-    modalOverlay: {
-      flex: 1,
-      backgroundColor: MODAL_OVERLAY,
-      justifyContent: 'center',
-      alignItems: 'center',
-    },
-    modalContainer: {
-      backgroundColor: colors.WHITE,
-      borderRadius: 16,
-      width: '90%',
-      maxWidth: 400,
-      ...CARD_SHADOW,
-    },
-    modalHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      padding: 16,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.GRAY[200],
-    },
-    modalTitle: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: colors.BLACK,
-    },
-    modalContent: {
-      padding: 16,
     },
     cropOption: {
       flexDirection: 'row',
@@ -1106,111 +1077,88 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation, route }) => {
         }}
       />
 
-      <Modal
+      <AnimatedBottomSheet
         visible={showPriceSelector !== null}
-        transparent={true}
-        animationType='slide'
-        onRequestClose={() => setShowPriceSelector(null)}
+        onClose={() => setShowPriceSelector(null)}
+        title='选择价格'
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>选择价格</Text>
-              <TouchableOpacity onPress={() => setShowPriceSelector(null)}>
-                <Ionicons name='close' size={24} color={colors.BLACK} />
-              </TouchableOpacity>
-            </View>
-            <View style={styles.modalContent}>
-              {priceOptions.map(price => (
-                <TouchableOpacity
-                  key={price}
-                  style={styles.priceOption}
-                  onPress={() => {
-                    if (showPriceSelector) {
-                      updatePhotoPrice(showPriceSelector, price)
-                    }
-                    setShowPriceSelector(null)
-                  }}
-                >
-                  <Text style={styles.priceOptionText}>¥{price}</Text>
-                </TouchableOpacity>
-              ))}
-              <TouchableOpacity
-                style={styles.priceOption}
-                onPress={() => setShowPriceSelector(null)}
-              >
-                <Text style={[styles.priceOptionText, styles.priceOptionManual]}>手动输入</Text>
-              </TouchableOpacity>
-            </View>
-          </View>
+        <View style={{ padding: 16 }}>
+          {priceOptions.map(price => (
+            <TouchableOpacity
+              key={price}
+              style={styles.priceOption}
+              onPress={() => {
+                if (showPriceSelector) {
+                  updatePhotoPrice(showPriceSelector, price)
+                }
+                setShowPriceSelector(null)
+              }}
+            >
+              <Text style={styles.priceOptionText}>¥{price}</Text>
+            </TouchableOpacity>
+          ))}
+          <TouchableOpacity
+            style={styles.priceOption}
+            onPress={() => setShowPriceSelector(null)}
+          >
+            <Text style={[styles.priceOptionText, styles.priceOptionManual]}>手动输入</Text>
+          </TouchableOpacity>
         </View>
-      </Modal>
+      </AnimatedBottomSheet>
 
-      <Modal
+      <AnimatedBottomSheet
         visible={showCropOptions}
-        transparent={true}
-        animationType='slide'
-        onRequestClose={() => setShowCropOptions(false)}
+        onClose={() => setShowCropOptions(false)}
+        title='裁切选项'
       >
-        <View style={styles.modalOverlay}>
-          <View style={styles.modalContainer}>
-            <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>裁切选项</Text>
-              <TouchableOpacity onPress={() => setShowCropOptions(false)}>
-                <Ionicons name='close' size={24} color={colors.BLACK} />
-              </TouchableOpacity>
-            </View>
+        <View style={{ padding: 16 }}>
+          <View style={styles.cropOption}>
+            <Text style={styles.cropLabel}>启用裁切</Text>
+            <Switch
+              value={allowCrop}
+              onValueChange={setAllowCrop}
+              trackColor={{
+                false: colors.GRAY[300],
+                true: colors.PRIMARY,
+              }}
+              thumbColor={colors.WHITE}
+            />
+          </View>
 
-            <View style={styles.modalContent}>
-              <View style={styles.cropOption}>
-                <Text style={styles.cropLabel}>启用裁切</Text>
-                <Switch
-                  value={allowCrop}
-                  onValueChange={setAllowCrop}
-                  trackColor={{
-                    false: colors.GRAY[300],
-                    true: colors.PRIMARY,
-                  }}
-                  thumbColor={colors.WHITE}
+          {allowCrop && (
+            <View style={styles.cropDimensions}>
+              <Text style={styles.cropLabel}>裁切尺寸比例</Text>
+              <View style={styles.dimensionInputs}>
+                <TextInput
+                  style={styles.dimensionInput}
+                  value={String(cropWidth)}
+                  onChangeText={text => setCropWidth(Number(text) || 1)}
+                  keyboardType='number-pad'
+                  placeholder='宽'
+                />
+                <Text style={styles.dimensionSeparator}>:</Text>
+                <TextInput
+                  style={styles.dimensionInput}
+                  value={String(cropHeight)}
+                  onChangeText={text => setCropHeight(Number(text) || 1)}
+                  keyboardType='number-pad'
+                  placeholder='高'
                 />
               </View>
-
-              {allowCrop && (
-                <View style={styles.cropDimensions}>
-                  <Text style={styles.cropLabel}>裁切尺寸比例</Text>
-                  <View style={styles.dimensionInputs}>
-                    <TextInput
-                      style={styles.dimensionInput}
-                      value={String(cropWidth)}
-                      onChangeText={text => setCropWidth(Number(text) || 1)}
-                      keyboardType='number-pad'
-                      placeholder='宽'
-                    />
-                    <Text style={styles.dimensionSeparator}>:</Text>
-                    <TextInput
-                      style={styles.dimensionInput}
-                      value={String(cropHeight)}
-                      onChangeText={text => setCropHeight(Number(text) || 1)}
-                      keyboardType='number-pad'
-                      placeholder='高'
-                    />
-                  </View>
-                  <Text style={styles.cropHint}>
-                    例如：4:3 表示宽度为 4 份，高度为 3 份
-                  </Text>
-                </View>
-              )}
-
-              <TouchableOpacity
-                style={styles.confirmButton}
-                onPress={handleConfirmCropOptions}
-              >
-                <Text style={styles.confirmButtonText}>确定</Text>
-              </TouchableOpacity>
+              <Text style={styles.cropHint}>
+                例如：4:3 表示宽度为 4 份，高度为 3 份
+              </Text>
             </View>
-          </View>
+          )}
+
+          <TouchableOpacity
+            style={styles.confirmButton}
+            onPress={handleConfirmCropOptions}
+          >
+            <Text style={styles.confirmButtonText}>确定</Text>
+          </TouchableOpacity>
         </View>
-      </Modal>
+      </AnimatedBottomSheet>
     </ScrollView>
     </KeyboardAvoidingView>
   )

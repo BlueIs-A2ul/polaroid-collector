@@ -4,14 +4,13 @@ import {
   Text,
   StyleSheet,
   TouchableOpacity,
-  Modal,
   ScrollView,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '../../contexts/ThemeContext'
-import { CARD_SHADOW, MODAL_OVERLAY } from '../../constants/themes'
 import { getAllRecords } from '../../services/storageService'
 import { PolaroidRecord } from '../../types'
+import AnimatedBottomSheet from '../common/AnimatedBottomSheet'
 
 export interface FilterOptions {
   groupName: string | null
@@ -43,34 +42,6 @@ const AdvancedFilter: React.FC<AdvancedFilterProps> = ({
   const [types] = useState<string[]>(['无签', '带签', '主题', '宿题'])
 
   const styles = useMemo(() => StyleSheet.create({
-    modalOverlay: {
-      flex: 1,
-      backgroundColor: MODAL_OVERLAY,
-      justifyContent: 'flex-end',
-    },
-    modalContainer: {
-      backgroundColor: colors.WHITE,
-      borderTopLeftRadius: 20,
-      borderTopRightRadius: 20,
-      maxHeight: '80%',
-    },
-    modalHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      padding: 16,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.GRAY[200],
-    },
-    modalTitle: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: colors.BLACK,
-    },
-    modalContent: {
-      padding: 16,
-      maxHeight: 400,
-    },
     section: {
       marginBottom: 20,
     },
@@ -89,7 +60,7 @@ const AdvancedFilter: React.FC<AdvancedFilterProps> = ({
       paddingHorizontal: 14,
       paddingVertical: 8,
       borderRadius: 16,
-      backgroundColor: colors.GRAY[100],
+      backgroundColor: colors.WHITE,
       borderWidth: 1,
       borderColor: colors.GRAY[200],
     },
@@ -239,73 +210,61 @@ const AdvancedFilter: React.FC<AdvancedFilterProps> = ({
   )
 
   return (
-    <Modal
+    <AnimatedBottomSheet
       visible={visible}
-      transparent={true}
-      animationType='slide'
-      onRequestClose={onClose}
+      onClose={onClose}
+      title='高级筛选'
     >
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>高级筛选</Text>
-            <TouchableOpacity onPress={onClose}>
-              <Ionicons name='close' size={24} color={colors.BLACK} />
-            </TouchableOpacity>
-          </View>
+      <ScrollView style={{ padding: 16, maxHeight: 400 }}>
+        {groupNames.length > 0 &&
+          renderFilterSection('团体', 'groupName', groupNames)}
 
-          <ScrollView style={styles.modalContent}>
-            {groupNames.length > 0 &&
-              renderFilterSection('团体', 'groupName', groupNames)}
+        {cities.length > 0 &&
+          renderFilterSection('城市', 'city', cities)}
 
-            {cities.length > 0 &&
-              renderFilterSection('城市', 'city', cities)}
+        {venues.length > 0 &&
+          renderFilterSection('场馆', 'venue', venues)}
 
-            {venues.length > 0 &&
-              renderFilterSection('场馆', 'venue', venues)}
+        {types.length > 0 &&
+          renderFilterSection('拍立得类型', 'polaroidType', types)}
 
-            {types.length > 0 &&
-              renderFilterSection('拍立得类型', 'polaroidType', types)}
+        {groupNames.length === 0 &&
+          cities.length === 0 &&
+          venues.length === 0 && (
+            <View style={styles.emptyState}>
+              <Ionicons
+                name='filter-outline'
+                size={48}
+                color={colors.GRAY[300]}
+              />
+              <Text style={styles.emptyText}>
+                暂无可筛选的数据
+              </Text>
+              <Text style={styles.emptyHint}>
+                添加记录后可使用筛选功能
+              </Text>
+            </View>
+          )}
+      </ScrollView>
 
-            {groupNames.length === 0 &&
-              cities.length === 0 &&
-              venues.length === 0 && (
-                <View style={styles.emptyState}>
-                  <Ionicons
-                    name='filter-outline'
-                    size={48}
-                    color={colors.GRAY[300]}
-                  />
-                  <Text style={styles.emptyText}>
-                    暂无可筛选的数据
-                  </Text>
-                  <Text style={styles.emptyHint}>
-                    添加记录后可使用筛选功能
-                  </Text>
-                </View>
-              )}
-          </ScrollView>
-
-          <View style={styles.modalFooter}>
-            {hasActiveFilters && (
-              <TouchableOpacity
-                style={styles.clearButton}
-                onPress={handleClear}
-              >
-                <Ionicons name='close-circle' size={18} color={colors.GRAY[600]} />
-                <Text style={styles.clearButtonText}>清除筛选</Text>
-              </TouchableOpacity>
-            )}
-            <TouchableOpacity
-              style={styles.applyButton}
-              onPress={handleApply}
-            >
-              <Text style={styles.applyButtonText}>应用筛选</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
+      <View style={styles.modalFooter}>
+        {hasActiveFilters && (
+          <TouchableOpacity
+            style={styles.clearButton}
+            onPress={handleClear}
+          >
+            <Ionicons name='close-circle' size={18} color={colors.GRAY[600]} />
+            <Text style={styles.clearButtonText}>清除筛选</Text>
+          </TouchableOpacity>
+        )}
+        <TouchableOpacity
+          style={styles.applyButton}
+          onPress={handleApply}
+        >
+          <Text style={styles.applyButtonText}>应用筛选</Text>
+        </TouchableOpacity>
       </View>
-    </Modal>
+    </AnimatedBottomSheet>
   )
 }
 

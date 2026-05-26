@@ -2,18 +2,17 @@ import React, { useState, useEffect, useMemo } from 'react'
 import {
   View,
   Text,
-  Modal,
   TouchableOpacity,
   StyleSheet,
   FlatList,
   ActivityIndicator,
-  Alert,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '../../contexts/ThemeContext'
-import { CARD_SHADOW, MODAL_OVERLAY } from '../../constants/themes'
 import { withOpacity } from '../../utils/colorUtils'
 import { getIdolListWithCount } from '../../services/recordService'
+import { Dialog } from '../../services/dialogService'
+import AnimatedBottomSheet from '../common/AnimatedBottomSheet'
 
 interface IdolItem {
   name: string
@@ -40,34 +39,6 @@ const IdolSelector: React.FC<IdolSelectorProps> = ({
   const INITIAL_DISPLAY_COUNT = 5
 
   const styles = useMemo(() => StyleSheet.create({
-    modalContainer: {
-      flex: 1,
-      backgroundColor: MODAL_OVERLAY,
-      justifyContent: 'flex-end',
-    },
-    modalContent: {
-      backgroundColor: colors.WHITE,
-      borderTopLeftRadius: 20,
-      borderTopRightRadius: 20,
-      maxHeight: '80%',
-      ...CARD_SHADOW,
-    },
-    modalHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      padding: 20,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.GRAY[200],
-    },
-    modalTitle: {
-      fontSize: 20,
-      fontWeight: 'bold',
-      color: colors.BLACK,
-    },
-    closeButton: {
-      padding: 8,
-    },
     hintContainer: {
       flexDirection: 'row',
       alignItems: 'center',
@@ -82,16 +53,20 @@ const IdolSelector: React.FC<IdolSelectorProps> = ({
     },
     listContainer: {
       maxHeight: 400,
-      paddingHorizontal: 15,
+      paddingHorizontal: 16,
       paddingVertical: 10,
     },
     idolItem: {
       paddingVertical: 14,
-      paddingHorizontal: 15,
+      paddingHorizontal: 16,
       marginBottom: 10,
-      backgroundColor: colors.GRAY[100],
-      borderRadius: 8,
-      ...CARD_SHADOW,
+      backgroundColor: colors.WHITE,
+      borderRadius: 12,
+      shadowColor: colors.BLACK,
+      shadowOffset: { width: 0, height: 1 },
+      shadowOpacity: 0.06,
+      shadowRadius: 4,
+      elevation: 2,
     },
     selectedIdolItem: {
       backgroundColor: withOpacity(colors.PRIMARY, 0.12),
@@ -120,7 +95,6 @@ const IdolSelector: React.FC<IdolSelectorProps> = ({
       color: colors.PRIMARY,
     },
     emptyState: {
-      flex: 1,
       justifyContent: 'center',
       alignItems: 'center',
       paddingVertical: 60,
@@ -160,10 +134,10 @@ const IdolSelector: React.FC<IdolSelectorProps> = ({
       if (success && data) {
         setIdolList(data)
       } else {
-        Alert.alert('错误', `加载偶像列表失败: ${error}`)
+        Dialog.toast(`加载偶像列表失败: ${error}`, 'error')
       }
     } catch (error) {
-      Alert.alert('错误', `加载偶像列表失败: ${error}`)
+      Dialog.toast(`加载偶像列表失败: ${error}`, 'error')
     } finally {
       setLoading(false)
     }
@@ -265,43 +239,31 @@ const IdolSelector: React.FC<IdolSelectorProps> = ({
   }
 
   return (
-    <Modal
+    <AnimatedBottomSheet
       visible={visible}
-      animationType='slide'
-      transparent={true}
-      onRequestClose={onClose}
+      onClose={onClose}
+      title='选择偶像'
     >
-      <View style={styles.modalContainer}>
-        <View style={styles.modalContent}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>选择偶像</Text>
-            <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-              <Ionicons name='close' size={24} color={colors.BLACK} />
-            </TouchableOpacity>
-          </View>
-
-          <View style={styles.hintContainer}>
-            <Ionicons
-              name='information-circle-outline'
-              size={16}
-              color={colors.GRAY[500]}
-            />
-            <Text style={styles.hintText}>按拍立得数量从高到低排序</Text>
-          </View>
-
-          <View style={styles.listContainer}>
-            <FlatList
-              data={getDisplayIdolList()}
-              renderItem={renderIdolItem}
-              keyExtractor={item => item.name}
-              ListEmptyComponent={renderEmptyState}
-              ListFooterComponent={renderExpandButton}
-              showsVerticalScrollIndicator={false}
-            />
-          </View>
-        </View>
+      <View style={styles.hintContainer}>
+        <Ionicons
+          name='information-circle-outline'
+          size={16}
+          color={colors.GRAY[500]}
+        />
+        <Text style={styles.hintText}>按拍立得数量从高到低排序</Text>
       </View>
-    </Modal>
+
+      <View style={styles.listContainer}>
+        <FlatList
+          data={getDisplayIdolList()}
+          renderItem={renderIdolItem}
+          keyExtractor={item => item.name}
+          ListEmptyComponent={renderEmptyState}
+          ListFooterComponent={renderExpandButton}
+          showsVerticalScrollIndicator={false}
+        />
+      </View>
+    </AnimatedBottomSheet>
   )
 }
 

@@ -2,15 +2,13 @@ import React from 'react'
 import {
   View,
   Text,
-  Modal,
   TouchableOpacity,
   StyleSheet,
-  Pressable,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '../../contexts/ThemeContext'
-import { MODAL_OVERLAY } from '../../constants/themes'
 import { withOpacity } from '../../utils/colorUtils'
+import AnimatedBottomSheet from '../common/AnimatedBottomSheet'
 
 export interface ActionSheetOption {
   text: string
@@ -37,19 +35,6 @@ const ActionSheetModal: React.FC<ActionSheetModalProps> = ({
   const { colors } = useTheme()
 
   const styles = React.useMemo(() => StyleSheet.create({
-    overlay: {
-      flex: 1,
-      backgroundColor: MODAL_OVERLAY,
-      justifyContent: 'flex-end',
-    },
-    container: {
-      backgroundColor: colors.SECONDARY,
-      borderTopLeftRadius: 20,
-      borderTopRightRadius: 20,
-      paddingTop: 12,
-      paddingBottom: 34,
-      paddingHorizontal: 16,
-    },
     dragHandle: {
       width: 36,
       height: 4,
@@ -57,6 +42,7 @@ const ActionSheetModal: React.FC<ActionSheetModalProps> = ({
       backgroundColor: colors.GRAY[300],
       alignSelf: 'center',
       marginBottom: 12,
+      marginTop: 4,
     },
     title: {
       fontSize: 14,
@@ -105,68 +91,66 @@ const ActionSheetModal: React.FC<ActionSheetModalProps> = ({
       color: colors.GRAY[500],
       fontWeight: '600',
     },
+    content: {
+      paddingHorizontal: 16,
+      paddingBottom: 34,
+    },
   }), [colors])
 
   return (
-    <Modal
+    <AnimatedBottomSheet
       visible={visible}
-      transparent
-      animationType='slide'
-      onRequestClose={onClose}
-      statusBarTranslucent
+      onClose={onClose}
+      showHeader={false}
     >
-      <Pressable style={styles.overlay} onPress={onClose}>
-        <Pressable onPress={() => {}}>
-          <View style={styles.container}>
-            <View style={styles.dragHandle} />
+      <View style={styles.content}>
+        <View style={styles.dragHandle} />
 
-            {title ? <Text style={styles.title}>{title}</Text> : null}
+        {title ? <Text style={styles.title}>{title}</Text> : null}
 
-            {options.map((option, index) => (
-              <TouchableOpacity
-                key={index}
-                style={styles.optionRow}
-                onPress={() => {
-                  onClose()
-                  option.onPress()
-                }}
-                activeOpacity={0.7}
-              >
-                <View
-                  style={[
-                    styles.optionIcon,
-                    { backgroundColor: option.destructive ? withOpacity(colors.ERROR, 0.08) : withOpacity(colors.PRIMARY, 0.08) },
-                  ]}
-                >
-                  <Ionicons
-                    name={option.icon as any}
-                    size={18}
-                    color={option.destructive ? colors.ERROR : colors.PRIMARY}
-                  />
-                </View>
-                <Text
-                  style={[
-                    styles.optionText,
-                    option.destructive && styles.optionTextDestructive,
-                  ]}
-                >
-                  {option.text}
-                </Text>
-                <Ionicons name='chevron-forward' size={18} color={colors.GRAY[400]} />
-              </TouchableOpacity>
-            ))}
-
-            <TouchableOpacity
-              style={styles.cancelRow}
-              onPress={onClose}
-              activeOpacity={0.7}
+        {options.map((option, index) => (
+          <TouchableOpacity
+            key={index}
+            style={styles.optionRow}
+            onPress={() => {
+              onClose()
+              option.onPress()
+            }}
+            activeOpacity={0.7}
+          >
+            <View
+              style={[
+                styles.optionIcon,
+                { backgroundColor: option.destructive ? withOpacity(colors.ERROR, 0.08) : withOpacity(colors.PRIMARY, 0.08) },
+              ]}
             >
-              <Text style={styles.cancelText}>{cancelText}</Text>
-            </TouchableOpacity>
-          </View>
-        </Pressable>
-      </Pressable>
-    </Modal>
+              <Ionicons
+                name={option.icon as any}
+                size={18}
+                color={option.destructive ? colors.ERROR : colors.PRIMARY}
+              />
+            </View>
+            <Text
+              style={[
+                styles.optionText,
+                option.destructive && styles.optionTextDestructive,
+              ]}
+            >
+              {option.text}
+            </Text>
+            <Ionicons name='chevron-forward' size={18} color={colors.GRAY[400]} />
+          </TouchableOpacity>
+        ))}
+
+        <TouchableOpacity
+          style={styles.cancelRow}
+          onPress={onClose}
+          activeOpacity={0.7}
+        >
+          <Text style={styles.cancelText}>{cancelText}</Text>
+        </TouchableOpacity>
+      </View>
+    </AnimatedBottomSheet>
   )
 }
 

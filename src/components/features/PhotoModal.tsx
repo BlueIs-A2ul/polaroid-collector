@@ -83,7 +83,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
   const styles = useMemo(() => StyleSheet.create({
     modalContainer: {
       flex: 1,
-      backgroundColor: 'rgba(0, 0, 0, 0.85)',
+      backgroundColor: 'rgba(0, 0, 0, 0.92)',
       justifyContent: 'center',
       alignItems: 'center',
     },
@@ -92,7 +92,12 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
       top: 50,
       right: 20,
       zIndex: 10,
-      padding: 8,
+      width: 36,
+      height: 36,
+      borderRadius: 18,
+      backgroundColor: 'rgba(255, 255, 255, 0.15)',
+      alignItems: 'center',
+      justifyContent: 'center',
     },
     modalContent: {
       flex: 1,

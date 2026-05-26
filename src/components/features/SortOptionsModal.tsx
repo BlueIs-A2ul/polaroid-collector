@@ -2,15 +2,14 @@ import React from 'react'
 import {
   View,
   Text,
-  Modal,
   TouchableOpacity,
   ScrollView,
   StyleSheet,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '../../contexts/ThemeContext'
-import { MODAL_OVERLAY } from '../../constants/themes'
 import { withOpacity } from '../../utils/colorUtils'
+import AnimatedBottomSheet from '../common/AnimatedBottomSheet'
 
 export type SortType = 'date' | 'count' | 'price'
 export type SortOrder = 'asc' | 'desc'
@@ -48,40 +47,14 @@ const SortOptionsModal: React.FC<SortOptionsModalProps> = ({
   const { colors } = useTheme()
 
   const styles = React.useMemo(() => StyleSheet.create({
-    modalOverlay: {
-      flex: 1,
-      backgroundColor: MODAL_OVERLAY,
-      justifyContent: 'flex-end',
-    },
-    modalContainer: {
-      backgroundColor: colors.WHITE,
-      borderTopLeftRadius: 20,
-      borderTopRightRadius: 20,
-    },
-    modalHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      padding: 16,
-      borderBottomWidth: 1,
-      borderBottomColor: colors.GRAY[200],
-    },
-    modalTitle: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: colors.BLACK,
-    },
-    modalContent: {
-      padding: 16,
-    },
     sortOption: {
       flexDirection: 'row',
       alignItems: 'center',
       paddingVertical: 16,
-      paddingHorizontal: 12,
-      borderRadius: 8,
+      paddingHorizontal: 16,
+      borderRadius: 12,
       marginBottom: 8,
-      backgroundColor: colors.GRAY[100],
+      backgroundColor: colors.WHITE,
       gap: 12,
     },
     sortOptionActive: {
@@ -117,62 +90,53 @@ const SortOptionsModal: React.FC<SortOptionsModalProps> = ({
   }
 
   return (
-    <Modal
+    <AnimatedBottomSheet
       visible={visible}
-      transparent
-      animationType='slide'
-      onRequestClose={onClose}
+      onClose={onClose}
+      title='排序方式'
     >
-      <View style={styles.modalOverlay}>
-        <View style={styles.modalContainer}>
-          <View style={styles.modalHeader}>
-            <Text style={styles.modalTitle}>排序方式</Text>
-            <TouchableOpacity onPress={onClose}>
-              <Ionicons name='close' size={24} color={colors.BLACK} />
-            </TouchableOpacity>
-          </View>
-          <ScrollView style={styles.modalContent}>
-            {SORT_OPTIONS.map(option => (
-              <TouchableOpacity
-                key={`${option.type}-${option.order}`}
+      <View style={{ padding: 16 }}>
+        <ScrollView>
+          {SORT_OPTIONS.map(option => (
+            <TouchableOpacity
+              key={`${option.type}-${option.order}`}
+              style={[
+                styles.sortOption,
+                sortBy === option.type && sortOrder === option.order && styles.sortOptionActive,
+              ]}
+              onPress={() => {
+                onSelect(option.type, option.order)
+                onClose()
+              }}
+            >
+              <View style={styles.sortOptionIcon}>
+                <Ionicons
+                  name={getIconName(option.type)}
+                  size={18}
+                  color={colors.PRIMARY}
+                />
+              </View>
+              <Text
                 style={[
-                  styles.sortOption,
-                  sortBy === option.type && sortOrder === option.order && styles.sortOptionActive,
+                  styles.sortOptionText,
+                  sortBy === option.type && sortOrder === option.order && styles.sortOptionTextActive,
                 ]}
-                onPress={() => {
-                  onSelect(option.type, option.order)
-                  onClose()
-                }}
               >
-                <View style={styles.sortOptionIcon}>
-                  <Ionicons
-                    name={getIconName(option.type)}
-                    size={18}
-                    color={colors.PRIMARY}
-                  />
-                </View>
-                <Text
-                  style={[
-                    styles.sortOptionText,
-                    sortBy === option.type && sortOrder === option.order && styles.sortOptionTextActive,
-                  ]}
-                >
-                  {option.label}
-                </Text>
-                {sortBy === option.type && sortOrder === option.order && (
-                  <Ionicons
-                    name='checkmark'
-                    size={20}
-                    color={colors.PRIMARY}
-                    style={{ marginLeft: 'auto' }}
-                  />
-                )}
-              </TouchableOpacity>
-            ))}
-          </ScrollView>
-        </View>
+                {option.label}
+              </Text>
+              {sortBy === option.type && sortOrder === option.order && (
+                <Ionicons
+                  name='checkmark'
+                  size={20}
+                  color={colors.PRIMARY}
+                  style={{ marginLeft: 'auto' }}
+                />
+              )}
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
       </View>
-    </Modal>
+    </AnimatedBottomSheet>
   )
 }
 

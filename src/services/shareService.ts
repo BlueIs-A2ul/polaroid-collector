@@ -1,7 +1,7 @@
 import { captureRef } from 'react-native-view-shot'
 import * as Sharing from 'expo-sharing'
 import * as FileSystem from 'expo-file-system/legacy'
-import { Alert } from 'react-native'
+import { Dialog } from './dialogService'
 
 export const captureAndShare = async (
   viewRef: React.RefObject<any>,
@@ -26,10 +26,10 @@ export const captureAndShare = async (
         dialogTitle: '分享拍立得收藏',
       })
     } else {
-      Alert.alert('提示', '分享功能不可用，图片已保存')
+      Dialog.toast('分享功能不可用，图片已保存', 'warning')
     }
   } catch (error) {
     console.error('分享失败:', error)
-    Alert.alert('分享失败', error instanceof Error ? error.message : '未知错误')
+    Dialog.toast(error instanceof Error ? error.message : '分享失败', 'error')
   }
 }
