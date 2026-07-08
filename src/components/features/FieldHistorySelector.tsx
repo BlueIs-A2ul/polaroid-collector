@@ -9,7 +9,6 @@ import {
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '../../contexts/ThemeContext'
-import { withOpacity } from '../../utils/colorUtils'
 import { getFieldHistory, addFieldHistory, removeFieldHistory } from '../../services/fieldHistoryService'
 import AnimatedBottomSheet from '../common/AnimatedBottomSheet'
 
@@ -90,7 +89,7 @@ const FieldHistorySelector: React.FC<FieldHistorySelectorProps> = ({
       borderColor: colors.GRAY[200],
     },
     historyItemSelected: {
-      backgroundColor: withOpacity(colors.PRIMARY, 0.08),
+      backgroundColor: colors.SURFACE_HIGHLIGHT,
       borderWidth: 1,
       borderColor: colors.PRIMARY,
     },

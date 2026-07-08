@@ -9,6 +9,7 @@ import {
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '../../contexts/ThemeContext'
 import { HEADER_PADDING_TOP } from '../../constants/themes'
+import { withOpacity } from '../../utils/colorUtils'
 
 interface DetailHeaderProps {
   idolName: string
@@ -51,7 +52,7 @@ const DetailHeader: React.FC<DetailHeaderProps> = ({
       width: 80,
       height: 80,
       borderRadius: 40,
-      backgroundColor: 'rgba(255, 255, 255, 0.3)',
+      backgroundColor: withOpacity(colors.WHITE, 0.3),
       justifyContent: 'center',
       alignItems: 'center',
       borderWidth: 3,

@@ -121,7 +121,7 @@ const ActionSheetModal: React.FC<ActionSheetModalProps> = ({
             <View
               style={[
                 styles.optionIcon,
-                { backgroundColor: option.destructive ? withOpacity(colors.ERROR, 0.08) : withOpacity(colors.PRIMARY, 0.08) },
+                { backgroundColor: option.destructive ? withOpacity(colors.ERROR, 0.08) : colors.SURFACE_HIGHLIGHT },
               ]}
             >
               <Ionicons

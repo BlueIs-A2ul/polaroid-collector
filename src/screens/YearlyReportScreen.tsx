@@ -246,7 +246,7 @@ const YearlyReportScreen: React.FC<YearlyReportScreenProps> = ({ report, avatarM
       width: 60,
       height: 60,
       borderRadius: 30,
-      backgroundColor: withOpacity(colors.PRIMARY, 0.08),
+      backgroundColor: colors.SURFACE_HIGHLIGHT,
       justifyContent: 'center',
       alignItems: 'center',
       marginBottom: 16,

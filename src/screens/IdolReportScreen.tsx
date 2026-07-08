@@ -245,7 +245,7 @@ const IdolReportScreen: React.FC<IdolReportScreenProps> = ({ route }) => {
       width: 56,
       height: 56,
       borderRadius: 28,
-      backgroundColor: withOpacity(colors.PRIMARY, 0.08),
+      backgroundColor: colors.SURFACE_HIGHLIGHT,
       justifyContent: 'center',
       alignItems: 'center',
       marginBottom: 12,

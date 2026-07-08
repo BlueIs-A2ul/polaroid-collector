@@ -37,7 +37,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
   const styles = useMemo(() => StyleSheet.create({
     overlay: {
       flex: 1,
-      backgroundColor: 'rgba(0, 0, 0, 0.45)',
+      backgroundColor: colors.OVERLAY,
       justifyContent: 'center',
       alignItems: 'center',
       paddingHorizontal: 32,
@@ -84,7 +84,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     },
     buttonArea: {
       borderTopWidth: 1,
-      borderTopColor: withOpacity(colors.BLACK, 0.08),
+      borderTopColor: colors.BORDER,
       flexDirection: 'row',
     },
     button: {
@@ -95,7 +95,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     },
     buttonSeparator: {
       width: 1,
-      backgroundColor: withOpacity(colors.BLACK, 0.08),
+      backgroundColor: colors.BORDER,
     },
     buttonText: {
       fontSize: 16,

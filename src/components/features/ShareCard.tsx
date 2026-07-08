@@ -6,7 +6,7 @@ import {
   Image as RNImage,
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
-import { ThemeColors } from '../../types/theme'
+import { ResolvedColors } from '../../types/theme'
 import { PolaroidRecord } from '../../types'
 import { withOpacity } from '../../utils/colorUtils'
 
@@ -17,7 +17,7 @@ interface ShareCardProps {
   totalRecords: number
   totalPrice: number
   records: PolaroidRecord[]
-  colors: ThemeColors
+  colors: ResolvedColors
 }
 
 const ShareCard = forwardRef<View, ShareCardProps>(({
@@ -114,7 +114,7 @@ const ShareCard = forwardRef<View, ShareCardProps>(({
       position: 'absolute',
       bottom: 4,
       right: 4,
-      backgroundColor: 'rgba(0, 0, 0, 0.6)',
+      backgroundColor: withOpacity(colors.BLACK, 0.6),
       borderRadius: 8,
       paddingHorizontal: 6,
       paddingVertical: 2,
@@ -158,7 +158,7 @@ const ShareCard = forwardRef<View, ShareCardProps>(({
     priceTag: {
       flexDirection: 'row',
       alignItems: 'center',
-      backgroundColor: withOpacity(colors.PRIMARY, 0.08),
+      backgroundColor: colors.SURFACE_HIGHLIGHT,
       paddingHorizontal: 12,
       paddingVertical: 6,
       borderRadius: 16,

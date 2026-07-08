@@ -9,7 +9,6 @@ import {
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '../../contexts/ThemeContext'
-import { withOpacity } from '../../utils/colorUtils'
 import AnimatedBottomSheet from '../common/AnimatedBottomSheet'
 
 interface OptionsSelectorProps {
@@ -73,7 +72,7 @@ const OptionsSelector: React.FC<OptionsSelectorProps> = ({
       borderColor: colors.GRAY[200],
     },
     optionSelected: {
-      backgroundColor: withOpacity(colors.PRIMARY, 0.08),
+      backgroundColor: colors.SURFACE_HIGHLIGHT,
     },
     optionText: {
       fontSize: 16,

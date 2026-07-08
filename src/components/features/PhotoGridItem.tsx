@@ -7,6 +7,7 @@ import {
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '../../contexts/ThemeContext'
+import { withOpacity } from '../../utils/colorUtils'
 import CachedImage from '../common/CachedImage'
 import { PolaroidRecord } from '../../types'
 
@@ -47,7 +48,7 @@ const PhotoGridItem: React.FC<PhotoGridItemProps> = ({
       position: 'absolute',
       bottom: 4,
       right: 4,
-      backgroundColor: 'rgba(0, 0, 0, 0.6)',
+      backgroundColor: withOpacity(colors.BLACK, 0.6),
       borderRadius: 6,
       paddingHorizontal: 6,
       paddingVertical: 2,

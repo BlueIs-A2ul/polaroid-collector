@@ -38,7 +38,7 @@ const AnimatedBottomSheet: React.FC<AnimatedBottomSheetProps> = ({
   const styles = useMemo(() => StyleSheet.create({
     overlay: {
       flex: 1,
-      backgroundColor: 'rgba(0, 0, 0, 0.45)',
+      backgroundColor: colors.OVERLAY,
       justifyContent: 'flex-end',
     },
     container: {
@@ -80,7 +80,7 @@ const AnimatedBottomSheet: React.FC<AnimatedBottomSheetProps> = ({
     },
     headerDivider: {
       height: 1,
-      backgroundColor: withOpacity(colors.BLACK, 0.08),
+      backgroundColor: colors.BORDER,
       marginHorizontal: 20,
     },
     content: {

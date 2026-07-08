@@ -3,7 +3,6 @@ import { View, Text, StyleSheet, TouchableOpacity, Animated } from 'react-native
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '../../contexts/ThemeContext'
 import { CARD_SHADOW } from '../../constants/themes'
-import { withOpacity } from '../../utils/colorUtils'
 import CachedImage from '../common/CachedImage'
 
 interface IdolCardAnimatedProps {
@@ -48,7 +47,7 @@ const IdolCardAnimated: React.FC<IdolCardAnimatedProps> = ({
       padding: 16,
     },
     cardSelected: {
-      backgroundColor: withOpacity(colors.PRIMARY, 0.08),
+      backgroundColor: colors.SURFACE_HIGHLIGHT,
       borderWidth: 2,
       borderColor: colors.PRIMARY,
     },

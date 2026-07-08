@@ -45,7 +45,7 @@ const ShareModal: React.FC<ShareModalProps> = ({
   const styles = React.useMemo(() => StyleSheet.create({
     overlay: {
       flex: 1,
-      backgroundColor: 'rgba(0, 0, 0, 0.45)',
+      backgroundColor: colors.OVERLAY,
       justifyContent: 'center',
       alignItems: 'center',
       paddingHorizontal: 24,

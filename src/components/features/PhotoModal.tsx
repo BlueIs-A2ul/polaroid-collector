@@ -11,10 +11,10 @@ import {
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '../../contexts/ThemeContext'
-import { MODAL_OVERLAY } from '../../constants/themes'
 import CachedImage from '../common/CachedImage'
 import { PolaroidRecord } from '../../types'
 import { formatDate } from '../../utils/rankingUtils'
+import { withOpacity } from '../../utils/colorUtils'
 
 interface PhotoModalProps {
   visible: boolean
@@ -83,7 +83,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
   const styles = useMemo(() => StyleSheet.create({
     modalContainer: {
       flex: 1,
-      backgroundColor: 'rgba(0, 0, 0, 0.92)',
+      backgroundColor: withOpacity(colors.BLACK, 0.92),
       justifyContent: 'center',
       alignItems: 'center',
     },
@@ -95,7 +95,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
       width: 36,
       height: 36,
       borderRadius: 18,
-      backgroundColor: 'rgba(255, 255, 255, 0.15)',
+      backgroundColor: withOpacity(colors.WHITE, 0.15),
       alignItems: 'center',
       justifyContent: 'center',
     },
@@ -133,7 +133,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
       position: 'absolute',
       top: 50,
       left: 20,
-      backgroundColor: MODAL_OVERLAY,
+      backgroundColor: colors.OVERLAY,
       paddingHorizontal: 12,
       paddingVertical: 6,
       borderRadius: 16,
@@ -158,7 +158,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
     toggleButton: {
       flexDirection: 'row',
       alignItems: 'center',
-      backgroundColor: 'rgba(255, 255, 255, 0.2)',
+      backgroundColor: withOpacity(colors.WHITE, 0.2),
       paddingHorizontal: 12,
       paddingVertical: 6,
       borderRadius: 16,
@@ -171,7 +171,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
     noteContainer: {
       flexDirection: 'row',
       alignItems: 'flex-start',
-      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+      backgroundColor: withOpacity(colors.WHITE, 0.1),
       paddingHorizontal: 12,
       paddingVertical: 8,
       borderRadius: 8,
@@ -196,7 +196,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
     extraInfoItem: {
       flexDirection: 'row',
       alignItems: 'center',
-      backgroundColor: 'rgba(255, 255, 255, 0.1)',
+      backgroundColor: withOpacity(colors.WHITE, 0.1),
       paddingHorizontal: 10,
       paddingVertical: 6,
       borderRadius: 6,
