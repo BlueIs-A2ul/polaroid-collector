@@ -112,3 +112,45 @@ export interface MonthlySpending {
   recordCount: number
   label: string
 }
+
+export type OrganizationMissingFieldKey =
+  | 'groupName'
+  | 'city'
+  | 'venue'
+  | 'price'
+  | 'backPhoto'
+  | 'note'
+  | 'polaroidType'
+  | 'memberCount'
+
+export type DuplicateConfidence = 'high' | 'medium' | 'low'
+
+export interface OrganizationMissingField {
+  key: OrganizationMissingFieldKey
+  label: string
+}
+
+export interface DuplicateCandidate {
+  id: string
+  idolName: string
+  photoDate: string
+  records: PolaroidRecord[]
+  recordCount: number
+  totalPhotos: number
+  totalPrice: number
+  confidence: DuplicateConfidence
+  reasons: string[]
+}
+
+export interface IncompleteRecordIssue {
+  record: PolaroidRecord
+  missingFields: OrganizationMissingField[]
+  missingCount: number
+}
+
+export interface OrganizationSummary {
+  duplicateGroupCount: number
+  duplicateRecordCount: number
+  incompleteRecordCount: number
+  missingFieldCount: number
+}

@@ -12,6 +12,7 @@ import CalendarScreen from '../screens/CalendarScreen'
 import ThemeSettingsScreen from '../screens/ThemeSettingsScreen'
 import YearlyReportEntryScreen from '../screens/YearlyReportEntryScreen'
 import IdolReportScreen from '../screens/IdolReportScreen'
+import OrganizationCenterScreen from '../screens/OrganizationCenterScreen'
 
 export type RootStackParamList = {
   Home: undefined
@@ -23,6 +24,7 @@ export type RootStackParamList = {
   ThemeSettings: undefined
   YearlyReport: undefined
   IdolReport: { idolName: string; avatarUri?: string | null }
+  OrganizationCenter: undefined
 }
 
 const Stack = createStackNavigator<RootStackParamList>()
@@ -107,6 +109,11 @@ const AppNavigator = () => {
           name='IdolReport'
           component={IdolReportScreen}
           options={{ headerShown: false, gestureEnabled: false }}
+        />
+        <Stack.Screen
+          name='OrganizationCenter'
+          component={OrganizationCenterScreen}
+          options={{ title: '整理中心' }}
         />
       </Stack.Navigator>
     </NavigationContainer>

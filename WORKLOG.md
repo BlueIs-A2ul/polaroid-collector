@@ -2,6 +2,31 @@
 
 本文档记录项目的开发进度和重要变更，供 AI 助手在每次开始工作时阅读，了解项目当前状态。
 
+## 2026-07-08 开发记录（整理中心）
+
+### 新增功能
+
+1. **整理中心**
+   - 新增整理中心页面，提供“疑似重复”和“待补信息”两个视图
+   - 疑似重复按偶像名称和拍摄日期聚合，展示可信度、涉及记录数、总张数和判断原因
+   - 待补信息检查团体、城市、场馆、价格、背签照片、备注、类型和人数
+   - 首页“更多选项”新增整理中心入口，支持跳转到详情页或编辑页继续处理
+
+### 文件变更
+
+| 文件 | 变更类型 | 说明 |
+|------|----------|------|
+| `src/utils/organizationUtils.ts` | 新增 | 整理中心重复检测、待补信息和汇总统计工具函数 |
+| `src/__tests__/organizationUtils.test.ts` | 新增 | 覆盖重复候选、可信度、待补字段和汇总统计 |
+| `src/screens/OrganizationCenterScreen.tsx` | 新增 | 整理中心页面 |
+| `src/navigation/AppNavigator.tsx` | 修改 | 添加整理中心路由 |
+| `src/screens/HomeScreen.tsx` | 修改 | 首页更多菜单新增整理中心入口 |
+| `src/types/index.ts` | 修改 | 添加整理中心相关类型 |
+| `docs/superpowers/specs/2026-07-08-organization-center-design.md` | 新增 | 整理中心设计说明 |
+| `docs/superpowers/plans/2026-07-08-organization-center.md` | 新增 | 整理中心实施计划 |
+
+---
+
 ## 2026-07-08 开发记录
 
 ### 新增功能

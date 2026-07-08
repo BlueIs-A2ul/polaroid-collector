@@ -322,6 +322,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     setActionSheetTitle('更多选项')
     setActionSheetOptions([
       { text: '主题设置', icon: 'color-palette-outline', onPress: () => navigation.navigate('ThemeSettings') },
+      { text: '整理中心', icon: 'albums-outline', onPress: () => navigation.navigate('OrganizationCenter') },
       { text: '合并同日记录', icon: 'copy-outline', onPress: handleMergeSameDayRecords },
       { text: '创建备份', icon: 'cloud-upload-outline', onPress: handleCreateBackup },
       { text: '恢复备份', icon: 'cloud-download-outline', onPress: handleRestoreBackup },
