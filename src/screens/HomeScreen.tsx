@@ -16,7 +16,7 @@ import { RootStackParamList } from '../navigation/AppNavigator'
 import { useRecords } from '../hooks/useRecords'
 import IdolCardAnimated from '../components/features/IdolCardAnimated'
 import EmptyState from '../components/common/EmptyState'
-import SearchBar, { SearchType } from '../components/common/SearchBar'
+import SearchBar from '../components/common/SearchBar'
 import { HomeSkeleton } from '../components/common/Skeleton'
 import HomeHeader from '../components/features/HomeHeader'
 import StatsCard from '../components/features/StatsCard'
@@ -25,7 +25,7 @@ import BatchActionBar from '../components/features/BatchActionBar'
 import BatchEditModal from '../components/features/BatchEditModal'
 import SortOptionsModal, { SortType, SortOrder, SORT_OPTIONS } from '../components/features/SortOptionsModal'
 import ActionSheetModal, { ActionSheetOption } from '../components/features/ActionSheetModal'
-import AdvancedFilter, { FilterOptions } from '../components/features/AdvancedFilter'
+import AdvancedFilter from '../components/features/AdvancedFilter'
 import {
   exportToJSON,
   exportToCSV,
@@ -43,6 +43,13 @@ import { mergeSameDayRecords, previewMergeResult } from '../services/mergeServic
 import { Dialog } from '../services/dialogService'
 import * as DocumentPicker from 'expo-document-picker'
 import { RankingItem } from '../types'
+import {
+  DEFAULT_FILTER_OPTIONS,
+  FilterOptions,
+  SearchType,
+  filterRankingItems,
+  getActiveFilterCount,
+} from '../utils/filterUtils'
 
 type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>
 type HomeScreenRouteProp = RouteProp<RootStackParamList, 'Home'>
@@ -56,16 +63,11 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const { colors } = useTheme()
   const { ranking, statistics, loading, error, refreshAll } = useRecords()
   const [searchQuery, setSearchQuery] = React.useState('')
-  const [searchType, setSearchType] = React.useState<SearchType>('idolName')
+  const [searchType, setSearchType] = React.useState<SearchType>('all')
   const [refreshing, setRefreshing] = React.useState(false)
   const [avatarMap, setAvatarMap] = React.useState<Record<string, string>>({})
   const [showFilter, setShowFilter] = React.useState(false)
-  const [filters, setFilters] = React.useState<FilterOptions>({
-    groupName: null,
-    city: null,
-    venue: null,
-    polaroidType: null,
-  })
+  const [filters, setFilters] = React.useState<FilterOptions>(DEFAULT_FILTER_OPTIONS)
   const [selectionMode, setSelectionMode] = React.useState(false)
   const [selectedIdols, setSelectedIdols] = React.useState<Set<string>>(new Set())
   const [showBatchEdit, setShowBatchEdit] = React.useState(false)
@@ -127,42 +129,16 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     }, [refreshAll, loadAvatars]),
   )
 
+  const activeFilterCount = React.useMemo(() => {
+    return getActiveFilterCount(filters)
+  }, [filters])
+
+  const clearFilters = React.useCallback(() => {
+    setFilters(DEFAULT_FILTER_OPTIONS)
+  }, [])
+
   const filteredRanking = React.useMemo(() => {
-    let result = ranking
-
-    if (searchQuery.length > 0) {
-      const query = searchQuery.toLowerCase()
-      result = result.filter(item => {
-        if (searchType === 'idolName') {
-          return item.idolName.toLowerCase().includes(query)
-        }
-
-        const records = item.records
-        if (searchType === 'groupName') {
-          return records.some(r => r.groupName?.toLowerCase().includes(query))
-        }
-        if (searchType === 'city') {
-          return records.some(r => r.city?.toLowerCase().includes(query))
-        }
-        if (searchType === 'venue') {
-          return records.some(r => r.venue?.toLowerCase().includes(query))
-        }
-        return false
-      })
-    }
-
-    if (filters.groupName || filters.city || filters.venue || filters.polaroidType) {
-      result = result.filter(item => {
-        const records = item.records
-        return records.some(r => {
-          if (filters.groupName && r.groupName !== filters.groupName) return false
-          if (filters.city && r.city !== filters.city) return false
-          if (filters.venue && r.venue !== filters.venue) return false
-          if (filters.polaroidType && r.polaroidType !== filters.polaroidType) return false
-          return true
-        })
-      })
-    }
+    let result = filterRankingItems(ranking, searchQuery, searchType, filters)
 
     result = result.sort((a, b) => {
       if (sortBy === 'date') {
@@ -476,9 +452,10 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       />
 
       <QuickActions
-        filters={filters}
+        activeFilterCount={activeFilterCount}
         onNavigateToCalendar={() => navigation.navigate('Calendar')}
         onShowFilter={() => setShowFilter(true)}
+        onClearFilters={clearFilters}
         onNavigateToUpload={() => navigation.navigate('Upload', {})}
       />
 
@@ -509,7 +486,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         </View>
       </View>
     </>
-  ), [statistics, filters, ranking.length, searchQuery, searchType, sortBy, sortOrder, colors.PRIMARY, styles, navigation, refreshAll])
+  ), [statistics, filters, activeFilterCount, clearFilters, ranking.length, searchQuery, searchType, sortBy, sortOrder, colors.PRIMARY, styles, navigation, refreshAll])
 
   const ListFooterComponent = React.useMemo(() => (
     selectionMode ? null : <View style={styles.listFooter} />
@@ -549,7 +526,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         ListHeaderComponent={ListHeaderComponent}
         ListFooterComponent={ListFooterComponent}
         ListEmptyComponent={
-          searchQuery.length > 0 ? (
+          searchQuery.length > 0 || activeFilterCount > 0 ? (
             <EmptyState
               icon='search-outline'
               title='未找到相关偶像'

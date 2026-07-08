@@ -2,10 +2,9 @@ import React, { useMemo, useState } from 'react'
 import { View, TextInput, StyleSheet, TouchableOpacity, Text, ScrollView } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '../../contexts/ThemeContext'
+import { SearchType } from '../../utils/filterUtils'
 import { withOpacity } from '../../utils/colorUtils'
 import AnimatedBottomSheet from '../common/AnimatedBottomSheet'
-
-export type SearchType = 'idolName' | 'groupName' | 'city' | 'venue'
 
 interface SearchTypeOption {
   type: SearchType
@@ -14,6 +13,7 @@ interface SearchTypeOption {
 }
 
 const SEARCH_TYPES: SearchTypeOption[] = [
+  { type: 'all', label: '全部', icon: 'search' },
   { type: 'idolName', label: '偶像', icon: 'person' },
   { type: 'groupName', label: '团体', icon: 'people' },
   { type: 'city', label: '城市', icon: 'location' },
@@ -105,7 +105,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
     },
   }), [colors])
 
-  const handleSelectType = (type: SearchType) => {
+  const handleSelectType = (type: SearchType): void => {
     onSearchTypeChange(type)
     setShowTypeSelector(false)
     onChangeText('')

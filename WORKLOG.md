@@ -2,6 +2,30 @@
 
 本文档记录项目的开发进度和重要变更，供 AI 助手在每次开始工作时阅读，了解项目当前状态。
 
+## 2026-07-08 开发记录
+
+### 新增功能
+
+1. **首页搜索与筛选增强**
+   - 搜索新增“全部”模式，可同时匹配偶像名、团体、城市、场馆、备注、类型和人数
+   - 高级筛选新增价格区间、背签照片有无、备注有无筛选
+   - 首页筛选按钮显示当前启用筛选数量，并支持一键清除筛选
+   - 将搜索和筛选匹配逻辑抽取为 `filterUtils`，便于测试和维护
+
+### 文件变更
+
+| 文件 | 变更类型 | 说明 |
+|------|----------|------|
+| `src/utils/filterUtils.ts` | 新增 | 首页搜索和筛选匹配工具函数 |
+| `src/__tests__/filterUtils.test.ts` | 新增 | 覆盖全部搜索、价格区间、背签/备注筛选和筛选计数 |
+| `src/screens/HomeScreen.tsx` | 修改 | 使用统一筛选工具，默认启用全部搜索，支持清除筛选 |
+| `src/components/common/SearchBar.tsx` | 修改 | 新增“全部”搜索类型 |
+| `src/components/features/AdvancedFilter.tsx` | 修改 | 新增价格区间、背签和备注筛选控件 |
+| `src/components/features/QuickActions.tsx` | 修改 | 显示筛选数量并提供一键清除入口 |
+| `docs/superpowers/plans/2026-07-08-enhanced-search-filter.md` | 新增 | 搜索筛选增强实现计划 |
+
+---
+
 ## 2026-04-13 开发记录
 
 ### 修复问题
