@@ -13,18 +13,21 @@ export const getThemeConfig = async (): Promise<ThemeConfig> => {
         currentThemeId: config.currentThemeId || DEFAULT_THEME_ID,
         customThemes: config.customThemes || [],
         adjustment: config.adjustment || DEFAULT_ADJUSTMENT,
+        isDark: config.isDark || false,
       }
     }
     return {
       currentThemeId: DEFAULT_THEME_ID,
       customThemes: [],
       adjustment: DEFAULT_ADJUSTMENT,
+      isDark: false,
     }
   } catch {
     return {
       currentThemeId: DEFAULT_THEME_ID,
       customThemes: [],
       adjustment: DEFAULT_ADJUSTMENT,
+      isDark: false,
     }
   }
 }

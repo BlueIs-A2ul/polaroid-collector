@@ -5,6 +5,7 @@ import {
   StyleSheet,
   TouchableOpacity,
   ScrollView,
+  Switch,
 } from 'react-native'
 import Slider from '@react-native-community/slider'
 import { Ionicons } from '@expo/vector-icons'
@@ -18,9 +19,11 @@ const ThemeSettingsScreen: React.FC = () => {
     originalColors,
     currentThemeId,
     adjustment,
+    isDark,
     setTheme,
     setAdjustment,
     resetAdjustment,
+    toggleDarkMode,
   } = useTheme()
 
   const styles = useMemo(() => StyleSheet.create({
@@ -174,6 +177,39 @@ const ThemeSettingsScreen: React.FC = () => {
     bottomPadding: {
       height: 20,
     },
+    darkModeSection: {
+      backgroundColor: colors.WHITE,
+      borderRadius: 12,
+      padding: 16,
+      marginBottom: 24,
+    },
+    darkModeRow: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      justifyContent: 'space-between',
+    },
+    darkModeInfo: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      gap: 12,
+    },
+    darkModeIcon: {
+      width: 40,
+      height: 40,
+      borderRadius: 20,
+      alignItems: 'center',
+      justifyContent: 'center',
+    },
+    darkModeLabel: {
+      fontSize: 16,
+      fontWeight: '600',
+      color: colors.BLACK,
+    },
+    darkModeHint: {
+      fontSize: 13,
+      color: colors.GRAY[500],
+      marginTop: 2,
+    },
   }), [colors])
 
   const handleAdjustmentChange = (key: keyof ThemeAdjustment, value: number) => {
@@ -192,6 +228,34 @@ const ThemeSettingsScreen: React.FC = () => {
       </View>
 
       <View style={styles.content}>
+        <View style={styles.darkModeSection}>
+          <View style={styles.darkModeRow}>
+            <View style={styles.darkModeInfo}>
+              <View style={[styles.darkModeIcon, { backgroundColor: isDark ? colors.SURFACE_HIGHLIGHT : colors.GRAY[100] }]}>
+                <Ionicons
+                  name={isDark ? 'moon' : 'sunny'}
+                  size={20}
+                  color={isDark ? colors.PRIMARY : colors.WARNING}
+                />
+              </View>
+              <View>
+                <Text style={styles.darkModeLabel}>
+                  {isDark ? '暗色模式' : '亮色模式'}
+                </Text>
+                <Text style={styles.darkModeHint}>
+                  {isDark ? '照片在暗色背景下更出彩' : '切换至暗色背景保护视力'}
+                </Text>
+              </View>
+            </View>
+            <Switch
+              value={isDark}
+              onValueChange={toggleDarkMode}
+              trackColor={{ false: colors.GRAY[300], true: colors.PRIMARY }}
+              thumbColor={colors.WHITE}
+            />
+          </View>
+        </View>
+
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>选择基础主题</Text>
 

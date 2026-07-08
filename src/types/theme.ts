@@ -21,6 +21,22 @@ export interface ThemeColors {
   }
 }
 
+export interface ResolvedColors extends ThemeColors {
+  SURFACE: string
+  SURFACE_HIGHLIGHT: string
+  SURFACE_ELEVATED: string
+  BORDER: string
+  BORDER_LIGHT: string
+  TEXT_PRIMARY: string
+  TEXT_SECONDARY: string
+  TEXT_TERTIARY: string
+  SUCCESS_BG: string
+  ERROR_BG: string
+  WARNING_BG: string
+  INFO_BG: string
+  OVERLAY: string
+}
+
 export interface Theme {
   id: string
   name: string
@@ -37,4 +53,5 @@ export interface ThemeConfig {
   currentThemeId: string
   customThemes: Theme[]
   adjustment: ThemeAdjustment
+  isDark: boolean
 }

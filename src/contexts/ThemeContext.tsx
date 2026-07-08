@@ -1,22 +1,24 @@
 import React, { createContext, useContext, useState, useEffect, useCallback, useMemo } from 'react'
-import { Theme, ThemeColors, ThemeConfig, ThemeAdjustment } from '../types/theme'
+import { Theme, ThemeColors, ThemeConfig, ThemeAdjustment, ResolvedColors } from '../types/theme'
 import { getThemeConfig, saveThemeConfig } from '../services/themeService'
-import { PRESET_THEMES, DEFAULT_THEME_ID, getThemeById } from '../constants/themes'
+import { PRESET_THEMES, DEFAULT_THEME_ID, getThemeById, deriveColors } from '../constants/themes'
 import { adjustColor, DEFAULT_ADJUSTMENT } from '../utils/colorUtils'
 
 interface ThemeContextValue {
   theme: Theme
-  colors: ThemeColors
+  colors: ResolvedColors
   originalColors: ThemeColors
   currentThemeId: string
   customThemes: Theme[]
   allThemes: Theme[]
   adjustment: ThemeAdjustment
+  isDark: boolean
   setTheme: (themeId: string) => void
   setAdjustment: (adjustment: ThemeAdjustment) => void
   resetAdjustment: () => void
   addCustomTheme: (theme: Theme) => void
   removeCustomTheme: (themeId: string) => void
+  toggleDarkMode: () => void
   isLoading: boolean
 }
 
@@ -27,6 +29,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     currentThemeId: DEFAULT_THEME_ID,
     customThemes: [],
     adjustment: DEFAULT_ADJUSTMENT,
+    isDark: false,
   })
   const [isLoading, setIsLoading] = useState(true)
 
@@ -48,7 +51,7 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return found || getThemeById(DEFAULT_THEME_ID)
   }, [config.currentThemeId, config.customThemes])
 
-  const colors = useMemo(() => {
+  const adjustedCore = useMemo((): ThemeColors => {
     const base = baseTheme.colors
     const adj = config.adjustment
 
@@ -59,13 +62,29 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return {
       ...base,
       PRIMARY: adjustColor(base.PRIMARY, adj),
-      SECONDARY: adjustColor(base.SECONDARY, adj),
-      SUCCESS: adjustColor(base.SUCCESS, adj),
-      ERROR: adjustColor(base.ERROR, adj),
+      SECONDARY: adjustColor(base.SECONDARY, {
+        hueShift: Math.round(adj.hueShift * 0.3),
+        saturation: Math.round(adj.saturation * 0.5),
+        lightness: adj.lightness,
+      }),
+      SUCCESS: adjustColor(base.SUCCESS, {
+        hueShift: Math.round(adj.hueShift * 0.5),
+        saturation: Math.round(adj.saturation * 0.3),
+        lightness: adj.lightness,
+      }),
+      ERROR: adjustColor(base.ERROR, {
+        hueShift: Math.round(adj.hueShift * 0.5),
+        saturation: Math.round(adj.saturation * 0.3),
+        lightness: adj.lightness,
+      }),
       WARNING: adjustColor(base.WARNING, adj),
       INFO: adjustColor(base.INFO, adj),
     }
   }, [baseTheme, config.adjustment])
+
+  const colors = useMemo((): ResolvedColors => {
+    return deriveColors(adjustedCore, config.isDark)
+  }, [adjustedCore, config.isDark])
 
   const allThemes = useMemo(() => {
     return [...PRESET_THEMES, ...config.customThemes]
@@ -112,6 +131,12 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     await saveThemeConfig(newConfig)
   }, [config])
 
+  const toggleDarkMode = useCallback(async () => {
+    const newConfig = { ...config, isDark: !config.isDark }
+    setConfig(newConfig)
+    await saveThemeConfig(newConfig)
+  }, [config])
+
   const value: ThemeContextValue = {
     theme: baseTheme,
     colors,
@@ -120,11 +145,13 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     customThemes: config.customThemes,
     allThemes,
     adjustment: config.adjustment,
+    isDark: config.isDark,
     setTheme,
     setAdjustment,
     resetAdjustment,
     addCustomTheme,
     removeCustomTheme,
+    toggleDarkMode,
     isLoading,
   }
 
