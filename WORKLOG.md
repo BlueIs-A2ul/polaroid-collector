@@ -2,6 +2,59 @@
 
 本文档记录项目的开发进度和重要变更，供 AI 助手在每次开始工作时阅读，了解项目当前状态。
 
+## 2026-07-13 开发记录（结构重构）
+
+### 重构内容
+
+1. **记录服务职责拆分**
+   - 将原 `recordService.ts` 中的写操作拆分到 `recordCommandService.ts`
+   - 将排行榜、详情和偶像列表查询拆分到 `recordQueryService.ts`
+   - 将统计和月度花费拆分到 `recordStatsService.ts`
+   - 保留 `recordService.ts` 作为兼容导出入口，避免一次性改动所有调用方
+
+2. **上传页瘦身**
+   - 将上传页样式抽离到 `uploadScreenStyles.ts`
+   - 将已选照片列表抽离为 `UploadPhotoList`
+   - 将公共信息、价格选择弹窗、裁切选项弹窗抽离为独立组件
+   - 将照片选择/背签/照片字段更新逻辑抽离到 `useUploadPhotos`
+   - 将偶像默认团体和价格推荐逻辑抽离到 `useUploadIdolDefaults`
+
+3. **编辑页瘦身**
+   - 将编辑页样式抽离到 `editScreenStyles.ts`
+   - 将裁切选项弹窗抽离为 `EditCropOptionsSheet`
+   - 将正面照片和背签照片区域抽离为 `EditPhotoSection`
+   - 将基础字段、日期、备注和扩展信息抽离为 `EditRecordFormFields`
+
+### 文件变更
+
+| 文件 | 变更类型 | 说明 |
+|------|----------|------|
+| `src/services/recordCommandService.ts` | 新增 | 记录创建、更新、删除和批量创建 |
+| `src/services/recordQueryService.ts` | 新增 | 记录排行榜、详情、偶像名称和偶像数量列表查询 |
+| `src/services/recordStatsService.ts` | 新增 | 统计信息和月度花费 |
+| `src/services/recordService.ts` | 重构 | 改为兼容导出入口 |
+| `src/__tests__/recordServiceBoundaries.test.ts` | 新增 | 覆盖拆分后服务边界导出 |
+| `src/screens/uploadScreenStyles.ts` | 新增 | 上传页样式工厂 |
+| `src/components/features/upload/UploadPhotoList.tsx` | 新增 | 上传页已选照片列表 |
+| `src/components/features/upload/UploadCommonFields.tsx` | 新增 | 上传页公共信息区域 |
+| `src/components/features/upload/UploadPriceSelectorSheet.tsx` | 新增 | 上传页价格选择弹窗 |
+| `src/components/features/upload/UploadCropOptionsSheet.tsx` | 新增 | 上传页裁切选项弹窗 |
+| `src/hooks/useUploadPhotos.ts` | 新增 | 上传页照片选择与照片字段状态逻辑 |
+| `src/hooks/useUploadIdolDefaults.ts` | 新增 | 上传页偶像默认团体和价格推荐逻辑 |
+| `src/screens/UploadScreen.tsx` | 重构 | 从 1105 行降至约 408 行 |
+| `src/screens/editScreenStyles.ts` | 新增 | 编辑页样式工厂 |
+| `src/components/features/edit/EditCropOptionsSheet.tsx` | 新增 | 编辑页裁切选项弹窗 |
+| `src/components/features/edit/EditPhotoSection.tsx` | 新增 | 编辑页正面照片和背签照片区域 |
+| `src/components/features/edit/EditRecordFormFields.tsx` | 新增 | 编辑页基础字段和扩展字段表单 |
+| `src/screens/EditScreen.tsx` | 重构 | 从 946 行降至约 427 行 |
+
+### 验证
+
+- `npm.cmd run typecheck`
+- `npm.cmd test -- --runInBand`
+
+---
+
 ## 2026-07-08 开发记录（整理中心）
 
 ### 新增功能
