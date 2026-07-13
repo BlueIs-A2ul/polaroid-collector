@@ -27,6 +27,7 @@ import { getIdolDefaultPrice, getIdolPriceOptions } from '../services/priceStats
 import { Dialog } from '../services/dialogService'
 import { createUploadScreenStyles } from './uploadScreenStyles'
 import UploadPhotoList from '../components/features/upload/UploadPhotoList'
+import UploadCommonFields from '../components/features/upload/UploadCommonFields'
 
 type UploadScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -467,49 +468,14 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation, route }) => {
         </View>
 
         {photos.length > 0 && (
-          <View style={styles.formGroup}>
-            <Text style={styles.label}>公共信息（应用到所有照片）</Text>
-            <View style={styles.globalFieldsRow}>
-              <View style={styles.globalFieldHalf}>
-                <Text style={styles.extraFieldLabel}>团体</Text>
-                <TouchableOpacity
-                  style={styles.extraFieldInputWrapper}
-                  onPress={() => setShowFieldSelector('groupName')}
-                >
-                  <Text style={[styles.extraFieldInputText, globalGroupName ? null : styles.extraFieldPlaceholder]}>
-                    {globalGroupName || '选填'}
-                  </Text>
-                  <Ionicons name='chevron-down' size={16} color={colors.GRAY[500]} />
-                </TouchableOpacity>
-              </View>
-              <View style={styles.globalFieldHalf}>
-                <Text style={styles.extraFieldLabel}>城市</Text>
-                <TouchableOpacity
-                  style={styles.extraFieldInputWrapper}
-                  onPress={() => setShowFieldSelector('city')}
-                >
-                  <Text style={[styles.extraFieldInputText, globalCity ? null : styles.extraFieldPlaceholder]}>
-                    {globalCity || '选填'}
-                  </Text>
-                  <Ionicons name='chevron-down' size={16} color={colors.GRAY[500]} />
-                </TouchableOpacity>
-              </View>
-            </View>
-            <View style={styles.globalFieldsRow}>
-              <View style={styles.globalFieldFull}>
-                <Text style={styles.extraFieldLabel}>场馆</Text>
-                <TouchableOpacity
-                  style={styles.extraFieldInputWrapper}
-                  onPress={() => setShowFieldSelector('venue')}
-                >
-                  <Text style={[styles.extraFieldInputText, globalVenue ? null : styles.extraFieldPlaceholder]}>
-                    {globalVenue || '选填'}
-                  </Text>
-                  <Ionicons name='chevron-down' size={16} color={colors.GRAY[500]} />
-                </TouchableOpacity>
-              </View>
-            </View>
-          </View>
+          <UploadCommonFields
+            globalGroupName={globalGroupName}
+            globalCity={globalCity}
+            globalVenue={globalVenue}
+            colors={colors}
+            styles={styles}
+            onOpenFieldSelector={setShowFieldSelector}
+          />
         )}
 
         {photos.length > 0 && (
