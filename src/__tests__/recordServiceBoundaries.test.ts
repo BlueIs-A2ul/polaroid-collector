@@ -24,6 +24,10 @@ import {
   getAllIdolNames,
   getIdolListWithCount,
 } from '../services/recordQueryService'
+import {
+  getStatistics,
+  getMonthlySpending,
+} from '../services/recordStatsService'
 
 describe('record service boundaries', () => {
   it('exposes record command operations from recordCommandService', () => {
@@ -38,5 +42,10 @@ describe('record service boundaries', () => {
     expect(getIdolDetail).toEqual(expect.any(Function))
     expect(getAllIdolNames).toEqual(expect.any(Function))
     expect(getIdolListWithCount).toEqual(expect.any(Function))
+  })
+
+  it('exposes record stats operations from recordStatsService', () => {
+    expect(getStatistics).toEqual(expect.any(Function))
+    expect(getMonthlySpending).toEqual(expect.any(Function))
   })
 })
