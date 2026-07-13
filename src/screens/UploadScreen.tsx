@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import {
   View,
   Text,
@@ -15,20 +15,18 @@ import { StackNavigationProp } from '@react-navigation/stack'
 import { RouteProp } from '@react-navigation/native'
 import { useTheme } from '../contexts/ThemeContext'
 import { RootStackParamList } from '../navigation/AppNavigator'
-import { pickPhoto, pickMultiplePhotos, PhotoWithDate } from '../services/photoService'
 import { createRecord, createMultipleRecords } from '../services/recordService'
 import LoadingSpinner from '../components/common/LoadingSpinner'
 import IdolSelector from '../components/features/IdolSelector'
 import FieldHistorySelector from '../components/features/FieldHistorySelector'
-import { PhotoItem } from '../types'
-import { getIdolGroupBinding } from '../services/idolBindingService'
-import { getIdolDefaultPrice, getIdolPriceOptions } from '../services/priceStatsService'
 import { Dialog } from '../services/dialogService'
 import { createUploadScreenStyles } from './uploadScreenStyles'
 import UploadPhotoList from '../components/features/upload/UploadPhotoList'
 import UploadCommonFields from '../components/features/upload/UploadCommonFields'
 import UploadPriceSelectorSheet from '../components/features/upload/UploadPriceSelectorSheet'
 import UploadCropOptionsSheet from '../components/features/upload/UploadCropOptionsSheet'
+import { useUploadPhotos } from '../hooks/useUploadPhotos'
+import { useUploadIdolDefaults } from '../hooks/useUploadIdolDefaults'
 
 type UploadScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -48,53 +46,53 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation, route }) => {
   const [photoDate, setPhotoDate] = useState<string>(
     new Date().toISOString().split('T')[0],
   )
-  const [photos, setPhotos] = useState<PhotoItem[]>([])
   const [loading, setLoading] = useState<boolean>(false)
   const [showDatePicker, setShowDatePicker] = useState<boolean>(false)
   const [selectedDate, setSelectedDate] = useState<Date>(new Date())
   const [showIdolSelector, setShowIdolSelector] = useState<boolean>(false)
-  const [showCropOptions, setShowCropOptions] = useState<boolean>(false)
-  const [allowCrop, setAllowCrop] = useState<boolean>(false)
-  const [cropWidth, setCropWidth] = useState<number>(4)
-  const [cropHeight, setCropHeight] = useState<number>(3)
-  const [pendingSource, setPendingSource] = useState<'camera' | 'library'>('library')
-  const [pendingBackPhotoUri, setPendingBackPhotoUri] = useState<string | null>(null)
   const [showFieldSelector, setShowFieldSelector] = useState<'groupName' | 'city' | 'venue' | null>(null)
-  const [globalGroupName, setGlobalGroupName] = useState<string>('')
-  const [globalCity, setGlobalCity] = useState<string>('')
-  const [globalVenue, setGlobalVenue] = useState<string>('')
-  const [defaultGroupName, setDefaultGroupName] = useState<string | null>(null)
-  const [defaultPrice, setDefaultPrice] = useState<number | null>(null)
-  const [priceOptions, setPriceOptions] = useState<number[]>([])
-  const [showPriceSelector, setShowPriceSelector] = useState<string | null>(null)
-  const [mergeAsOneRecord, setMergeAsOneRecord] = useState<boolean>(false)
+  const {
+    globalGroupName,
+    globalCity,
+    globalVenue,
+    defaultPrice,
+    priceOptions,
+    setGlobalGroupName,
+    setGlobalCity,
+    setGlobalVenue,
+  } = useUploadIdolDefaults(idolName)
+  const {
+    photos,
+    showCropOptions,
+    allowCrop,
+    cropWidth,
+    cropHeight,
+    showPriceSelector,
+    mergeAsOneRecord,
+    setShowCropOptions,
+    setAllowCrop,
+    setCropWidth,
+    setCropHeight,
+    setShowPriceSelector,
+    setMergeAsOneRecord,
+    handleShowCropOptions,
+    handleConfirmCropOptions,
+    updatePhotoCount,
+    updatePhotoPrice,
+    updatePhotoNote,
+    updatePhotoField,
+    removePhoto,
+    handleAddBackPhoto,
+    handleRemoveBackPhoto,
+    getTotalCount,
+    getBackPhotoCount,
+    clearPhotos,
+  } = useUploadPhotos({
+    photoDate,
+    defaultPrice,
+    setPhotoDate,
+  })
 
-  useEffect(() => {
-    if (!idolName.trim()) {
-      setDefaultPrice(null)
-      setPriceOptions([])
-      setDefaultGroupName(null)
-      setGlobalGroupName('')
-      return
-    }
-    
-    getIdolGroupBinding(idolName).then(({ success, data }) => {
-      if (success && data) {
-        setDefaultGroupName(data)
-        setGlobalGroupName(data)
-      }
-    })
-    getIdolDefaultPrice(idolName).then(({ success, data }) => {
-      if (success && data) {
-        setDefaultPrice(data)
-      }
-    })
-    getIdolPriceOptions(idolName).then(({ success, data }) => {
-      if (success && data) {
-        setPriceOptions(data)
-      }
-    })
-  }, [idolName])
 
   const formatDateToString = (date: Date): string => {
     const year = date.getFullYear()
@@ -124,121 +122,12 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation, route }) => {
     setShowDatePicker(true)
   }
 
-  const handleShowCropOptions = (source: 'camera' | 'library' | 'multiple') => {
-    if (source === 'multiple') {
-      handleConfirmCropOptionsForMultiple()
-    } else {
-      setPendingSource(source)
-      setShowCropOptions(true)
-    }
-  }
-
-  const handleConfirmCropOptionsForMultiple = async () => {
-    const today = new Date().toISOString().split('T')[0]
-
-    const { success, data, error } = await pickMultiplePhotos({
-      allowCrop,
-      cropWidth,
-      cropHeight,
-    })
-
-    if (success && data) {
-      const newPhotos: PhotoItem[] = data.map(p => ({
-        uri: p.uri,
-        count: 1,
-        price: defaultPrice || undefined,
-      }))
-      setPhotos(prev => [...prev, ...newPhotos])
-
-      const firstDate = data[0]?.capturedDate
-      if (firstDate && photoDate === today) {
-        setPhotoDate(firstDate)
-      }
-    } else if (error !== '用户取消选择') {
-      Dialog.toast(error || '选择照片失败', 'error')
-    }
-  }
-
-  const handleConfirmCropOptions = async () => {
-    setShowCropOptions(false)
-
-    const today = new Date().toISOString().split('T')[0]
-
-    const { success, data, error } = await pickPhoto(pendingSource, {
-      allowCrop,
-      cropWidth,
-      cropHeight,
-    })
-
-    if (success && data) {
-      setPhotos(prev => [...prev, {
-        uri: data.uri,
-        count: 1,
-        price: defaultPrice || undefined,
-      }])
-
-      if (data.capturedDate && photoDate === today) {
-        setPhotoDate(data.capturedDate)
-      }
-    } else if (error !== '用户取消选择') {
-      Dialog.toast(error || '选择照片失败', 'error')
-    }
-  }
-
   const handleOpenIdolSelector = () => {
     setShowIdolSelector(true)
   }
 
   const handleSelectIdol = (selectedIdolName: string) => {
     setIdolName(selectedIdolName)
-  }
-
-  const updatePhotoCount = (uri: string, count: number) => {
-    setPhotos(photos.map(p => (p.uri === uri ? { ...p, count: Math.max(1, count) } : p)))
-  }
-
-  const updatePhotoPrice = (uri: string, price: number) => {
-    setPhotos(photos.map(p => (p.uri === uri ? { ...p, price: price > 0 ? price : undefined } : p)))
-  }
-
-  const updatePhotoNote = (uri: string, note: string) => {
-    setPhotos(photos.map(p => (p.uri === uri ? { ...p, note: note.trim() || undefined } : p)))
-  }
-
-  const updatePhotoField = (uri: string, field: keyof PhotoItem, value: string | undefined) => {
-    setPhotos(photos.map(p => (p.uri === uri ? { ...p, [field]: value || undefined } : p)))
-  }
-
-  const removePhoto = (uri: string) => {
-    setPhotos(photos.filter(p => p.uri !== uri))
-  }
-
-  const handleAddBackPhoto = async (photoUri: string) => {
-    const { success, data, error } = await pickPhoto('library', {
-      allowCrop: false,
-    })
-
-    if (success && data) {
-      setPhotos(photos.map(p => (p.uri === photoUri ? { ...p, backPhotoUri: data.uri } : p)))
-    } else if (error !== '用户取消选择') {
-      Dialog.toast(error || '选择背签照片失败', 'error')
-    }
-  }
-
-  const handleRemoveBackPhoto = (photoUri: string) => {
-    setPhotos(photos.map(p => (p.uri === photoUri ? { ...p, backPhotoUri: undefined } : p)))
-  }
-
-  const getTotalCount = (): number => {
-    return photos.reduce((sum, p) => sum + p.count, 0)
-  }
-
-  const getTotalPrice = (): number => {
-    return photos.reduce((sum, p) => sum + (p.price || 0), 0)
-  }
-
-  const getBackPhotoCount = (): number => {
-    return photos.filter(p => p.backPhotoUri).length
   }
 
   const validateForm = (): boolean => {
@@ -317,7 +206,7 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation, route }) => {
         if (mergeButtonIndex === 0) {
           navigation.goBack()
         } else {
-          setPhotos([])
+          clearPhotos()
         }
       }
     } else {
@@ -354,7 +243,7 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation, route }) => {
         if (buttonIndex === 0) {
           navigation.goBack()
         } else {
-          setPhotos([])
+          clearPhotos()
         }
       }
     }
