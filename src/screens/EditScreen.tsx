@@ -7,7 +7,6 @@ import {
   ScrollView,
   Image,
   Platform,
-  Switch,
   KeyboardAvoidingView,
 } from 'react-native'
 import DateTimePicker from '@react-native-community/datetimepicker'
@@ -15,7 +14,6 @@ import { Ionicons } from '@expo/vector-icons'
 import { StackNavigationProp } from '@react-navigation/stack'
 import { RouteProp } from '@react-navigation/native'
 import { useTheme } from '../contexts/ThemeContext'
-import AnimatedBottomSheet from '../components/common/AnimatedBottomSheet'
 import { Dialog } from '../services/dialogService'
 import { RootStackParamList } from '../navigation/AppNavigator'
 import { pickPhoto } from '../services/photoService'
@@ -26,6 +24,7 @@ import FieldHistorySelector from '../components/features/FieldHistorySelector'
 import OptionsSelector from '../components/common/OptionsSelector'
 import { POLAROID_TYPE_OPTIONS, MEMBER_COUNT_OPTIONS } from '../constants/polaroidOptions'
 import { createEditScreenStyles } from './editScreenStyles'
+import EditCropOptionsSheet from '../components/features/edit/EditCropOptionsSheet'
 
 type EditScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Edit'>
 type EditScreenRouteProp = RouteProp<RootStackParamList, 'Edit'>
@@ -643,59 +642,19 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
         </TouchableOpacity>
       </View>
 
-      <AnimatedBottomSheet
+      <EditCropOptionsSheet
         visible={showCropOptions}
+        allowCrop={allowCrop}
+        cropWidth={cropWidth}
+        cropHeight={cropHeight}
+        colors={colors}
+        styles={styles}
         onClose={() => setShowCropOptions(false)}
-        title='裁切选项'
-      >
-        <View style={{ padding: 16 }}>
-          <View style={styles.cropOption}>
-            <Text style={styles.cropLabel}>启用裁切</Text>
-<Switch
-               value={allowCrop}
-               onValueChange={setAllowCrop}
-               trackColor={{
-                 false: colors.GRAY[300],
-                 true: colors.PRIMARY,
-               }}
-               thumbColor={colors.WHITE}
-             />
-          </View>
-
-          {allowCrop && (
-            <View style={styles.cropDimensions}>
-              <Text style={styles.cropLabel}>裁切尺寸比例</Text>
-              <View style={styles.dimensionInputs}>
-                <TextInput
-                  style={styles.dimensionInput}
-                  value={String(cropWidth)}
-                  onChangeText={text => setCropWidth(Number(text) || 1)}
-                  keyboardType='number-pad'
-                  placeholder='宽'
-                />
-                <Text style={styles.dimensionSeparator}>:</Text>
-                <TextInput
-                  style={styles.dimensionInput}
-                  value={String(cropHeight)}
-                  onChangeText={text => setCropHeight(Number(text) || 1)}
-                  keyboardType='number-pad'
-                  placeholder='高'
-                />
-              </View>
-              <Text style={styles.cropHint}>
-                例如：4:3 表示宽度为 4 份，高度为 3 份
-              </Text>
-            </View>
-          )}
-
-          <TouchableOpacity
-            style={styles.confirmButton}
-            onPress={handleConfirmCropOptions}
-          >
-            <Text style={styles.confirmButtonText}>确定</Text>
-          </TouchableOpacity>
-        </View>
-      </AnimatedBottomSheet>
+        onAllowCropChange={setAllowCrop}
+        onCropWidthChange={setCropWidth}
+        onCropHeightChange={setCropHeight}
+        onConfirm={handleConfirmCropOptions}
+      />
     </ScrollView>
     </KeyboardAvoidingView>
 
