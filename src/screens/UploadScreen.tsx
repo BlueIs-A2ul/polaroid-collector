@@ -5,7 +5,6 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
-  Image,
   Platform,
   Switch,
   KeyboardAvoidingView,
@@ -22,13 +21,12 @@ import { createRecord, createMultipleRecords } from '../services/recordService'
 import LoadingSpinner from '../components/common/LoadingSpinner'
 import IdolSelector from '../components/features/IdolSelector'
 import FieldHistorySelector from '../components/features/FieldHistorySelector'
-import OptionsSelector from '../components/common/OptionsSelector'
-import { POLAROID_TYPE_OPTIONS, MEMBER_COUNT_OPTIONS } from '../constants/polaroidOptions'
 import { PhotoItem } from '../types'
 import { getIdolGroupBinding } from '../services/idolBindingService'
 import { getIdolDefaultPrice, getIdolPriceOptions } from '../services/priceStatsService'
 import { Dialog } from '../services/dialogService'
 import { createUploadScreenStyles } from './uploadScreenStyles'
+import UploadPhotoList from '../components/features/upload/UploadPhotoList'
 
 type UploadScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -515,142 +513,22 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation, route }) => {
         )}
 
         {photos.length > 0 && (
-          <View style={styles.formGroup}>
-            <View style={styles.photoListHeader}>
-              <Text style={styles.label}>已选照片 ({photos.length})</Text>
-              <View style={styles.photoListSummary}>
-                <Text style={styles.totalCount}>共 {getTotalCount()} 张</Text>
-                {getTotalPrice() > 0 && (
-                  <Text style={styles.totalPrice}> · ¥{getTotalPrice()}</Text>
-                )}
-              </View>
-            </View>
-            
-            {photos.length > 1 && (
-              <View style={styles.mergeToggleContainer}>
-                <Text style={styles.mergeToggleLabel}>
-                  {mergeAsOneRecord ? '合并为 1 条记录（推荐）' : '每条照片作为独立记录'}
-                </Text>
-                <Switch
-                  value={mergeAsOneRecord}
-                  onValueChange={setMergeAsOneRecord}
-                  trackColor={{
-                    false: colors.GRAY[300],
-                    true: colors.PRIMARY,
-                  }}
-                  thumbColor={colors.WHITE}
-                />
-              </View>
-            )}
-            
-            {photos.map((photo, index) => (
-              <View key={photo.uri} style={styles.photoItem}>
-                <View style={styles.photoThumbnailContainer}>
-                  <Image source={{ uri: photo.uri }} style={styles.photoThumbnail} />
-                  {photo.backPhotoUri && (
-                    <View style={styles.backPhotoBadge}>
-                      <Ionicons name='document-text' size={12} color={colors.WHITE} />
-                    </View>
-                  )}
-                </View>
-                <View style={styles.photoInfo}>
-                  <View style={styles.photoInfoHeader}>
-                    <Text style={styles.photoIndex}>照片 {index + 1}</Text>
-                    {photo.backPhotoUri && (
-                      <View style={styles.backPhotoTag}>
-                        <Ionicons name='document-text' size={12} color={colors.SUCCESS} />
-                        <Text style={styles.backPhotoTagText}>背签</Text>
-                      </View>
-                    )}
-                  </View>
-                  <View style={styles.countInputContainer}>
-                    <Text style={styles.countLabel}>数量:</Text>
-                    <TextInput
-                      style={styles.countInput}
-                      value={String(photo.count)}
-                      onChangeText={text => updatePhotoCount(photo.uri, parseInt(text) || 1)}
-                      keyboardType='number-pad'
-                    />
-                  </View>
-                  <View style={styles.countInputContainer}>
-                    <Text style={styles.countLabel}>价格:</Text>
-                    <TextInput
-                      style={styles.countInput}
-                      value={photo.price ? String(photo.price) : ''}
-                      onChangeText={text => updatePhotoPrice(photo.uri, parseFloat(text) || 0)}
-                      keyboardType='decimal-pad'
-                      placeholder='选填'
-                    />
-                    {priceOptions.length > 0 && (
-                      <TouchableOpacity
-                        style={styles.priceSelectButton}
-                        onPress={() => setShowPriceSelector(photo.uri)}
-                      >
-                        <Ionicons name='pricetag' size={16} color={colors.PRIMARY} />
-                      </TouchableOpacity>
-                    )}
-                  </View>
-                  <View style={styles.noteInputContainer}>
-                    <Text style={styles.countLabel}>备注:</Text>
-                    <TextInput
-                      style={styles.noteInput}
-                      value={photo.note || ''}
-                      onChangeText={text => updatePhotoNote(photo.uri, text)}
-                      placeholder='选填'
-                      multiline
-                    />
-                  </View>
-                  <View style={styles.extraFieldsContainer}>
-                    <View style={styles.extraFieldRow}>
-                      <View style={styles.extraFieldHalf}>
-                        <OptionsSelector
-                          label='类型'
-                          value={photo.polaroidType || ''}
-                          options={POLAROID_TYPE_OPTIONS}
-                          placeholder='选填'
-                          onChange={value => updatePhotoField(photo.uri, 'polaroidType', value)}
-                        />
-                      </View>
-                      <View style={styles.extraFieldHalf}>
-                        <OptionsSelector
-                          label='人数'
-                          value={photo.memberCount || ''}
-                          options={MEMBER_COUNT_OPTIONS}
-                          placeholder='选填'
-                          onChange={value => updatePhotoField(photo.uri, 'memberCount', value)}
-                        />
-                      </View>
-                    </View>
-                  </View>
-                  <View style={styles.photoActions}>
-                    {photo.backPhotoUri ? (
-                      <TouchableOpacity
-                        style={styles.removeBackPhotoButton}
-                        onPress={() => handleRemoveBackPhoto(photo.uri)}
-                      >
-                        <Ionicons name='document-text-outline' size={14} color={colors.ERROR} />
-                        <Text style={styles.removeBackPhotoText}>移除背签</Text>
-                      </TouchableOpacity>
-                    ) : (
-                      <TouchableOpacity
-                        style={styles.addBackPhotoButton}
-                        onPress={() => handleAddBackPhoto(photo.uri)}
-                      >
-                        <Ionicons name='add-circle-outline' size={14} color={colors.PRIMARY} />
-                        <Text style={styles.addBackPhotoText}>添加背签</Text>
-                      </TouchableOpacity>
-                    )}
-                  </View>
-                </View>
-                <TouchableOpacity
-                  style={styles.removePhotoButton}
-                  onPress={() => removePhoto(photo.uri)}
-                >
-                  <Ionicons name='close-circle' size={24} color={colors.ERROR} />
-                </TouchableOpacity>
-              </View>
-            ))}
-          </View>
+          <UploadPhotoList
+            photos={photos}
+            mergeAsOneRecord={mergeAsOneRecord}
+            priceOptions={priceOptions}
+            colors={colors}
+            styles={styles}
+            onMergeAsOneRecordChange={setMergeAsOneRecord}
+            onUpdatePhotoCount={updatePhotoCount}
+            onUpdatePhotoPrice={updatePhotoPrice}
+            onUpdatePhotoNote={updatePhotoNote}
+            onUpdatePhotoField={updatePhotoField}
+            onAddBackPhoto={handleAddBackPhoto}
+            onRemoveBackPhoto={handleRemoveBackPhoto}
+            onRemovePhoto={removePhoto}
+            onShowPriceSelector={setShowPriceSelector}
+          />
         )}
 
         <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
