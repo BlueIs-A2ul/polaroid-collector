@@ -5,7 +5,6 @@ import {
   TextInput,
   TouchableOpacity,
   ScrollView,
-  Image,
   Platform,
   KeyboardAvoidingView,
 } from 'react-native'
@@ -25,6 +24,7 @@ import OptionsSelector from '../components/common/OptionsSelector'
 import { POLAROID_TYPE_OPTIONS, MEMBER_COUNT_OPTIONS } from '../constants/polaroidOptions'
 import { createEditScreenStyles } from './editScreenStyles'
 import EditCropOptionsSheet from '../components/features/edit/EditCropOptionsSheet'
+import EditPhotoSection from '../components/features/edit/EditPhotoSection'
 
 type EditScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Edit'>
 type EditScreenRouteProp = RouteProp<RootStackParamList, 'Edit'>
@@ -532,109 +532,16 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
           </View>
         </View>
 
-        <View style={styles.formGroup}>
-          <Text style={styles.label}>正面照片</Text>
-          {photoUri ? (
-            <>
-              <View style={styles.photoPreviewContainer}>
-                <Image source={{ uri: photoUri }} style={styles.photoPreview} />
-                <TouchableOpacity
-                  style={styles.removePhotoButton}
-                  onPress={handleRemovePhoto}
-                >
-<Ionicons
-                   name='close-circle'
-                   size={24}
-                   color={colors.ERROR}
-                 />
-                </TouchableOpacity>
-              </View>
-              <View style={styles.photoButtons}>
-                <TouchableOpacity
-                  style={styles.photoButton}
-                  onPress={() => handlePickPhoto('camera', 'front')}
-                >
-<Ionicons name='camera' size={28} color={colors.PRIMARY} />
-                  <Text style={styles.photoButtonText}>拍照</Text>
-                </TouchableOpacity>
-                <TouchableOpacity
-                  style={styles.photoButton}
-                  onPress={() => handlePickPhoto('library', 'front')}
-                >
-                  <Ionicons name='images' size={28} color={colors.PRIMARY} />
-                  <Text style={styles.photoButtonText}>相册</Text>
-                </TouchableOpacity>
-              </View>
-            </>
-          ) : (
-            <View style={styles.photoButtons}>
-              <TouchableOpacity
-                style={styles.photoButton}
-                onPress={() => handlePickPhoto('camera', 'front')}
-              >
-                <Ionicons name='camera' size={28} color={colors.PRIMARY} />
-                <Text style={styles.photoButtonText}>拍照</Text>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={styles.photoButton}
-                onPress={() => handlePickPhoto('library', 'front')}
-              >
-                <Ionicons name='images' size={28} color={colors.PRIMARY} />
-                <Text style={styles.photoButtonText}>相册</Text>
-              </TouchableOpacity>
-            </View>
-          )}
-        </View>
-
-        <View style={styles.formGroup}>
-          <View style={styles.backPhotoHeader}>
-            <Text style={styles.label}>背签照片</Text>
-            {backPhotoUri && (
-              <View style={styles.hasBackTag}>
-                <Ionicons name='checkmark-circle' size={14} color={colors.SUCCESS} />
-                <Text style={styles.hasBackText}>已添加</Text>
-              </View>
-            )}
-          </View>
-          {backPhotoUri ? (
-            <View style={styles.photoPreviewContainer}>
-              <Image source={{ uri: backPhotoUri }} style={styles.photoPreview} />
-              <TouchableOpacity
-                style={styles.removePhotoButton}
-                onPress={handleRemoveBackPhoto}
-              >
-<Ionicons
-                   name='close-circle'
-                   size={24}
-                   color={colors.ERROR}
-                 />
-              </TouchableOpacity>
-              <View style={styles.backPhotoLabel}>
-                <Ionicons name='document-text' size={14} color={colors.WHITE} />
-                <Text style={styles.backPhotoLabelText}>背签</Text>
-              </View>
-            </View>
-          ) : null}
-          <View style={styles.backPhotoButtons}>
-            {backPhotoUri ? (
-              <TouchableOpacity
-                style={styles.changeBackPhotoButton}
-                onPress={handlePickBackPhoto}
-              >
-                <Ionicons name='sync' size={18} color={colors.PRIMARY} />
-                <Text style={styles.changeBackPhotoText}>更换背签</Text>
-              </TouchableOpacity>
-            ) : (
-              <TouchableOpacity
-                style={styles.addBackPhotoButton}
-                onPress={handlePickBackPhoto}
-              >
-                <Ionicons name='add-circle-outline' size={18} color={colors.PRIMARY} />
-                <Text style={styles.addBackPhotoText}>添加背签照片</Text>
-              </TouchableOpacity>
-            )}
-          </View>
-        </View>
+        <EditPhotoSection
+          photoUri={photoUri}
+          backPhotoUri={backPhotoUri}
+          colors={colors}
+          styles={styles}
+          onPickPhoto={handlePickPhoto}
+          onRemovePhoto={handleRemovePhoto}
+          onPickBackPhoto={handlePickBackPhoto}
+          onRemoveBackPhoto={handleRemoveBackPhoto}
+        />
 
         <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
           <Ionicons name='checkmark' size={24} color={colors.WHITE} />
