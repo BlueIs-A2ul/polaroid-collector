@@ -8,7 +8,6 @@ import {
   Platform,
   KeyboardAvoidingView,
 } from 'react-native'
-import DateTimePicker from '@react-native-community/datetimepicker'
 import { Ionicons } from '@expo/vector-icons'
 import { StackNavigationProp } from '@react-navigation/stack'
 import { RouteProp } from '@react-navigation/native'
@@ -20,11 +19,10 @@ import { getRecordById } from '../services/storageService'
 import { updateRecordData, deleteRecordData } from '../services/recordService'
 import LoadingSpinner from '../components/common/LoadingSpinner'
 import FieldHistorySelector from '../components/features/FieldHistorySelector'
-import OptionsSelector from '../components/common/OptionsSelector'
-import { POLAROID_TYPE_OPTIONS, MEMBER_COUNT_OPTIONS } from '../constants/polaroidOptions'
 import { createEditScreenStyles } from './editScreenStyles'
 import EditCropOptionsSheet from '../components/features/edit/EditCropOptionsSheet'
 import EditPhotoSection from '../components/features/edit/EditPhotoSection'
+import EditRecordFormFields from '../components/features/edit/EditRecordFormFields'
 
 type EditScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Edit'>
 type EditScreenRouteProp = RouteProp<RootStackParamList, 'Edit'>
@@ -402,135 +400,31 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
         </View>
 
         <View style={styles.form}>
-          <View style={styles.formGroup}>
-            <Text style={styles.label}>偶像名称</Text>
-            <TextInput
-              style={styles.input}
-              placeholder='请输入偶像名称'
-              value={idolName}
-              onChangeText={setIdolName}
-            />
-          </View>
-
-          <View style={styles.formGroup}>
-            <Text style={styles.label}>拍立得数量</Text>
-            <TextInput
-              style={styles.input}
-              placeholder='请输入拍立得数量'
-            value={photoCount}
-            onChangeText={setPhotoCount}
-            keyboardType='number-pad'
+          <EditRecordFormFields
+            idolName={idolName}
+            photoCount={photoCount}
+            photoDate={photoDate}
+            price={price}
+            note={note}
+            groupName={groupName}
+            city={city}
+            venue={venue}
+            polaroidType={polaroidType}
+            memberCount={memberCount}
+            showDatePicker={showDatePicker}
+            selectedDate={selectedDate}
+            colors={colors}
+            styles={styles}
+            onIdolNameChange={setIdolName}
+            onPhotoCountChange={setPhotoCount}
+            onPriceChange={setPrice}
+            onNoteChange={setNote}
+            onPolaroidTypeChange={setPolaroidType}
+            onMemberCountChange={setMemberCount}
+            onShowDatePicker={showDatePickerModal}
+            onDateChange={handleDateChange}
+            onOpenFieldSelector={setShowFieldSelector}
           />
-        </View>
-
-        <View style={styles.formGroup}>
-          <Text style={styles.label}>拍摄日期</Text>
-          <TouchableOpacity
-            style={styles.dateInput}
-            onPress={showDatePickerModal}
-          >
-            <Text style={styles.dateInputText}>
-              {photoDate || '请选择日期'}
-            </Text>
-            <Ionicons name='calendar' size={20} color={colors.PRIMARY} />
-          </TouchableOpacity>
-          {showDatePicker && (
-            <DateTimePicker
-              value={selectedDate}
-              mode='date'
-              display='default'
-              onChange={handleDateChange}
-            />
-          )}
-        </View>
-
-        <View style={styles.formGroup}>
-          <Text style={styles.label}>花费（选填）</Text>
-          <TextInput
-            style={styles.input}
-            placeholder='请输入花费金额'
-            value={price}
-            onChangeText={setPrice}
-            keyboardType='decimal-pad'
-          />
-        </View>
-
-        <View style={styles.formGroup}>
-          <Text style={styles.label}>备注（选填）</Text>
-          <TextInput
-            style={styles.noteInput}
-            placeholder='添加备注信息'
-            value={note}
-            onChangeText={setNote}
-            multiline
-            numberOfLines={3}
-            textAlignVertical='top'
-          />
-        </View>
-
-        <View style={styles.formGroup}>
-          <Text style={styles.sectionTitle}>扩展信息</Text>
-          <View style={styles.extraFieldsContainer}>
-            <View style={styles.extraFieldRow}>
-              <View style={styles.extraFieldHalf}>
-                <Text style={styles.extraFieldLabel}>团体</Text>
-                <TouchableOpacity
-                  style={styles.extraFieldInputWrapper}
-                  onPress={() => setShowFieldSelector('groupName')}
-                >
-                  <Text style={[styles.extraFieldInputText, groupName ? null : styles.extraFieldPlaceholder]}>
-                    {groupName || '选填'}
-                  </Text>
-                  <Ionicons name='chevron-down' size={16} color={colors.GRAY[500]} />
-                </TouchableOpacity>
-              </View>
-              <View style={styles.extraFieldHalf}>
-                <Text style={styles.extraFieldLabel}>城市</Text>
-                <TouchableOpacity
-                  style={styles.extraFieldInputWrapper}
-                  onPress={() => setShowFieldSelector('city')}
-                >
-                  <Text style={[styles.extraFieldInputText, city ? null : styles.extraFieldPlaceholder]}>
-                    {city || '选填'}
-                  </Text>
-                  <Ionicons name='chevron-down' size={16} color={colors.GRAY[500]} />
-                </TouchableOpacity>
-              </View>
-            </View>
-            <View style={styles.extraFieldRow}>
-              <View style={styles.extraFieldHalf}>
-                <OptionsSelector
-                  label='类型'
-                  value={polaroidType}
-                  options={POLAROID_TYPE_OPTIONS}
-                  placeholder='选填'
-                  onChange={setPolaroidType}
-                />
-              </View>
-              <View style={styles.extraFieldHalf}>
-                <OptionsSelector
-                  label='人数'
-                  value={memberCount}
-                  options={MEMBER_COUNT_OPTIONS}
-                  placeholder='选填'
-                  onChange={setMemberCount}
-                />
-              </View>
-            </View>
-            <View style={styles.extraFieldFull}>
-              <Text style={styles.extraFieldLabel}>场馆</Text>
-              <TouchableOpacity
-                style={styles.extraFieldInputWrapper}
-                onPress={() => setShowFieldSelector('venue')}
-              >
-                <Text style={[styles.extraFieldInputText, venue ? null : styles.extraFieldPlaceholder]}>
-                  {venue || '选填'}
-                </Text>
-                <Ionicons name='chevron-down' size={16} color={colors.GRAY[500]} />
-              </TouchableOpacity>
-            </View>
-          </View>
-        </View>
 
         <EditPhotoSection
           photoUri={photoUri}
