@@ -28,6 +28,7 @@ import { Dialog } from '../services/dialogService'
 import { createUploadScreenStyles } from './uploadScreenStyles'
 import UploadPhotoList from '../components/features/upload/UploadPhotoList'
 import UploadCommonFields from '../components/features/upload/UploadCommonFields'
+import UploadPriceSelectorSheet from '../components/features/upload/UploadPriceSelectorSheet'
 
 type UploadScreenNavigationProp = StackNavigationProp<
   RootStackParamList,
@@ -523,34 +524,18 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation, route }) => {
         }}
       />
 
-      <AnimatedBottomSheet
+      <UploadPriceSelectorSheet
         visible={showPriceSelector !== null}
+        priceOptions={priceOptions}
+        styles={styles}
         onClose={() => setShowPriceSelector(null)}
-        title='选择价格'
-      >
-        <View style={{ padding: 16 }}>
-          {priceOptions.map(price => (
-            <TouchableOpacity
-              key={price}
-              style={styles.priceOption}
-              onPress={() => {
-                if (showPriceSelector) {
-                  updatePhotoPrice(showPriceSelector, price)
-                }
-                setShowPriceSelector(null)
-              }}
-            >
-              <Text style={styles.priceOptionText}>¥{price}</Text>
-            </TouchableOpacity>
-          ))}
-          <TouchableOpacity
-            style={styles.priceOption}
-            onPress={() => setShowPriceSelector(null)}
-          >
-            <Text style={[styles.priceOptionText, styles.priceOptionManual]}>手动输入</Text>
-          </TouchableOpacity>
-        </View>
-      </AnimatedBottomSheet>
+        onSelectPrice={price => {
+          if (showPriceSelector) {
+            updatePhotoPrice(showPriceSelector, price)
+          }
+          setShowPriceSelector(null)
+        }}
+      />
 
       <AnimatedBottomSheet
         visible={showCropOptions}
