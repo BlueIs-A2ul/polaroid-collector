@@ -8,26 +8,11 @@ import {
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '../../contexts/ThemeContext'
+import { SORT_OPTIONS, SortOrder, SortType } from '../../utils/homeRankingUtils'
 import { withOpacity } from '../../utils/colorUtils'
 import AnimatedBottomSheet from '../common/AnimatedBottomSheet'
 
-export type SortType = 'date' | 'count' | 'price'
-export type SortOrder = 'asc' | 'desc'
-
-interface SortOption {
-  type: SortType
-  order: SortOrder
-  label: string
-}
-
-export const SORT_OPTIONS: SortOption[] = [
-  { type: 'date', order: 'desc', label: '最新日期' },
-  { type: 'date', order: 'asc', label: '最早日期' },
-  { type: 'count', order: 'desc', label: '数量最多' },
-  { type: 'count', order: 'asc', label: '数量最少' },
-  { type: 'price', order: 'desc', label: '花费最高' },
-  { type: 'price', order: 'asc', label: '花费最低' },
-]
+export { SORT_OPTIONS, SortOrder, SortType }
 
 interface SortOptionsModalProps {
   visible: boolean
@@ -102,7 +87,9 @@ const SortOptionsModal: React.FC<SortOptionsModalProps> = ({
               key={`${option.type}-${option.order}`}
               style={[
                 styles.sortOption,
-                sortBy === option.type && sortOrder === option.order && styles.sortOptionActive,
+                sortBy === option.type &&
+                  sortOrder === option.order &&
+                  styles.sortOptionActive,
               ]}
               onPress={() => {
                 onSelect(option.type, option.order)
@@ -119,7 +106,9 @@ const SortOptionsModal: React.FC<SortOptionsModalProps> = ({
               <Text
                 style={[
                   styles.sortOptionText,
-                  sortBy === option.type && sortOrder === option.order && styles.sortOptionTextActive,
+                  sortBy === option.type &&
+                    sortOrder === option.order &&
+                    styles.sortOptionTextActive,
                 ]}
               >
                 {option.label}

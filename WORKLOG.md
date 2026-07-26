@@ -1,5 +1,40 @@
 # 工作日志
 
+## 2026-07-27 开发记录（首页页面拆分）
+
+### 重构内容
+
+1. **首页排序逻辑抽离**
+   - 新增 `homeRankingUtils`，统一维护排序类型、排序选项和排序函数
+   - `HomeScreen` 改为组合筛选结果后调用纯排序函数，避免页面内保留重复排序分支
+   - 补充排序工具测试，覆盖日期、数量、花费排序及不修改原数组行为
+
+2. **首页动作逻辑抽离**
+   - 新增 `useHomeActions`，集中管理导入导出、备份恢复、合并同日记录和更多菜单 ActionSheet 状态
+   - `HomeScreen` 只保留动作入口，降低页面组件职责
+
+3. **首页列表头组件抽离**
+   - 新增 `HomeListHeader`，承载统计卡、快捷操作、搜索框和排行榜标题栏
+   - 页面保留列表数据、批量选择和弹窗组合逻辑，结构更清晰
+
+### 文件变更
+
+| 文件 | 变更类型 | 说明 |
+|------|----------|------|
+| `src/utils/homeRankingUtils.ts` | 新增 | 首页排行榜排序工具和排序选项 |
+| `src/__tests__/homeRankingUtils.test.ts` | 新增 | 覆盖首页排序工具行为 |
+| `src/hooks/useHomeActions.ts` | 新增 | 首页导入导出、备份恢复、合并同日记录动作 hook |
+| `src/components/features/HomeListHeader.tsx` | 新增 | 首页列表头展示组件 |
+| `src/components/features/SortOptionsModal.tsx` | 修改 | 复用统一排序选项和类型 |
+| `src/screens/HomeScreen.tsx` | 重构 | 拆出排序、动作和列表头逻辑 |
+
+### 验证
+
+- `npm.cmd run typecheck`
+- `npm.cmd test -- src/__tests__/homeRankingUtils.test.ts --runInBand`
+
+---
+
 ## 2026-07-25 开发记录（工程质量与备份加固）
 
 ### 修复与优化

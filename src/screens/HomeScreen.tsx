@@ -1,47 +1,29 @@
 import React from 'react'
 import {
   View,
-  Text,
   FlatList,
   StyleSheet,
-  TouchableOpacity,
   RefreshControl,
 } from 'react-native'
-import { Ionicons } from '@expo/vector-icons'
 import { StackNavigationProp } from '@react-navigation/stack'
-import { RouteProp } from '@react-navigation/native'
-import { useFocusEffect } from '@react-navigation/native'
+import { RouteProp, useFocusEffect } from '@react-navigation/native'
 import { useTheme } from '../contexts/ThemeContext'
 import { RootStackParamList } from '../navigation/AppNavigator'
+import { useHomeActions } from '../hooks/useHomeActions'
 import { useRecords } from '../hooks/useRecords'
 import IdolCardAnimated from '../components/features/IdolCardAnimated'
 import EmptyState from '../components/common/EmptyState'
-import SearchBar from '../components/common/SearchBar'
 import { HomeSkeleton } from '../components/common/Skeleton'
 import HomeHeader from '../components/features/HomeHeader'
-import StatsCard from '../components/features/StatsCard'
-import QuickActions from '../components/features/QuickActions'
+import HomeListHeader from '../components/features/HomeListHeader'
 import BatchActionBar from '../components/features/BatchActionBar'
 import BatchEditModal from '../components/features/BatchEditModal'
-import SortOptionsModal, { SortType, SortOrder, SORT_OPTIONS } from '../components/features/SortOptionsModal'
-import ActionSheetModal, { ActionSheetOption } from '../components/features/ActionSheetModal'
+import SortOptionsModal from '../components/features/SortOptionsModal'
+import ActionSheetModal from '../components/features/ActionSheetModal'
 import AdvancedFilter from '../components/features/AdvancedFilter'
-import {
-  exportToJSON,
-  exportToCSV,
-  importFromCSV,
-  shareExportedFile,
-} from '../services/exportService'
-import {
-  createBackup,
-  restoreFromBackup,
-  shareBackupFile,
-} from '../services/backupService'
 import { getAllAvatars, removeAvatar } from '../services/avatarService'
-import { deleteRecordsByIdolNames, updateRecordsByIdolNames } from '../services/storageService'
-import { mergeSameDayRecords, previewMergeResult } from '../services/mergeService'
 import { Dialog } from '../services/dialogService'
-import * as DocumentPicker from 'expo-document-picker'
+import { deleteRecordsByIdolNames, updateRecordsByIdolNames } from '../services/storageService'
 import { RankingItem } from '../types'
 import {
   DEFAULT_FILTER_OPTIONS,
@@ -50,6 +32,11 @@ import {
   filterRankingItems,
   getActiveFilterCount,
 } from '../utils/filterUtils'
+import {
+  SortOrder,
+  SortType,
+  sortRankingItems,
+} from '../utils/homeRankingUtils'
 
 type HomeScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Home'>
 type HomeScreenRouteProp = RouteProp<RootStackParamList, 'Home'>
@@ -76,35 +63,20 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   const [sortBy, setSortBy] = React.useState<SortType>('date')
   const [sortOrder, setSortOrder] = React.useState<SortOrder>('desc')
   const [showSortOptions, setShowSortOptions] = React.useState(false)
-  const [actionSheetVisible, setActionSheetVisible] = React.useState(false)
-  const [actionSheetTitle, setActionSheetTitle] = React.useState('')
-  const [actionSheetOptions, setActionSheetOptions] = React.useState<ActionSheetOption[]>([])
+
+  const {
+    actionSheetVisible,
+    actionSheetTitle,
+    actionSheetOptions,
+    closeActionSheet,
+    showExportOptions,
+    showMoreOptions,
+  } = useHomeActions({ navigation, refreshAll })
 
   const styles = React.useMemo(() => StyleSheet.create({
     container: {
       flex: 1,
       backgroundColor: colors.SECONDARY,
-    },
-    sectionHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      paddingHorizontal: 20,
-      paddingVertical: 12,
-    },
-    sectionTitle: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: colors.BLACK,
-    },
-    sortButton: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 4,
-    },
-    sortText: {
-      fontSize: 12,
-      color: colors.PRIMARY,
     },
     listContent: {
       paddingHorizontal: 16,
@@ -138,24 +110,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   }, [])
 
   const filteredRanking = React.useMemo(() => {
-    let result = filterRankingItems(ranking, searchQuery, searchType, filters)
-
-    result = result.sort((a, b) => {
-      if (sortBy === 'date') {
-        const dateA = a.latestDate ? new Date(a.latestDate).getTime() : 0
-        const dateB = b.latestDate ? new Date(b.latestDate).getTime() : 0
-        return sortOrder === 'desc' ? dateB - dateA : dateA - dateB
-      }
-      if (sortBy === 'count') {
-        return sortOrder === 'desc' ? b.totalCount - a.totalCount : a.totalCount - b.totalCount
-      }
-      if (sortBy === 'price') {
-        return sortOrder === 'desc' ? b.totalPrice - a.totalPrice : a.totalPrice - b.totalPrice
-      }
-      return 0
-    })
-
-    return result
+    const result = filterRankingItems(ranking, searchQuery, searchType, filters)
+    return sortRankingItems(result, sortBy, sortOrder)
   }, [ranking, searchQuery, searchType, filters, sortBy, sortOrder])
 
   const toggleSelection = React.useCallback((idolName: string) => {
@@ -238,197 +194,11 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
     }
   }, [selectedIdols, batchEditField, batchEditValue, exitSelectionMode, refreshAll])
 
-  const showExportOptions = () => {
-    setActionSheetTitle('数据导入导出')
-    setActionSheetOptions([
-      { text: '导出为 JSON', icon: 'document-text-outline', onPress: handleExportJSON },
-      { text: '导出为 CSV', icon: 'grid-outline', onPress: handleExportCSV },
-      { text: '从 CSV 导入', icon: 'download-outline', onPress: handleImportCSV },
-    ])
-    setActionSheetVisible(true)
-  }
-
-  const handleExportJSON = async () => {
-    const { success, data: fileUri, error: err } = await exportToJSON()
-    if (success && fileUri) {
-      const exportJsonResult = await Dialog.confirm({
-        title: '导出成功',
-        message: 'JSON 文件已生成，是否分享？',
-        buttons: [
-          { text: '取消', style: 'cancel' },
-          { text: '分享', style: 'primary' },
-        ],
-      })
-      if (exportJsonResult === 1) {
-        shareExportedFile(fileUri)
-      }
-    } else {
-      Dialog.toast(err || '未知错误', 'error')
-    }
-  }
-
-  const handleExportCSV = async () => {
-    const { success, data: fileUri, error: err } = await exportToCSV()
-    if (success && fileUri) {
-      const exportCsvResult = await Dialog.confirm({
-        title: '导出成功',
-        message: 'CSV 文件已生成，是否分享？',
-        buttons: [
-          { text: '取消', style: 'cancel' },
-          { text: '分享', style: 'primary' },
-        ],
-      })
-      if (exportCsvResult === 1) {
-        shareExportedFile(fileUri)
-      }
-    } else {
-      Dialog.toast(err || '未知错误', 'error')
-    }
-  }
-
-  const handleImportCSV = async () => {
-    try {
-      const result = await DocumentPicker.getDocumentAsync({
-        type: 'text/csv',
-      })
-
-      if (!result.canceled && result.assets && result.assets.length > 0) {
-        const { success, data: count, error: err } = await importFromCSV(
-          result.assets[0].uri,
-        )
-
-        if (success) {
-          Dialog.toast(`成功导入 ${count} 条记录`, 'success')
-          refreshAll()
-        } else {
-          Dialog.toast(err || '未知错误', 'error')
-        }
-      }
-    } catch (error) {
-      Dialog.toast(
-        error instanceof Error ? error.message : String(error),
-        'error',
-      )
-    }
-  }
-
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true)
     await refreshAll()
     setRefreshing(false)
   }, [refreshAll])
-
-  const showMoreOptions = () => {
-    setActionSheetTitle('更多选项')
-    setActionSheetOptions([
-      { text: '主题设置', icon: 'color-palette-outline', onPress: () => navigation.navigate('ThemeSettings') },
-      { text: '整理中心', icon: 'albums-outline', onPress: () => navigation.navigate('OrganizationCenter') },
-      { text: '合并同日记录', icon: 'copy-outline', onPress: handleMergeSameDayRecords },
-      { text: '创建备份', icon: 'cloud-upload-outline', onPress: handleCreateBackup },
-      { text: '恢复备份', icon: 'cloud-download-outline', onPress: handleRestoreBackup },
-    ])
-    setActionSheetVisible(true)
-  }
-
-  const handleMergeSameDayRecords = async () => {
-    // 先预览可以合并的记录
-    const previewResult = await previewMergeResult()
-    if (!previewResult.success || !previewResult.data) {
-      Dialog.toast('无法预览合并结果', 'error')
-      return
-    }
-
-    const { groups, totalGroups, totalRecords } = previewResult.data
-
-    if (totalGroups === 0) {
-      Dialog.toast('没有需要合并的记录（所有偶像的同一天都只有一条记录）', 'info')
-      return
-    }
-
-    const previewText = groups
-      .slice(0, 5)
-      .map(g => `• ${g.idolName} - ${g.date}: ${g.count}条记录，共${g.totalPhotos}张`)
-      .join('\n')
-
-    const moreText = groups.length > 5 ? `\n...还有 ${groups.length - 5} 个分组` : ''
-
-    const mergeConfirmResult = await Dialog.confirm({
-      title: '确认合并',
-      message: `发现 ${totalGroups} 个分组需要合并，共涉及 ${totalRecords} 条记录\n\n${previewText}${moreText}\n\n是否继续合并？`,
-      buttons: [
-        { text: '取消', style: 'cancel' },
-        { text: '合并', style: 'destructive' },
-      ],
-    })
-    if (mergeConfirmResult === 1) {
-      const result = await mergeSameDayRecords()
-      if (result.success && result.data) {
-        const { mergedCount, deletedCount, affectedIdols } = result.data
-        Dialog.toast(
-          `成功合并 ${mergedCount} 个分组\n删除了 ${deletedCount} 条重复记录\n涉及 ${affectedIdols.length} 位偶像`,
-          'success',
-        )
-        refreshAll()
-      } else {
-        Dialog.toast(result.error || '未知错误', 'error')
-      }
-    }
-  }
-
-  const handleCreateBackup = async () => {
-    const { success, data: fileUri, error: err } = await createBackup()
-    if (success && fileUri) {
-      const backupResult = await Dialog.confirm({
-        title: '备份成功',
-        message: '备份文件已生成，是否分享？',
-        buttons: [
-          { text: '取消', style: 'cancel' },
-          { text: '分享', style: 'primary' },
-        ],
-      })
-      if (backupResult === 1) {
-        shareBackupFile(fileUri)
-      }
-    } else {
-      Dialog.toast(err || '未知错误', 'error')
-    }
-  }
-
-  const handleRestoreBackup = async () => {
-    const restoreResult = await Dialog.confirm({
-      title: '恢复备份',
-      message: '这将清除当前所有数据并从备份恢复，是否继续？',
-      buttons: [
-        { text: '取消', style: 'cancel' },
-        { text: '继续', style: 'destructive' },
-      ],
-    })
-    if (restoreResult === 1) {
-      try {
-        const result = await DocumentPicker.getDocumentAsync({
-          type: 'application/json',
-        })
-
-        if (!result.canceled && result.assets && result.assets.length > 0) {
-          const { success, error: err } = await restoreFromBackup(
-            result.assets[0].uri,
-          )
-
-          if (success) {
-            Dialog.toast('数据已恢复', 'success')
-            refreshAll()
-          } else {
-            Dialog.toast(err || '未知错误', 'error')
-          }
-        }
-      } catch (error) {
-        Dialog.toast(
-          error instanceof Error ? error.message : String(error),
-          'error',
-        )
-      }
-    }
-  }
 
   const renderItem = React.useCallback(({ item, index }: { item: RankingItem; index: number }) => (
     <IdolCardAnimated
@@ -446,48 +216,36 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   ), [avatarMap, navigation, enterSelectionMode, selectedIdols, selectionMode, toggleSelection])
 
   const ListHeaderComponent = React.useMemo(() => (
-    <>
-      <StatsCard
-        statistics={statistics}
-        onPress={() => navigation.navigate('Statistics')}
-      />
-
-      <QuickActions
-        activeFilterCount={activeFilterCount}
-        onNavigateToCalendar={() => navigation.navigate('Calendar')}
-        onShowFilter={() => setShowFilter(true)}
-        onClearFilters={clearFilters}
-        onNavigateToUpload={() => navigation.navigate('Upload', {})}
-      />
-
-      {ranking.length > 0 && (
-        <SearchBar
-          value={searchQuery}
-          onChangeText={setSearchQuery}
-          searchType={searchType}
-          onSearchTypeChange={setSearchType}
-        />
-      )}
-
-      <View style={styles.sectionHeader}>
-        <Text style={styles.sectionTitle}>偶像排行榜</Text>
-        <View style={{ flexDirection: 'row', gap: 8 }}>
-          <TouchableOpacity
-            style={styles.sortButton}
-            onPress={() => setShowSortOptions(true)}
-          >
-            <Ionicons name='swap-vertical' size={18} color={colors.PRIMARY} />
-            <Text style={styles.sortText}>
-              {SORT_OPTIONS.find(o => o.type === sortBy && o.order === sortOrder)?.label}
-            </Text>
-          </TouchableOpacity>
-          <TouchableOpacity onPress={refreshAll}>
-            <Ionicons name='refresh' size={20} color={colors.PRIMARY} />
-          </TouchableOpacity>
-        </View>
-      </View>
-    </>
-  ), [statistics, filters, activeFilterCount, clearFilters, ranking.length, searchQuery, searchType, sortBy, sortOrder, colors.PRIMARY, styles, navigation, refreshAll])
+    <HomeListHeader
+      statistics={statistics}
+      rankingCount={ranking.length}
+      activeFilterCount={activeFilterCount}
+      searchQuery={searchQuery}
+      searchType={searchType}
+      sortBy={sortBy}
+      sortOrder={sortOrder}
+      onSearchQueryChange={setSearchQuery}
+      onSearchTypeChange={setSearchType}
+      onNavigateToStatistics={() => navigation.navigate('Statistics')}
+      onNavigateToCalendar={() => navigation.navigate('Calendar')}
+      onNavigateToUpload={() => navigation.navigate('Upload', {})}
+      onShowFilter={() => setShowFilter(true)}
+      onClearFilters={clearFilters}
+      onShowSortOptions={() => setShowSortOptions(true)}
+      onRefresh={refreshAll}
+    />
+  ), [
+    activeFilterCount,
+    clearFilters,
+    navigation,
+    ranking.length,
+    refreshAll,
+    searchQuery,
+    searchType,
+    sortBy,
+    sortOrder,
+    statistics,
+  ])
 
   const ListFooterComponent = React.useMemo(() => (
     selectionMode ? null : <View style={styles.listFooter} />
@@ -591,7 +349,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         visible={actionSheetVisible}
         title={actionSheetTitle}
         options={actionSheetOptions}
-        onClose={() => setActionSheetVisible(false)}
+        onClose={closeActionSheet}
       />
     </View>
   )
