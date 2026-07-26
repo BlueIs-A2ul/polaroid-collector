@@ -36,6 +36,12 @@ yarn-error.*
 # typescript
 *.tsbuildinfo
 
+# tests
+coverage/
+
+# local screenshots
+bug_pic/
+
 # generated native folders
 /ios
 /android

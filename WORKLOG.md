@@ -1,5 +1,38 @@
 # 工作日志
 
+## 2026-07-25 开发记录（工程质量与备份加固）
+
+### 修复与优化
+
+1. **Jest 覆盖率配置修复**
+   - 修复 `test:coverage` 收集 `.tsx` 文件时 JSX 无法解析的问题
+   - 为 `ts-jest` 明确配置测试环境下的 JSX 转换
+
+2. **备份/恢复数据安全加固**
+   - 创建备份时补充收集 `additionalPhotoUris` 和 `additionalBackPhotoUris`
+   - 恢复备份时同步重写附加正面照片和附加背签照片 URI
+   - 支持无显式版本号的旧备份迁移
+   - 对不支持的备份版本和错误记录结构提前拦截，避免先清空现有数据
+   - 将备份记录从 `any[]` 收紧为 `PolaroidRecord[]`，补充内部 schema 归一化
+
+### 文件变更
+
+| 文件 | 变更类型 | 说明 |
+|------|----------|------|
+| `jest.config.js` | 修改 | 为 `ts-jest` 配置 JSX 转换，修复 coverage 收集 |
+| `src/services/backupService.ts` | 修改 | 加固备份数据类型、版本迁移、照片 URI 收集与恢复 |
+| `src/__tests__/backupService.test.ts` | 新增 | 覆盖备份附加照片、旧备份迁移、附加照片恢复和不支持版本防护 |
+| `.gitignore` | 修改 | 忽略 coverage 和 bug_pic 本地产物 |
+| `WORKLOG.md` | 修改 | 记录本次工程质量与备份加固 |
+
+### 验证
+
+- `npm.cmd run typecheck`
+- `npm.cmd test -- --runInBand`
+- `npm.cmd run test:coverage -- --runInBand`
+
+---
+
 本文档记录项目的开发进度和重要变更，供 AI 助手在每次开始工作时阅读，了解项目当前状态。
 
 ## 2026-07-13 开发记录（用户手册同步）
