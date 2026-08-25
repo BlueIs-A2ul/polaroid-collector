@@ -91,7 +91,7 @@ const AdvancedFilter: React.FC<AdvancedFilterProps> = ({
       color: colors.BLACK,
     },
     optionTextActive: {
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
       fontWeight: '500',
     },
     priceRow: {
@@ -158,7 +158,7 @@ const AdvancedFilter: React.FC<AdvancedFilterProps> = ({
     applyButtonText: {
       fontSize: 16,
       fontWeight: 'bold',
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
     },
   }), [colors])
 

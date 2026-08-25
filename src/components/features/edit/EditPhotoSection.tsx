@@ -109,7 +109,7 @@ const EditPhotoSection: React.FC<EditPhotoSectionProps> = ({
             />
           </TouchableOpacity>
           <View style={styles.backPhotoLabel}>
-            <Ionicons name='document-text' size={14} color={colors.WHITE} />
+            <Ionicons name='document-text' size={14} color={colors.ON_PRIMARY} />
             <Text style={styles.backPhotoLabelText}>背签</Text>
           </View>
         </View>

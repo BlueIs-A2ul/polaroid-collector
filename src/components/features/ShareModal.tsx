@@ -99,7 +99,7 @@ const ShareModal: React.FC<ShareModalProps> = ({
     shareButtonText: {
       fontSize: 16,
       fontWeight: 'bold',
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
     },
     accentStrip: {
       height: 4,
@@ -207,7 +207,7 @@ const ShareModal: React.FC<ShareModalProps> = ({
                   await captureAndShare(shareCardRef)
                 }}
               >
-                <Ionicons name='share' size={20} color={colors.WHITE} />
+                <Ionicons name='share' size={20} color={colors.ON_PRIMARY} />
                 <Text style={styles.shareButtonText}>分享</Text>
               </TouchableOpacity>
             </Pressable>

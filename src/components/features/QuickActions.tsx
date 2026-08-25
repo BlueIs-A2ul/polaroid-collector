@@ -73,7 +73,7 @@ const QuickActions: React.FC<QuickActionsProps> = ({
       justifyContent: 'center',
     },
     badgeText: {
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
       fontSize: 11,
       fontWeight: '700',
     },

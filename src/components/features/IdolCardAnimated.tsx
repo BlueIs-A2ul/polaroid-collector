@@ -170,7 +170,7 @@ const IdolCardAnimated: React.FC<IdolCardAnimatedProps> = ({
         {selectionMode && (
           <View style={[styles.checkbox, selected && styles.checkboxSelected]}>
             {selected && (
-              <Ionicons name='checkmark' size={16} color={colors.WHITE} />
+              <Ionicons name='checkmark' size={16} color={colors.ON_PRIMARY} />
             )}
           </View>
         )}

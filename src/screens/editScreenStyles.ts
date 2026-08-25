@@ -26,7 +26,7 @@ export const createEditScreenStyles = (colors: ResolvedColors) =>
     title: {
       fontSize: 20,
       fontWeight: 'bold',
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
     },
     form: {
       padding: 20,
@@ -174,7 +174,7 @@ export const createEditScreenStyles = (colors: ResolvedColors) =>
     },
     backPhotoLabelText: {
       fontSize: 12,
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
       marginLeft: 4,
     },
     photoButtons: {
@@ -243,7 +243,7 @@ export const createEditScreenStyles = (colors: ResolvedColors) =>
       marginLeft: 8,
       fontSize: 18,
       fontWeight: 'bold',
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
     },
     cropOption: {
       flexDirection: 'row',
@@ -293,6 +293,6 @@ export const createEditScreenStyles = (colors: ResolvedColors) =>
     confirmButtonText: {
       fontSize: 16,
       fontWeight: 'bold',
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
     },
   })

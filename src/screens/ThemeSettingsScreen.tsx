@@ -40,7 +40,7 @@ const ThemeSettingsScreen: React.FC = () => {
     headerTitle: {
       fontSize: 24,
       fontWeight: 'bold',
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
     },
     content: {
       padding: 16,
@@ -155,7 +155,7 @@ const ThemeSettingsScreen: React.FC = () => {
     },
     previewColorLabel: {
       fontSize: 10,
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
       fontWeight: 'bold',
       marginTop: 4,
     },
@@ -251,7 +251,7 @@ const ThemeSettingsScreen: React.FC = () => {
               value={isDark}
               onValueChange={toggleDarkMode}
               trackColor={{ false: colors.GRAY[300], true: colors.PRIMARY }}
-              thumbColor={colors.WHITE}
+              thumbColor={colors.ON_PRIMARY}
             />
           </View>
         </View>

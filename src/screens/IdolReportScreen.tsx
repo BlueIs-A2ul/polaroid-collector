@@ -165,7 +165,7 @@ const IdolReportScreen: React.FC<IdolReportScreenProps> = ({ route }) => {
     topRankText: {
       fontSize: 12,
       fontWeight: 'bold',
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
     },
     topRankSecond: {
       backgroundColor: colors.GRAY[400],
@@ -223,7 +223,7 @@ const IdolReportScreen: React.FC<IdolReportScreenProps> = ({ route }) => {
       width: 6,
       height: 6,
       borderRadius: 3,
-      backgroundColor: colors.WHITE,
+      backgroundColor: colors.ON_PRIMARY,
       opacity: 0.4,
     },
     dotActive: {
@@ -233,7 +233,7 @@ const IdolReportScreen: React.FC<IdolReportScreenProps> = ({ route }) => {
     nextHint: {
       marginTop: 16,
       fontSize: 12,
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
       opacity: 0.6,
     },
     loadingContainer: {
@@ -318,7 +318,7 @@ const IdolReportScreen: React.FC<IdolReportScreenProps> = ({ route }) => {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size='large' color={colors.WHITE} />
+        <ActivityIndicator size='large' color={colors.ON_PRIMARY} />
       </View>
     )
   }
@@ -326,7 +326,7 @@ const IdolReportScreen: React.FC<IdolReportScreenProps> = ({ route }) => {
   if (!report) {
     return (
       <View style={styles.loadingContainer}>
-        <Text style={{ color: colors.WHITE }}>暂无数据</Text>
+        <Text style={{ color: colors.ON_PRIMARY }}>暂无数据</Text>
       </View>
     )
   }
@@ -339,7 +339,7 @@ const IdolReportScreen: React.FC<IdolReportScreenProps> = ({ route }) => {
         style={styles.closeButton}
         onPress={() => navigation.goBack()}
       >
-        <Ionicons name='close' size={28} color={colors.WHITE} />
+        <Ionicons name='close' size={28} color={colors.ON_PRIMARY} />
       </TouchableOpacity>
 
       <ScrollView

@@ -52,7 +52,7 @@ const UploadCropOptionsSheet: React.FC<UploadCropOptionsSheetProps> = ({
             false: colors.GRAY[300],
             true: colors.PRIMARY,
           }}
-          thumbColor={colors.WHITE}
+          thumbColor={colors.ON_PRIMARY}
         />
       </View>
 

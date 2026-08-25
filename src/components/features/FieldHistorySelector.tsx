@@ -61,7 +61,7 @@ const FieldHistorySelector: React.FC<FieldHistorySelectorProps> = ({
       backgroundColor: colors.GRAY[300],
     },
     submitButtonText: {
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
       fontSize: 14,
       fontWeight: 'bold',
     },

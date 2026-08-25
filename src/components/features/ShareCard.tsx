@@ -8,7 +8,6 @@ import {
 import { Ionicons } from '@expo/vector-icons'
 import { ResolvedColors } from '../../types/theme'
 import { PolaroidRecord } from '../../types'
-import { withOpacity } from '../../utils/colorUtils'
 
 interface ShareCardProps {
   idolName: string
@@ -56,7 +55,7 @@ const ShareCard = forwardRef<View, ShareCardProps>(({
       alignItems: 'center',
       marginBottom: 12,
       borderWidth: 3,
-      borderColor: colors.WHITE,
+      borderColor: colors.ON_PRIMARY,
       overflow: 'hidden',
     },
     avatar: {
@@ -67,7 +66,7 @@ const ShareCard = forwardRef<View, ShareCardProps>(({
     idolName: {
       fontSize: 24,
       fontWeight: 'bold',
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
       marginBottom: 4,
     },
     statsRow: {
@@ -82,11 +81,11 @@ const ShareCard = forwardRef<View, ShareCardProps>(({
     statValue: {
       fontSize: 18,
       fontWeight: 'bold',
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
     },
     statLabel: {
       fontSize: 11,
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
       opacity: 0.8,
       marginTop: 2,
     },
@@ -114,14 +113,14 @@ const ShareCard = forwardRef<View, ShareCardProps>(({
       position: 'absolute',
       bottom: 4,
       right: 4,
-      backgroundColor: withOpacity(colors.BLACK, 0.6),
+      backgroundColor: 'rgba(0, 0, 0, 0.6)',
       borderRadius: 8,
       paddingHorizontal: 6,
       paddingVertical: 2,
     },
     photoCountText: {
       fontSize: 10,
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
       fontWeight: 'bold',
     },
     footer: {
@@ -219,7 +218,7 @@ const ShareCard = forwardRef<View, ShareCardProps>(({
       <View style={styles.footer}>
         <View style={styles.appName}>
           <View style={styles.appLogo}>
-            <Ionicons name='camera' size={16} color={colors.WHITE} />
+            <Ionicons name='camera' size={16} color={colors.ON_PRIMARY} />
           </View>
           <View>
             <Text style={styles.appTitle}>拍立得收藏</Text>

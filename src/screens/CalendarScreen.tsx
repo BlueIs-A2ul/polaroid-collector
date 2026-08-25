@@ -92,7 +92,7 @@ const CalendarScreen: React.FC<CalendarScreenProps> = ({ navigation }) => {
     headerTitle: {
       fontSize: 24,
       fontWeight: 'bold',
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
     },
     calendarContainer: {
       padding: 16,

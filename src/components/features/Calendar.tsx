@@ -104,7 +104,7 @@ const Calendar: React.FC<CalendarProps> = ({
       fontWeight: '500',
     },
     selectedDayText: {
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
       fontWeight: 'bold',
     },
     countBadge: {
@@ -122,7 +122,7 @@ const Calendar: React.FC<CalendarProps> = ({
     },
     countBadgeText: {
       fontSize: 10,
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
       fontWeight: 'bold',
     },
   }), [colors])

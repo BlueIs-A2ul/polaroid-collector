@@ -68,7 +68,7 @@ const YearlyReportEntryScreen: React.FC = () => {
     headerTitle: {
       fontSize: 24,
       fontWeight: 'bold',
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
     },
     yearSelector: {
       flexDirection: 'row',
@@ -91,7 +91,7 @@ const YearlyReportEntryScreen: React.FC = () => {
       color: colors.BLACK,
     },
     yearButtonTextActive: {
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
     },
     emptyContainer: {
       flex: 1,

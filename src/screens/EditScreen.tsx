@@ -391,7 +391,7 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
         <ScrollView style={styles.container} keyboardShouldPersistTaps='handled'>
         <View style={styles.header}>
           <TouchableOpacity style={styles.backButton} onPress={handleCancel}>
-            <Ionicons name='arrow-back' size={24} color={colors.WHITE} />
+            <Ionicons name='arrow-back' size={24} color={colors.ON_PRIMARY} />
           </TouchableOpacity>
           <Text style={styles.title}>编辑拍立得</Text>
           <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
@@ -438,7 +438,7 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
         />
 
         <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
-          <Ionicons name='checkmark' size={24} color={colors.WHITE} />
+          <Ionicons name='checkmark' size={24} color={colors.ON_PRIMARY} />
           <Text style={styles.saveButtonText}>保存修改</Text>
         </TouchableOpacity>
       </View>

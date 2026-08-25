@@ -7,7 +7,6 @@ import {
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '../../contexts/ThemeContext'
-import { withOpacity } from '../../utils/colorUtils'
 import CachedImage from '../common/CachedImage'
 import { PolaroidRecord } from '../../types'
 
@@ -48,14 +47,14 @@ const PhotoGridItem: React.FC<PhotoGridItemProps> = ({
       position: 'absolute',
       bottom: 4,
       right: 4,
-      backgroundColor: withOpacity(colors.BLACK, 0.6),
+      backgroundColor: 'rgba(0, 0, 0, 0.6)',
       borderRadius: 6,
       paddingHorizontal: 6,
       paddingVertical: 2,
     },
     countBadgeText: {
       fontSize: 11,
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
       fontWeight: 'bold',
     },
     priceBadge: {
@@ -69,7 +68,7 @@ const PhotoGridItem: React.FC<PhotoGridItemProps> = ({
     },
     priceBadgeText: {
       fontSize: 11,
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
       fontWeight: 'bold',
     },
   }), [colors])
@@ -83,7 +82,7 @@ const PhotoGridItem: React.FC<PhotoGridItemProps> = ({
       <CachedImage uri={record.photoUri} style={styles.photoImage} />
       {record.backPhotoUri && (
         <View style={styles.backPhotoBadge}>
-          <Ionicons name='document-text' size={10} color={colors.WHITE} />
+          <Ionicons name='document-text' size={10} color={colors.ON_PRIMARY} />
         </View>
       )}
       {record.photoCount > 1 && (

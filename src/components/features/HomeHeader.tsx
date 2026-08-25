@@ -42,11 +42,11 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
     title: {
       fontSize: 24,
       fontWeight: 'bold',
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
     },
     selectAllText: {
       fontSize: 14,
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
       fontWeight: '500',
     },
     headerButtons: {
@@ -65,7 +65,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
     return (
       <View style={styles.header}>
         <TouchableOpacity onPress={onExitSelection} style={styles.iconButton}>
-          <Ionicons name='close' size={24} color={colors.WHITE} />
+          <Ionicons name='close' size={24} color={colors.ON_PRIMARY} />
         </TouchableOpacity>
         <Text style={styles.title}>已选择 {selectedCount} 个</Text>
         <TouchableOpacity onPress={onSelectAll} style={styles.iconButton}>
@@ -83,16 +83,16 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
           style={styles.iconButton}
           onPress={onShowExportOptions}
         >
-          <Ionicons name='download-outline' size={24} color={colors.WHITE} />
+          <Ionicons name='download-outline' size={24} color={colors.ON_PRIMARY} />
         </TouchableOpacity>
         <TouchableOpacity style={styles.iconButton} onPress={onShowMoreOptions}>
-          <Ionicons name='settings-outline' size={24} color={colors.WHITE} />
+          <Ionicons name='settings-outline' size={24} color={colors.ON_PRIMARY} />
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.addButton}
           onPress={onNavigateToUpload}
         >
-          <Ionicons name='add' size={24} color={colors.WHITE} />
+          <Ionicons name='add' size={24} color={colors.ON_PRIMARY} />
         </TouchableOpacity>
       </View>
     </View>

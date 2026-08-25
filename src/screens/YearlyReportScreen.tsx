@@ -129,7 +129,7 @@ const YearlyReportScreen: React.FC<YearlyReportScreenProps> = ({ report, avatarM
     topRankText: {
       fontSize: 14,
       fontWeight: 'bold',
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
     },
     topRankSecond: {
       backgroundColor: colors.GRAY[400],
@@ -229,7 +229,7 @@ const YearlyReportScreen: React.FC<YearlyReportScreenProps> = ({ report, avatarM
       width: 6,
       height: 6,
       borderRadius: 3,
-      backgroundColor: colors.WHITE,
+      backgroundColor: colors.ON_PRIMARY,
       opacity: 0.4,
     },
     dotActive: {
@@ -239,7 +239,7 @@ const YearlyReportScreen: React.FC<YearlyReportScreenProps> = ({ report, avatarM
     nextHint: {
       marginTop: 16,
       fontSize: 12,
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
       opacity: 0.6,
     },
     iconWrapper: {
@@ -286,7 +286,7 @@ const YearlyReportScreen: React.FC<YearlyReportScreenProps> = ({ report, avatarM
         style={styles.closeButton}
         onPress={() => navigation.goBack()}
       >
-        <Ionicons name='close' size={28} color={colors.WHITE} />
+        <Ionicons name='close' size={28} color={colors.ON_PRIMARY} />
       </TouchableOpacity>
 
       <ScrollView

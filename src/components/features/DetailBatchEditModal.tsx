@@ -198,7 +198,7 @@ const DetailBatchEditModal: React.FC<DetailBatchEditModalProps> = ({
     },
     saveText: {
       fontSize: 15,
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
       fontWeight: 'bold',
     },
     accentStrip: {

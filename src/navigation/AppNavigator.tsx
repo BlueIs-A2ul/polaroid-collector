@@ -40,7 +40,7 @@ const AppNavigator = () => {
           headerStyle: {
             backgroundColor: colors.PRIMARY,
           },
-          headerTintColor: colors.WHITE,
+          headerTintColor: colors.ON_PRIMARY,
           headerTitleStyle: {
             fontWeight: 'bold',
           },

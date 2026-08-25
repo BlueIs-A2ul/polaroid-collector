@@ -83,7 +83,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
   const styles = useMemo(() => StyleSheet.create({
     modalContainer: {
       flex: 1,
-      backgroundColor: withOpacity(colors.BLACK, 0.92),
+      backgroundColor: 'rgba(0, 0, 0, 0.92)',
       justifyContent: 'center',
       alignItems: 'center',
     },
@@ -95,7 +95,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
       width: 36,
       height: 36,
       borderRadius: 18,
-      backgroundColor: withOpacity(colors.WHITE, 0.15),
+      backgroundColor: withOpacity(colors.ON_PRIMARY, 0.15),
       alignItems: 'center',
       justifyContent: 'center',
     },
@@ -127,7 +127,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
     },
     loadingText: {
       fontSize: 16,
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
     },
     pageIndicator: {
       position: 'absolute',
@@ -140,7 +140,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
     },
     pageIndicatorText: {
       fontSize: 14,
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
       fontWeight: 'bold',
     },
     modalInfo: {
@@ -153,25 +153,25 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
     },
     modalDate: {
       fontSize: 14,
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
     },
     toggleButton: {
       flexDirection: 'row',
       alignItems: 'center',
-      backgroundColor: withOpacity(colors.WHITE, 0.2),
+      backgroundColor: withOpacity(colors.ON_PRIMARY, 0.2),
       paddingHorizontal: 12,
       paddingVertical: 6,
       borderRadius: 8,
     },
     toggleButtonText: {
       fontSize: 13,
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
       marginLeft: 6,
     },
     noteContainer: {
       flexDirection: 'row',
       alignItems: 'flex-start',
-      backgroundColor: withOpacity(colors.WHITE, 0.1),
+      backgroundColor: withOpacity(colors.ON_PRIMARY, 0.1),
       paddingHorizontal: 12,
       paddingVertical: 8,
       borderRadius: 8,
@@ -181,7 +181,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
     },
     noteText: {
       fontSize: 13,
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
       marginLeft: 8,
       flex: 1,
     },
@@ -196,7 +196,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
     extraInfoItem: {
       flexDirection: 'row',
       alignItems: 'center',
-      backgroundColor: withOpacity(colors.WHITE, 0.1),
+      backgroundColor: withOpacity(colors.ON_PRIMARY, 0.1),
       paddingHorizontal: 10,
       paddingVertical: 6,
       borderRadius: 6,
@@ -208,7 +208,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
     },
     extraInfoValue: {
       fontSize: 12,
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
       fontWeight: '500',
     },
     editButton: {
@@ -223,7 +223,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
     },
     editButtonText: {
       fontSize: 13,
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
       marginLeft: 6,
     },
     emptyContainer: {
@@ -261,7 +261,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
     >
       <View style={styles.modalContainer}>
         <TouchableOpacity style={styles.modalCloseButton} onPress={onClose}>
-          <Ionicons name='close' size={28} color={colors.WHITE} />
+          <Ionicons name='close' size={28} color={colors.ON_PRIMARY} />
         </TouchableOpacity>
 
         {allPhotos.length > 1 && (
@@ -362,7 +362,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
               style={styles.editButton}
               onPress={onEdit}
             >
-              <Ionicons name='create-outline' size={16} color={colors.WHITE} />
+              <Ionicons name='create-outline' size={16} color={colors.ON_PRIMARY} />
               <Text style={styles.editButtonText}>编辑</Text>
             </TouchableOpacity>
           </>

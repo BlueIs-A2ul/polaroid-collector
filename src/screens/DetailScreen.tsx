@@ -349,42 +349,42 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
             <Ionicons
               name='add'
               size={22}
-              color={colors.WHITE}
+              color={colors.ON_PRIMARY}
             />
           </TouchableOpacity>
           <TouchableOpacity onPress={toggleSort}>
             <Ionicons
               name={ascending ? 'arrow-up' : 'arrow-down'}
               size={22}
-              color={colors.WHITE}
+              color={colors.ON_PRIMARY}
             />
           </TouchableOpacity>
           <TouchableOpacity onPress={showGroupBindingOptions}>
             <Ionicons
               name={boundGroup ? 'people' : 'people-outline'}
               size={22}
-              color={colors.WHITE}
+              color={colors.ON_PRIMARY}
             />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => navigation.navigate('IdolReport', { idolName, avatarUri })}>
             <Ionicons
               name='stats-chart-outline'
               size={22}
-              color={colors.WHITE}
+              color={colors.ON_PRIMARY}
             />
           </TouchableOpacity>
           <TouchableOpacity onPress={() => setShareModalVisible(true)}>
             <Ionicons
               name='share-outline'
               size={22}
-              color={colors.WHITE}
+              color={colors.ON_PRIMARY}
             />
           </TouchableOpacity>
           <TouchableOpacity onPress={handleDeleteIdol}>
             <Ionicons
               name='trash-outline'
               size={22}
-              color={colors.WHITE}
+              color={colors.ON_PRIMARY}
             />
           </TouchableOpacity>
         </View>

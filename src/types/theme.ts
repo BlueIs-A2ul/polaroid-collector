@@ -1,5 +1,6 @@
 export interface ThemeColors {
   PRIMARY: string
+  ON_PRIMARY: string
   SECONDARY: string
   SUCCESS: string
   ERROR: string

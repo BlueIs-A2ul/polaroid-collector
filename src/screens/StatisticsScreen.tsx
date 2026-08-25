@@ -92,7 +92,7 @@ const FieldStatSection: React.FC<FieldStatSectionProps> = ({
     statRankText: {
       fontSize: 12,
       fontWeight: 'bold',
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
     },
     statInfo: {
       flex: 1,
@@ -201,7 +201,7 @@ const StatisticsScreen: React.FC<StatisticsScreenProps> = ({ navigation }) => {
     headerTitle: {
       fontSize: 24,
       fontWeight: 'bold',
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
     },
     summaryContainer: {
       flexDirection: 'row',
@@ -257,7 +257,7 @@ const StatisticsScreen: React.FC<StatisticsScreenProps> = ({ navigation }) => {
     idolRankText: {
       fontSize: 12,
       fontWeight: 'bold',
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
     },
     idolInfo: {
       flex: 1,
@@ -316,7 +316,7 @@ const StatisticsScreen: React.FC<StatisticsScreenProps> = ({ navigation }) => {
       fontWeight: '500',
     },
     tabTextActive: {
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
     },
     yearlyReportCard: {
       flexDirection: 'row',
@@ -433,7 +433,7 @@ const StatisticsScreen: React.FC<StatisticsScreenProps> = ({ navigation }) => {
         onPress={() => navigation.navigate('YearlyReport')}
       >
         <View style={styles.yearlyReportIcon}>
-          <Ionicons name='sparkles' size={24} color={colors.WHITE} />
+          <Ionicons name='sparkles' size={24} color={colors.ON_PRIMARY} />
         </View>
         <View style={styles.yearlyReportContent}>
           <Text style={styles.yearlyReportTitle}>年度报告</Text>

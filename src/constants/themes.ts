@@ -19,6 +19,7 @@ export const PRESET_THEMES: Theme[] = [
     name: '经典棕',
     colors: {
       PRIMARY: '#8B4513',
+      ON_PRIMARY: '#FFFFFF',
       SECONDARY: '#F5F5DC',
       SUCCESS: '#668B2C',
       ERROR: '#C0392B',
@@ -35,6 +36,7 @@ export const PRESET_THEMES: Theme[] = [
     name: '海洋蓝',
     colors: {
       PRIMARY: '#1976D2',
+      ON_PRIMARY: '#FFFFFF',
       SECONDARY: '#E3F2FD',
       SUCCESS: '#16A085',
       ERROR: '#D6457A',
@@ -51,6 +53,7 @@ export const PRESET_THEMES: Theme[] = [
     name: '樱花粉',
     colors: {
       PRIMARY: '#E91E63',
+      ON_PRIMARY: '#FFFFFF',
       SECONDARY: '#FCE4EC',
       SUCCESS: '#45B77D',
       ERROR: '#D6273E',
@@ -67,6 +70,7 @@ export const PRESET_THEMES: Theme[] = [
     name: '森林绿',
     colors: {
       PRIMARY: '#388E3C',
+      ON_PRIMARY: '#FFFFFF',
       SECONDARY: '#E8F5E9',
       SUCCESS: '#2E9A48',
       ERROR: '#E05B3E',
@@ -83,6 +87,7 @@ export const PRESET_THEMES: Theme[] = [
     name: '薰衣草',
     colors: {
       PRIMARY: '#7B1FA2',
+      ON_PRIMARY: '#FFFFFF',
       SECONDARY: '#F3E5F5',
       SUCCESS: '#3DA88A',
       ERROR: '#D14335',
@@ -99,6 +104,7 @@ export const PRESET_THEMES: Theme[] = [
     name: '日落橙',
     colors: {
       PRIMARY: '#E65100',
+      ON_PRIMARY: '#FFFFFF',
       SECONDARY: '#FFF3E0',
       SUCCESS: '#6B9A3A',
       ERROR: '#B8452B',
@@ -116,14 +122,28 @@ export function deriveColors(core: ThemeColors, isDark: boolean): ResolvedColors
   if (isDark) {
     return {
       ...core,
+      SECONDARY: '#121212',
+      WHITE: '#1E1E1E',
+      BLACK: '#F2F2F2',
+      GRAY: {
+        100: '#2A2A2A',
+        200: '#333333',
+        300: '#424242',
+        400: '#5C5C5C',
+        500: '#757575',
+        600: '#9E9E9E',
+        700: '#BDBDBD',
+        800: '#DADADA',
+        900: '#F0F0F0',
+      },
       SURFACE: '#1E1E1E',
-      SURFACE_HIGHLIGHT: withOpacity(core.PRIMARY, 0.12),
+      SURFACE_HIGHLIGHT: withOpacity(core.PRIMARY, 0.15),
       SURFACE_ELEVATED: '#282828',
-      BORDER: withOpacity('#FFFFFF', 0.08),
+      BORDER: withOpacity('#FFFFFF', 0.12),
       BORDER_LIGHT: withOpacity('#FFFFFF', 0.04),
       TEXT_PRIMARY: '#F2F2F2',
-      TEXT_SECONDARY: '#A0A0A0',
-      TEXT_TERTIARY: '#6B6B6B',
+      TEXT_SECONDARY: '#9E9E9E',
+      TEXT_TERTIARY: '#757575',
       SUCCESS_BG: withOpacity(core.SUCCESS, 0.15),
       ERROR_BG: withOpacity(core.ERROR, 0.15),
       WARNING_BG: withOpacity(core.WARNING, 0.15),
@@ -202,6 +222,7 @@ export function createCustomTheme(id: string, name: string, primaryColor: string
     name,
     colors: {
       PRIMARY: primaryColor,
+      ON_PRIMARY: '#FFFFFF',
       SECONDARY: secondaryColor,
       SUCCESS: '#4CAF50',
       ERROR: '#F44336',

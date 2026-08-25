@@ -108,7 +108,7 @@ const OptionsSelector: React.FC<OptionsSelectorProps> = ({
       backgroundColor: colors.GRAY[300],
     },
     customSubmitText: {
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
       fontSize: 14,
       fontWeight: 'bold',
     },

@@ -117,7 +117,7 @@ const OrganizationCenterScreen: React.FC<OrganizationCenterScreenProps> = ({
       color: colors.GRAY[600],
     },
     tabTextActive: {
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
     },
     card: {
       backgroundColor: colors.WHITE,

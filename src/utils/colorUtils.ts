@@ -122,3 +122,23 @@ export function withOpacity(hex: string, opacity: number): string {
   const b = parseInt(result[3], 16)
   return `rgba(${r}, ${g}, ${b}, ${opacity})`
 }
+
+export function isColorDark(hex: string): boolean {
+  const short = /^#?([a-f\d])([a-f\d])([a-f\d])$/i.exec(hex)
+  if (short) {
+    const r = parseInt(short[1] + short[1], 16)
+    const g = parseInt(short[2] + short[2], 16)
+    const b = parseInt(short[3] + short[3], 16)
+    return 0.299 * r + 0.587 * g + 0.114 * b < 128
+  }
+
+  const full = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex)
+  if (full) {
+    const r = parseInt(full[1], 16)
+    const g = parseInt(full[2], 16)
+    const b = parseInt(full[3], 16)
+    return 0.299 * r + 0.587 * g + 0.114 * b < 128
+  }
+
+  return true
+}

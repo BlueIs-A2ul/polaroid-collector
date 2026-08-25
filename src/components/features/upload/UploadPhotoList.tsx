@@ -81,7 +81,7 @@ const UploadPhotoList: React.FC<UploadPhotoListProps> = ({
               false: colors.GRAY[300],
               true: colors.PRIMARY,
             }}
-            thumbColor={colors.WHITE}
+            thumbColor={colors.ON_PRIMARY}
           />
         </View>
       )}
@@ -92,7 +92,7 @@ const UploadPhotoList: React.FC<UploadPhotoListProps> = ({
             <Image source={{ uri: photo.uri }} style={styles.photoThumbnail} />
             {photo.backPhotoUri && (
               <View style={styles.backPhotoBadge}>
-                <Ionicons name='document-text' size={12} color={colors.WHITE} />
+                <Ionicons name='document-text' size={12} color={colors.ON_PRIMARY} />
               </View>
             )}
           </View>

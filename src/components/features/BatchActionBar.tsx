@@ -45,7 +45,7 @@ const BatchActionBar: React.FC<BatchActionBarProps> = ({
     batchActionText: {
       fontSize: 16,
       fontWeight: 'bold',
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
     },
   }), [colors])
 
@@ -57,14 +57,14 @@ const BatchActionBar: React.FC<BatchActionBarProps> = ({
         style={styles.batchActionButton}
         onPress={onEdit}
       >
-        <Ionicons name='create-outline' size={20} color={colors.WHITE} />
+        <Ionicons name='create-outline' size={20} color={colors.ON_PRIMARY} />
         <Text style={styles.batchActionText}>修改</Text>
       </TouchableOpacity>
       <TouchableOpacity
         style={[styles.batchActionButton, styles.deleteButton]}
         onPress={onDelete}
       >
-        <Ionicons name='trash-outline' size={20} color={colors.WHITE} />
+        <Ionicons name='trash-outline' size={20} color={colors.ON_PRIMARY} />
         <Text style={styles.batchActionText}>删除</Text>
       </TouchableOpacity>
     </View>

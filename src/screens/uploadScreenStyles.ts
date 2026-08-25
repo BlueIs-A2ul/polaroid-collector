@@ -26,7 +26,7 @@ export const createUploadScreenStyles = (colors: ResolvedColors) =>
     title: {
       fontSize: 20,
       fontWeight: 'bold',
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
     },
     form: {
       padding: 20,
@@ -320,7 +320,7 @@ export const createUploadScreenStyles = (colors: ResolvedColors) =>
       marginLeft: 8,
       fontSize: 18,
       fontWeight: 'bold',
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
     },
     cropOption: {
       flexDirection: 'row',
@@ -370,7 +370,7 @@ export const createUploadScreenStyles = (colors: ResolvedColors) =>
     confirmButtonText: {
       fontSize: 16,
       fontWeight: 'bold',
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
     },
     priceSelectButton: {
       padding: 6,

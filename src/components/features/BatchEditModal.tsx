@@ -8,7 +8,6 @@ import {
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '../../contexts/ThemeContext'
-import { withOpacity } from '../../utils/colorUtils'
 import AnimatedBottomSheet from '../common/AnimatedBottomSheet'
 import FieldHistorySelector from './FieldHistorySelector'
 
@@ -66,7 +65,7 @@ const BatchEditModal: React.FC<BatchEditModalProps> = ({
       color: colors.BLACK,
     },
     fieldOptionTextActive: {
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
       fontWeight: '500',
     },
     inputRow: {
@@ -105,7 +104,7 @@ const BatchEditModal: React.FC<BatchEditModalProps> = ({
     applyButtonText: {
       fontSize: 16,
       fontWeight: 'bold',
-      color: colors.WHITE,
+      color: colors.ON_PRIMARY,
     },
   }), [colors])
 
