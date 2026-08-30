@@ -1,5 +1,44 @@
 # 工作日志
 
+## 2026-08-30 开发记录（UI 去 AI 感：精简重复性文案）
+
+### 背景
+
+在上一次圆角收敛/去悬浮的基础上，进一步精简冗余文字，让信息更聚焦。
+
+### 改动内容
+
+1. **统计看板去图标**：首页 `StatsCard` 和统计页 summary 三卡删除相机/人物/钱包图标，保留大数字 + 标签（图标与标签重复传达语义）
+2. **详情页**：删除"记录列表"标题行与"从旧到新/从新到旧"提示（排序方向已由导航栏箭头表达）
+3. **日期分组卡片**：组头删除日历图标和"N 张"数量（照片角标 ×N 已表达），仅保留日期与价格
+4. **日历页**：删除"共 N 条记录"副标题和底部"点击日期查看当天的拍摄记录"提示
+5. **统计页**：删除年度报告副标题"回顾你的拍立得之旅"
+6. **整理中心**：删除顶部 intro 说明卡（长段落介绍），保留概要卡与 tab 列表
+
+### 文件变更
+
+| 文件 | 变更类型 | 说明 |
+|------|----------|------|
+| `src/components/features/StatsCard.tsx` | 修改 | 删图标，数字上移 |
+| `src/screens/StatisticsScreen.tsx` | 修改 | summary 卡删图标、删年度报告副标题 |
+| `src/screens/DetailScreen.tsx` | 修改 | 删记录列表标题行及样式 |
+| `src/components/features/DateGroupCard.tsx` | 修改 | 组头删图标与张数，保留价格 |
+| `src/screens/CalendarScreen.tsx` | 修改 | 删副标题与底部 hint 及样式 |
+| `src/screens/OrganizationCenterScreen.tsx` | 修改 | 删 intro 卡及样式 |
+
+### 保留不动
+
+- 表单 label、placeholder、操作按钮文案（编辑本日/去补充等）
+- DetailHeader 统计单位（PRIMARY 底上为语义单位）
+- 报告页叙事文案、EmptyState 标题+副标题
+
+### 验证
+
+- `npm run typecheck`
+- `npm test -- --runInBand`（6 套件 36 用例全部通过）
+
+---
+
 ## 2026-08-30 开发记录（UI 去 AI 感：圆角刻度收敛与卡片去悬浮）
 
 ### 背景

@@ -36,7 +36,6 @@ const StatsCard: React.FC<StatsCardProps> = ({ statistics, onPress }) => {
       fontSize: 28,
       fontWeight: 'bold',
       color: colors.PRIMARY,
-      marginTop: 8,
     },
     statLabel: {
       fontSize: 12,
@@ -50,17 +49,14 @@ const StatsCard: React.FC<StatsCardProps> = ({ statistics, onPress }) => {
   return (
     <TouchableOpacity style={styles.statsContainer} onPress={onPress}>
       <View style={styles.statItem}>
-        <Ionicons name='camera' size={24} color={colors.PRIMARY} />
         <Text style={styles.statValue}>{statistics.totalPhotos}</Text>
         <Text style={styles.statLabel}>拍立得</Text>
       </View>
       <View style={styles.statItem}>
-        <Ionicons name='person' size={24} color={colors.PRIMARY} />
         <Text style={styles.statValue}>{statistics.uniqueIdols}</Text>
         <Text style={styles.statLabel}>偶像</Text>
       </View>
       <View style={styles.statItem}>
-        <Ionicons name='wallet' size={24} color={colors.PRIMARY} />
         <Text style={styles.statValue}>¥{statistics.totalPrice}</Text>
         <Text style={styles.statLabel}>总花费</Text>
       </View>

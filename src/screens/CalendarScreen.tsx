@@ -94,12 +94,6 @@ const CalendarScreen: React.FC<CalendarScreenProps> = ({ navigation }) => {
       fontWeight: 'bold',
       color: colors.WHITE,
     },
-    headerSubtitle: {
-      fontSize: 14,
-      color: colors.WHITE,
-      opacity: 0.8,
-      marginTop: 4,
-    },
     calendarContainer: {
       padding: 16,
     },
@@ -177,17 +171,6 @@ const CalendarScreen: React.FC<CalendarScreenProps> = ({ navigation }) => {
       color: colors.GRAY[500],
       marginTop: 8,
     },
-    hint: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      justifyContent: 'center',
-      padding: 20,
-      gap: 8,
-    },
-    hintText: {
-      fontSize: 14,
-      color: colors.GRAY[500],
-    },
     bottomPadding: {
       height: 20,
     },
@@ -211,9 +194,6 @@ const CalendarScreen: React.FC<CalendarScreenProps> = ({ navigation }) => {
     >
       <View style={styles.header}>
         <Text style={styles.headerTitle}>日历视图</Text>
-        <Text style={styles.headerSubtitle}>
-          共 {records.length} 条记录
-        </Text>
       </View>
 
       <View style={styles.calendarContainer}>
@@ -271,13 +251,6 @@ const CalendarScreen: React.FC<CalendarScreenProps> = ({ navigation }) => {
               <Text style={styles.emptyDateText}>这天没有拍摄记录</Text>
             </View>
           )}
-        </View>
-      )}
-
-      {!selectedDate && (
-        <View style={styles.hint}>
-          <Ionicons name='hand-left-outline' size={20} color={colors.GRAY[500]} />
-          <Text style={styles.hintText}>点击日期查看当天的拍摄记录</Text>
         </View>
       )}
 

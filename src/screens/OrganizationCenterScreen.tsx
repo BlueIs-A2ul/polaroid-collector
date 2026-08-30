@@ -72,29 +72,6 @@ const OrganizationCenterScreen: React.FC<OrganizationCenterScreenProps> = ({
       padding: 16,
       paddingBottom: 32,
     },
-    introCard: {
-      backgroundColor: colors.WHITE,
-      borderRadius: 8,
-      padding: 16,
-      marginBottom: 16,
-      ...CARD_SHADOW,
-    },
-    introHeader: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      gap: 8,
-      marginBottom: 8,
-    },
-    introTitle: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: colors.BLACK,
-    },
-    introText: {
-      fontSize: 13,
-      lineHeight: 20,
-      color: colors.GRAY[600],
-    },
     summaryGrid: {
       flexDirection: 'row',
       gap: 10,
@@ -427,16 +404,6 @@ const OrganizationCenterScreen: React.FC<OrganizationCenterScreenProps> = ({
         />
       }
     >
-      <View style={styles.introCard}>
-        <View style={styles.introHeader}>
-          <Ionicons name='sparkles-outline' size={22} color={colors.PRIMARY} />
-          <Text style={styles.introTitle}>整理中心</Text>
-        </View>
-        <Text style={styles.introText}>
-          这里会帮你找出同偶像同日期的疑似重复记录，以及缺少关键信息的照片。所有操作都需要你进入详情或编辑页确认。
-        </Text>
-      </View>
-
       <View style={styles.summaryGrid}>
         <View style={styles.summaryCard}>
           <Text style={styles.summaryValue}>{summary.duplicateGroupCount}</Text>

@@ -71,21 +71,6 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
     recordsContainer: {
       padding: 16,
     },
-    sectionHeader: {
-      flexDirection: 'row',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      marginBottom: 16,
-    },
-    sectionTitle: {
-      fontSize: 18,
-      fontWeight: 'bold',
-      color: colors.BLACK,
-    },
-    sortHint: {
-      fontSize: 12,
-      color: colors.GRAY[500],
-    },
   }), [colors])
 
   const loadAvatar = React.useCallback(async () => {
@@ -444,11 +429,6 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
         />
 
         <View style={styles.recordsContainer}>
-          <View style={styles.sectionHeader}>
-            <Text style={styles.sectionTitle}>记录列表</Text>
-            <Text style={styles.sortHint}>{ascending ? '从旧到新' : '从新到旧'}</Text>
-          </View>
-
           {groupedRecords.map(group => (
             <DateGroupCard
               key={group.date}

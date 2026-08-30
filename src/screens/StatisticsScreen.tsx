@@ -221,7 +221,6 @@ const StatisticsScreen: React.FC<StatisticsScreenProps> = ({ navigation }) => {
       fontSize: 24,
       fontWeight: 'bold',
       color: colors.BLACK,
-      marginTop: 8,
     },
     summaryLabel: {
       fontSize: 12,
@@ -346,11 +345,6 @@ const StatisticsScreen: React.FC<StatisticsScreenProps> = ({ navigation }) => {
       fontWeight: 'bold',
       color: colors.BLACK,
     },
-    yearlyReportSubtitle: {
-      fontSize: 12,
-      color: colors.GRAY[500],
-      marginTop: 2,
-    },
     bottomPadding: {
       height: 20,
     },
@@ -421,17 +415,14 @@ const StatisticsScreen: React.FC<StatisticsScreenProps> = ({ navigation }) => {
 
       <View style={styles.summaryContainer}>
         <View style={styles.summaryCard}>
-          <Ionicons name='camera' size={32} color={colors.PRIMARY} />
           <Text style={styles.summaryValue}>{statistics.totalPhotos}</Text>
           <Text style={styles.summaryLabel}>总拍立得</Text>
         </View>
         <View style={styles.summaryCard}>
-          <Ionicons name='person' size={32} color={colors.PRIMARY} />
           <Text style={styles.summaryValue}>{statistics.uniqueIdols}</Text>
           <Text style={styles.summaryLabel}>偶像数</Text>
         </View>
         <View style={styles.summaryCard}>
-          <Ionicons name='wallet' size={32} color={colors.PRIMARY} />
           <Text style={styles.summaryValue}>¥{statistics.totalPrice}</Text>
           <Text style={styles.summaryLabel}>总花费</Text>
         </View>
@@ -446,7 +437,6 @@ const StatisticsScreen: React.FC<StatisticsScreenProps> = ({ navigation }) => {
         </View>
         <View style={styles.yearlyReportContent}>
           <Text style={styles.yearlyReportTitle}>年度报告</Text>
-          <Text style={styles.yearlyReportSubtitle}>回顾你的拍立得之旅</Text>
         </View>
         <Ionicons name='chevron-forward' size={24} color={colors.GRAY[400]} />
       </TouchableOpacity>

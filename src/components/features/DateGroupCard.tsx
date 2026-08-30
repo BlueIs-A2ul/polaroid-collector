@@ -77,13 +77,6 @@ const DateGroupCard: React.FC<DateGroupCardProps> = ({
       color: colors.PRIMARY,
       marginLeft: 4,
     },
-    dateStats: {
-      flexDirection: 'row',
-    },
-    dateStatText: {
-      fontSize: 13,
-      color: colors.GRAY[600],
-    },
     datePriceText: {
       fontSize: 13,
       color: colors.PRIMARY,
@@ -101,7 +94,6 @@ const DateGroupCard: React.FC<DateGroupCardProps> = ({
     <View style={styles.dateGroup}>
       <View style={styles.dateHeader}>
         <View style={styles.dateInfo}>
-          <Ionicons name='calendar' size={16} color={colors.PRIMARY} />
           <Text style={styles.dateText}>{formatDate(group.date)}</Text>
         </View>
         <View style={styles.dateHeaderRight}>
@@ -112,12 +104,9 @@ const DateGroupCard: React.FC<DateGroupCardProps> = ({
             <Ionicons name='create-outline' size={16} color={colors.PRIMARY} />
             <Text style={styles.batchEditText}>编辑本日</Text>
           </TouchableOpacity>
-          <View style={styles.dateStats}>
-            <Text style={styles.dateStatText}>{group.totalCount} 张</Text>
-            {group.totalPrice > 0 && (
-              <Text style={styles.datePriceText}> · ¥{group.totalPrice}</Text>
-            )}
-          </View>
+          {group.totalPrice > 0 && (
+            <Text style={styles.datePriceText}>¥{group.totalPrice}</Text>
+          )}
         </View>
       </View>
 
