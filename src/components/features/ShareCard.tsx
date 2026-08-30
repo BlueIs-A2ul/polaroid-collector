@@ -37,7 +37,7 @@ const ShareCard = forwardRef<View, ShareCardProps>(({
     container: {
       width: 360,
       backgroundColor: colors.WHITE,
-      borderRadius: 20,
+      borderRadius: 12,
       overflow: 'hidden',
     },
     header: {
@@ -102,7 +102,7 @@ const ShareCard = forwardRef<View, ShareCardProps>(({
     photoItem: {
       width: 100,
       height: 100,
-      borderRadius: 12,
+      borderRadius: 8,
       overflow: 'hidden',
     },
     photo: {
@@ -161,7 +161,7 @@ const ShareCard = forwardRef<View, ShareCardProps>(({
       backgroundColor: colors.SURFACE_HIGHLIGHT,
       paddingHorizontal: 12,
       paddingVertical: 6,
-      borderRadius: 16,
+      borderRadius: 8,
     },
     priceText: {
       fontSize: 14,

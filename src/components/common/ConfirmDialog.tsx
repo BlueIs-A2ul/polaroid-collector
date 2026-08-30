@@ -45,7 +45,7 @@ const ConfirmDialog: React.FC<ConfirmDialogProps> = ({
     container: {
       width: '100%',
       backgroundColor: colors.SECONDARY,
-      borderRadius: 22,
+      borderRadius: 12,
       overflow: 'hidden',
       shadowColor: colors.PRIMARY,
       shadowOffset: { width: 0, height: 8 },

@@ -70,7 +70,7 @@ const DetailBatchEditModal: React.FC<DetailBatchEditModalProps> = ({
     },
     content: {
       backgroundColor: colors.SECONDARY,
-      borderRadius: 22,
+      borderRadius: 12,
       width: '100%',
       maxWidth: 400,
       overflow: 'hidden',

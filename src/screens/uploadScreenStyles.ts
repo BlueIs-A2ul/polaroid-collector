@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native'
-import { CARD_SHADOW, HEADER_PADDING_TOP } from '../constants/themes'
+import { HEADER_PADDING_TOP } from '../constants/themes'
 import { ResolvedColors } from '../types/theme'
 import { withOpacity } from '../utils/colorUtils'
 
@@ -42,10 +42,11 @@ export const createUploadScreenStyles = (colors: ResolvedColors) =>
     },
     input: {
       backgroundColor: colors.WHITE,
-      borderRadius: 8,
+      borderRadius: 6,
+      borderWidth: 1,
+      borderColor: colors.BORDER,
       padding: 12,
       fontSize: 16,
-      ...CARD_SHADOW,
     },
     idolNameContainer: {
       flexDirection: 'row',
@@ -54,20 +55,21 @@ export const createUploadScreenStyles = (colors: ResolvedColors) =>
     idolNameInput: {
       flex: 1,
       backgroundColor: colors.WHITE,
-      borderTopLeftRadius: 8,
-      borderBottomLeftRadius: 8,
+      borderTopLeftRadius: 6,
+      borderBottomLeftRadius: 6,
+      borderWidth: 1,
+      borderColor: colors.BORDER,
       padding: 12,
       fontSize: 16,
-      ...CARD_SHADOW,
     },
     selectIdolButton: {
       backgroundColor: colors.WHITE,
-      borderTopRightRadius: 8,
-      borderBottomRightRadius: 8,
+      borderTopRightRadius: 6,
+      borderBottomRightRadius: 6,
+      borderWidth: 1,
+      borderLeftWidth: 0,
+      borderColor: colors.BORDER,
       padding: 12,
-      borderLeftWidth: 1,
-      borderLeftColor: colors.GRAY[200],
-      ...CARD_SHADOW,
     },
     selectIdolHintButton: {
       flexDirection: 'row',
@@ -82,13 +84,14 @@ export const createUploadScreenStyles = (colors: ResolvedColors) =>
     },
     dateInput: {
       backgroundColor: colors.WHITE,
-      borderRadius: 8,
+      borderRadius: 6,
+      borderWidth: 1,
+      borderColor: colors.BORDER,
       padding: 12,
       fontSize: 16,
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      ...CARD_SHADOW,
     },
     dateInputText: {
       fontSize: 16,
@@ -100,11 +103,12 @@ export const createUploadScreenStyles = (colors: ResolvedColors) =>
     },
     photoButton: {
       backgroundColor: colors.WHITE,
-      borderRadius: 12,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: colors.BORDER,
       padding: 16,
       alignItems: 'center',
       width: '31%',
-      ...CARD_SHADOW,
     },
     photoButtonText: {
       marginTop: 6,
@@ -135,7 +139,7 @@ export const createUploadScreenStyles = (colors: ResolvedColors) =>
       justifyContent: 'space-between',
       alignItems: 'center',
       backgroundColor: withOpacity(colors.PRIMARY, 0.06),
-      borderRadius: 8,
+      borderRadius: 6,
       paddingHorizontal: 12,
       paddingVertical: 10,
       marginBottom: 12,
@@ -149,10 +153,11 @@ export const createUploadScreenStyles = (colors: ResolvedColors) =>
       flexDirection: 'row',
       alignItems: 'center',
       backgroundColor: colors.WHITE,
-      borderRadius: 8,
+      borderRadius: 6,
+      borderWidth: 1,
+      borderColor: colors.BORDER,
       padding: 10,
       marginBottom: 10,
-      ...CARD_SHADOW,
     },
     photoThumbnailContainer: {
       position: 'relative',
@@ -160,7 +165,7 @@ export const createUploadScreenStyles = (colors: ResolvedColors) =>
     photoThumbnail: {
       width: 60,
       height: 60,
-      borderRadius: 6,
+      borderRadius: 4,
     },
     backPhotoBadge: {
       position: 'absolute',
@@ -305,12 +310,11 @@ export const createUploadScreenStyles = (colors: ResolvedColors) =>
     saveButton: {
       flexDirection: 'row',
       backgroundColor: colors.PRIMARY,
-      borderRadius: 12,
+      borderRadius: 8,
       padding: 16,
       justifyContent: 'center',
       alignItems: 'center',
       marginTop: 20,
-      ...CARD_SHADOW,
     },
     saveButtonText: {
       marginLeft: 8,
@@ -339,11 +343,12 @@ export const createUploadScreenStyles = (colors: ResolvedColors) =>
     dimensionInput: {
       flex: 1,
       backgroundColor: colors.GRAY[100],
-      borderRadius: 8,
+      borderRadius: 6,
+      borderWidth: 1,
+      borderColor: colors.BORDER,
       padding: 12,
       fontSize: 16,
       textAlign: 'center',
-      ...CARD_SHADOW,
     },
     dimensionSeparator: {
       marginHorizontal: 12,
@@ -361,7 +366,6 @@ export const createUploadScreenStyles = (colors: ResolvedColors) =>
       borderRadius: 8,
       padding: 14,
       alignItems: 'center',
-      ...CARD_SHADOW,
     },
     confirmButtonText: {
       fontSize: 16,
@@ -385,7 +389,7 @@ export const createUploadScreenStyles = (colors: ResolvedColors) =>
     },
     priceOption: {
       backgroundColor: colors.GRAY[100],
-      borderRadius: 8,
+      borderRadius: 6,
       padding: 14,
       marginBottom: 10,
       alignItems: 'center',

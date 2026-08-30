@@ -61,7 +61,7 @@ const IdolSelector: React.FC<IdolSelectorProps> = ({
       paddingHorizontal: 16,
       marginBottom: 10,
       backgroundColor: colors.WHITE,
-      borderRadius: 12,
+      borderRadius: 8,
       shadowColor: colors.BLACK,
       shadowOffset: { width: 0, height: 1 },
       shadowOpacity: 0.06,

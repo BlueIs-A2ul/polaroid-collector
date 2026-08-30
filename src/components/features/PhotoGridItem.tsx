@@ -28,7 +28,7 @@ const PhotoGridItem: React.FC<PhotoGridItemProps> = ({
     photoItem: {
       width: 100,
       height: 100,
-      borderRadius: 8,
+      borderRadius: 4,
       overflow: 'hidden',
     },
     photoImage: {

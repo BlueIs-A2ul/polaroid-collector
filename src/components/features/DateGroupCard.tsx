@@ -37,7 +37,7 @@ const DateGroupCard: React.FC<DateGroupCardProps> = ({
   const styles = React.useMemo(() => StyleSheet.create({
     dateGroup: {
       backgroundColor: colors.WHITE,
-      borderRadius: 12,
+      borderRadius: 8,
       marginBottom: 16,
       ...CARD_SHADOW,
     },
@@ -70,7 +70,7 @@ const DateGroupCard: React.FC<DateGroupCardProps> = ({
       backgroundColor: colors.SURFACE_HIGHLIGHT,
       paddingHorizontal: 10,
       paddingVertical: 4,
-      borderRadius: 12,
+      borderRadius: 6,
     },
     batchEditText: {
       fontSize: 12,

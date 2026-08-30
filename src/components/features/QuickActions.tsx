@@ -41,7 +41,7 @@ const QuickActions: React.FC<QuickActionsProps> = ({
       backgroundColor: colors.WHITE,
       paddingHorizontal: 18,
       paddingVertical: 10,
-      borderRadius: 20,
+      borderRadius: 8,
       gap: 8,
       ...CARD_SHADOW_SMALL,
     },

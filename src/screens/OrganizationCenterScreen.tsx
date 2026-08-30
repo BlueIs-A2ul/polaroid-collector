@@ -168,7 +168,7 @@ const OrganizationCenterScreen: React.FC<OrganizationCenterScreenProps> = ({
       marginBottom: 10,
     },
     confidenceBadge: {
-      borderRadius: 10,
+      borderRadius: 8,
       paddingHorizontal: 8,
       paddingVertical: 3,
     },
@@ -187,7 +187,7 @@ const OrganizationCenterScreen: React.FC<OrganizationCenterScreenProps> = ({
       alignItems: 'center',
       gap: 4,
       backgroundColor: colors.GRAY[100],
-      borderRadius: 12,
+      borderRadius: 8,
       paddingHorizontal: 8,
       paddingVertical: 4,
     },
@@ -202,7 +202,7 @@ const OrganizationCenterScreen: React.FC<OrganizationCenterScreenProps> = ({
     },
     reasonPill: {
       backgroundColor: withOpacity(colors.PRIMARY, 0.1),
-      borderRadius: 10,
+      borderRadius: 8,
       paddingHorizontal: 8,
       paddingVertical: 4,
     },
@@ -219,7 +219,7 @@ const OrganizationCenterScreen: React.FC<OrganizationCenterScreenProps> = ({
     },
     missingPill: {
       backgroundColor: withOpacity(colors.ERROR, 0.1),
-      borderRadius: 10,
+      borderRadius: 8,
       paddingHorizontal: 8,
       paddingVertical: 4,
     },

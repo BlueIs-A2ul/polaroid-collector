@@ -77,7 +77,7 @@ const AdvancedFilter: React.FC<AdvancedFilterProps> = ({
     optionButton: {
       paddingHorizontal: 14,
       paddingVertical: 8,
-      borderRadius: 16,
+      borderRadius: 8,
       backgroundColor: colors.WHITE,
       borderWidth: 1,
       borderColor: colors.GRAY[200],
@@ -104,7 +104,7 @@ const AdvancedFilter: React.FC<AdvancedFilterProps> = ({
       backgroundColor: colors.WHITE,
       borderWidth: 1,
       borderColor: colors.GRAY[200],
-      borderRadius: 8,
+      borderRadius: 6,
       paddingHorizontal: 12,
       paddingVertical: 10,
       fontSize: 15,

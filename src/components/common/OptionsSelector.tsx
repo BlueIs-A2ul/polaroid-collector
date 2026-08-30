@@ -65,7 +65,7 @@ const OptionsSelector: React.FC<OptionsSelectorProps> = ({
       alignItems: 'center',
       paddingVertical: 14,
       paddingHorizontal: 16,
-      borderRadius: 12,
+      borderRadius: 8,
       marginBottom: 8,
       backgroundColor: colors.WHITE,
       borderWidth: 1,

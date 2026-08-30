@@ -24,7 +24,7 @@ const StatsCard: React.FC<StatsCardProps> = ({ statistics, onPress }) => {
       backgroundColor: colors.WHITE,
       padding: 20,
       margin: 16,
-      borderRadius: 12,
+      borderRadius: 8,
     },
     statItem: {
       alignItems: 'center',

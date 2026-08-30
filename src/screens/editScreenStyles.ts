@@ -1,5 +1,5 @@
 import { StyleSheet } from 'react-native'
-import { CARD_SHADOW, HEADER_PADDING_TOP } from '../constants/themes'
+import { HEADER_PADDING_TOP } from '../constants/themes'
 import { ResolvedColors } from '../types/theme'
 import { withOpacity } from '../utils/colorUtils'
 
@@ -42,19 +42,21 @@ export const createEditScreenStyles = (colors: ResolvedColors) =>
     },
     input: {
       backgroundColor: colors.WHITE,
-      borderRadius: 8,
+      borderRadius: 6,
+      borderWidth: 1,
+      borderColor: colors.BORDER,
       padding: 12,
       fontSize: 16,
-      ...CARD_SHADOW,
     },
     noteInput: {
       backgroundColor: colors.WHITE,
-      borderRadius: 8,
+      borderRadius: 6,
+      borderWidth: 1,
+      borderColor: colors.BORDER,
       padding: 12,
       fontSize: 16,
       minHeight: 80,
       textAlignVertical: 'top',
-      ...CARD_SHADOW,
     },
     sectionTitle: {
       fontSize: 16,
@@ -64,9 +66,10 @@ export const createEditScreenStyles = (colors: ResolvedColors) =>
     },
     extraFieldsContainer: {
       backgroundColor: colors.WHITE,
-      borderRadius: 8,
+      borderRadius: 6,
+      borderWidth: 1,
+      borderColor: colors.BORDER,
       padding: 12,
-      ...CARD_SHADOW,
     },
     extraFieldRow: {
       flexDirection: 'row',
@@ -108,13 +111,14 @@ export const createEditScreenStyles = (colors: ResolvedColors) =>
     },
     dateInput: {
       backgroundColor: colors.WHITE,
-      borderRadius: 8,
+      borderRadius: 6,
+      borderWidth: 1,
+      borderColor: colors.BORDER,
       padding: 12,
       fontSize: 16,
       flexDirection: 'row',
       justifyContent: 'space-between',
       alignItems: 'center',
-      ...CARD_SHADOW,
     },
     dateInputText: {
       fontSize: 16,
@@ -146,7 +150,7 @@ export const createEditScreenStyles = (colors: ResolvedColors) =>
     photoPreview: {
       width: '100%',
       height: 300,
-      borderRadius: 8,
+      borderRadius: 4,
       resizeMode: 'cover',
     },
     removePhotoButton: {
@@ -179,11 +183,12 @@ export const createEditScreenStyles = (colors: ResolvedColors) =>
     },
     photoButton: {
       backgroundColor: colors.WHITE,
-      borderRadius: 12,
+      borderRadius: 8,
+      borderWidth: 1,
+      borderColor: colors.BORDER,
       padding: 16,
       alignItems: 'center',
       width: '45%',
-      ...CARD_SHADOW,
     },
     photoButtonText: {
       marginTop: 8,
@@ -214,10 +219,11 @@ export const createEditScreenStyles = (colors: ResolvedColors) =>
       flexDirection: 'row',
       alignItems: 'center',
       backgroundColor: colors.WHITE,
+      borderWidth: 1,
+      borderColor: colors.BORDER,
       paddingVertical: 10,
       paddingHorizontal: 16,
       borderRadius: 8,
-      ...CARD_SHADOW,
     },
     changeBackPhotoText: {
       fontSize: 14,
@@ -227,12 +233,11 @@ export const createEditScreenStyles = (colors: ResolvedColors) =>
     saveButton: {
       flexDirection: 'row',
       backgroundColor: colors.PRIMARY,
-      borderRadius: 12,
+      borderRadius: 8,
       padding: 16,
       justifyContent: 'center',
       alignItems: 'center',
       marginTop: 20,
-      ...CARD_SHADOW,
     },
     saveButtonText: {
       marginLeft: 8,
@@ -261,11 +266,12 @@ export const createEditScreenStyles = (colors: ResolvedColors) =>
     dimensionInput: {
       flex: 1,
       backgroundColor: colors.GRAY[100],
-      borderRadius: 8,
+      borderRadius: 6,
+      borderWidth: 1,
+      borderColor: colors.BORDER,
       padding: 12,
       fontSize: 16,
       textAlign: 'center',
-      ...CARD_SHADOW,
     },
     dimensionSeparator: {
       marginHorizontal: 12,
@@ -283,7 +289,6 @@ export const createEditScreenStyles = (colors: ResolvedColors) =>
       borderRadius: 8,
       padding: 14,
       alignItems: 'center',
-      ...CARD_SHADOW,
     },
     confirmButtonText: {
       fontSize: 16,

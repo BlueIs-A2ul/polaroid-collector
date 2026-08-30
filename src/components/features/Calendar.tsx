@@ -31,7 +31,7 @@ const Calendar: React.FC<CalendarProps> = ({
   const styles = useMemo(() => StyleSheet.create({
     container: {
       backgroundColor: colors.WHITE,
-      borderRadius: 12,
+      borderRadius: 8,
       padding: 16,
     },
     header: {
@@ -92,11 +92,11 @@ const Calendar: React.FC<CalendarProps> = ({
     },
     selectedCell: {
       backgroundColor: colors.PRIMARY,
-      borderRadius: 8,
+      borderRadius: 6,
     },
     todayCell: {
       backgroundColor: colors.GRAY[100],
-      borderRadius: 8,
+      borderRadius: 6,
     },
     dayText: {
       fontSize: 14,

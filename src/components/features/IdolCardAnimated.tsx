@@ -43,7 +43,7 @@ const IdolCardAnimated: React.FC<IdolCardAnimatedProps> = ({
       justifyContent: 'space-between',
       alignItems: 'center',
       backgroundColor: colors.WHITE,
-      borderRadius: 12,
+      borderRadius: 8,
       padding: 16,
     },
     cardSelected: {

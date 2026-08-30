@@ -52,7 +52,7 @@ const ShareModal: React.FC<ShareModalProps> = ({
     },
     content: {
       backgroundColor: colors.SECONDARY,
-      borderRadius: 22,
+      borderRadius: 12,
       padding: 20,
       width: '100%',
       maxWidth: 400,
@@ -91,7 +91,7 @@ const ShareModal: React.FC<ShareModalProps> = ({
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: colors.PRIMARY,
-      borderRadius: 12,
+      borderRadius: 8,
       paddingVertical: 14,
       marginTop: 20,
       gap: 8,

@@ -37,7 +37,7 @@ const SortOptionsModal: React.FC<SortOptionsModalProps> = ({
       alignItems: 'center',
       paddingVertical: 16,
       paddingHorizontal: 16,
-      borderRadius: 12,
+      borderRadius: 8,
       marginBottom: 8,
       backgroundColor: colors.WHITE,
       gap: 12,

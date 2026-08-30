@@ -61,7 +61,7 @@ const ThemeSettingsScreen: React.FC = () => {
       flexDirection: 'row',
       alignItems: 'center',
       backgroundColor: colors.WHITE,
-      borderRadius: 12,
+      borderRadius: 8,
       padding: 16,
     },
     themeItemSelected: {
@@ -75,7 +75,7 @@ const ThemeSettingsScreen: React.FC = () => {
     primaryColor: {
       width: 40,
       height: 40,
-      borderRadius: 8,
+      borderRadius: 6,
       marginRight: -12,
       borderWidth: 2,
       borderColor: colors.WHITE,
@@ -83,7 +83,7 @@ const ThemeSettingsScreen: React.FC = () => {
     secondaryColor: {
       width: 40,
       height: 40,
-      borderRadius: 8,
+      borderRadius: 6,
       borderWidth: 2,
       borderColor: colors.WHITE,
     },
@@ -104,7 +104,7 @@ const ThemeSettingsScreen: React.FC = () => {
     },
     adjustmentSection: {
       backgroundColor: colors.WHITE,
-      borderRadius: 12,
+      borderRadius: 8,
       padding: 16,
     },
     sliderRow: {
@@ -149,7 +149,7 @@ const ThemeSettingsScreen: React.FC = () => {
     previewColorBox: {
       width: 60,
       height: 60,
-      borderRadius: 8,
+      borderRadius: 6,
       justifyContent: 'center',
       alignItems: 'center',
     },
@@ -179,7 +179,7 @@ const ThemeSettingsScreen: React.FC = () => {
     },
     darkModeSection: {
       backgroundColor: colors.WHITE,
-      borderRadius: 12,
+      borderRadius: 8,
       padding: 16,
       marginBottom: 24,
     },

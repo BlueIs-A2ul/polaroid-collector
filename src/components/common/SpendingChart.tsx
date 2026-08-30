@@ -15,7 +15,7 @@ const SpendingChart: React.FC<SpendingChartProps> = ({ data }) => {
   const styles = useMemo(() => StyleSheet.create({
     container: {
       backgroundColor: colors.WHITE,
-      borderRadius: 12,
+      borderRadius: 8,
       padding: 16,
       ...CARD_SHADOW,
     },

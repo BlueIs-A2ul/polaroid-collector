@@ -43,8 +43,8 @@ const AnimatedBottomSheet: React.FC<AnimatedBottomSheetProps> = ({
     },
     container: {
       backgroundColor: colors.SECONDARY,
-      borderTopLeftRadius: 22,
-      borderTopRightRadius: 22,
+      borderTopLeftRadius: 12,
+      borderTopRightRadius: 12,
       overflow: 'hidden',
       shadowColor: colors.PRIMARY,
       shadowOffset: { width: 0, height: -4 },

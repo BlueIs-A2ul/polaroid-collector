@@ -154,11 +154,11 @@ export const CARD_SHADOW = {
   shadowColor: '#000',
   shadowOffset: {
     width: 0,
-    height: 2,
+    height: 1,
   },
-  shadowOpacity: 0.1,
-  shadowRadius: 4,
-  elevation: 3,
+  shadowOpacity: 0.05,
+  shadowRadius: 3,
+  elevation: 1,
 }
 
 export const CARD_SHADOW_SMALL = {
@@ -167,9 +167,9 @@ export const CARD_SHADOW_SMALL = {
     width: 0,
     height: 1,
   },
-  shadowOpacity: 0.1,
+  shadowOpacity: 0.05,
   shadowRadius: 2,
-  elevation: 2,
+  elevation: 1,
 }
 
 export const REPORT_CARD_SHADOW = {

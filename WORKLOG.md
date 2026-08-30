@@ -1,5 +1,60 @@
 # 工作日志
 
+## 2026-08-30 开发记录（UI 去 AI 感：圆角刻度收敛与卡片去悬浮）
+
+### 背景
+
+用户反馈界面"太 AI 化"。诊断出两个典型特征：圆角值散落 17 档（2~40px，全项目 170 处），以及所有输入框/按钮都带软阴影的"悬浮 Material 风"。
+
+### 改动内容
+
+1. **圆角刻度收敛**
+   - 新增 `src/constants/radius.ts`：`RADIUS_XS=4 / SM=6 / MD=8 / LG=12` 四档刻度
+   - 全项目走查映射：输入框/小控件 8→6、卡片/按钮/弹窗 12/14/16/18/20/22→8、照片块 8→4
+   - 保留语义性圆形（头像、勾选圆圈、徽标、圆点进度条）和报告页卡组（24/28/30/40，刻意设计）
+   - 修正后 8 成为主刻度（约 60 处），4/6/8/12 覆盖绝大多数场景
+
+2. **卡片去悬浮**
+   - `CARD_SHADOW`：opacity 0.1→0.05、elevation 3→1；`CARD_SHADOW_SMALL` 同步减淡
+   - 上传/编辑页所有输入框、日期框、照片按钮去掉阴影，改为 1px `BORDER` 描边
+   - 主色填充按钮（保存/确认）仅去阴影，保留直角小圆角
+
+### 文件变更
+
+| 文件 | 变更类型 | 说明 |
+|------|----------|------|
+| `src/constants/radius.ts` | 新增 | 圆角刻度常量 |
+| `src/constants/themes.ts` | 修改 | 阴影减淡 |
+| `src/screens/uploadScreenStyles.ts` | 修改 | 输入/按钮去阴影改描边、半径映射 |
+| `src/screens/editScreenStyles.ts` | 修改 | 同上 |
+| `src/components/features/IdolCardAnimated.tsx` | 修改 | 卡片 12→8 |
+| `src/components/features/DateGroupCard.tsx` | 修改 | 卡片 12→8、按钮 12→6 |
+| `src/components/features/PhotoGridItem.tsx` | 修改 | 照片块 8→4 |
+| `src/components/features/QuickActions.tsx` | 修改 | 胶囊 20→8 |
+| `src/components/features/Calendar.tsx` / `CalendarScreen.tsx` | 修改 | 容器 12→8、选中格 8→6 |
+| `src/components/common/SearchBar.tsx` / `SortOptionsModal.tsx` / `OptionsSelector.tsx` | 修改 | 行/选项 12→8、搜索框 8→6 |
+| `src/components/features/AdvancedFilter.tsx` | 修改 | 选项 16→8、价格输入 8→6 |
+| `src/components/common/AnimatedBottomSheet.tsx` | 修改 | 顶部圆角 22→12 |
+| `src/components/common/ConfirmDialog.tsx` / `ShareModal.tsx` / `DetailBatchEditModal.tsx` | 修改 | 弹窗 22→12 |
+| `src/components/features/ActionSheetModal.tsx` | 修改 | 行 12→8 |
+| `src/components/common/Toast.tsx` | 修改 | 14→8 |
+| `src/components/features/PhotoModal.tsx` / `ShareCard.tsx` | 修改 | 药丸按钮 16→8、卡片 20→12 |
+| `src/screens/StatisticsScreen.tsx` | 修改 | 卡片 12/16→8 |
+| `src/screens/OrganizationCenterScreen.tsx` / `ThemeSettingsScreen.tsx` / `YearlyReportEntryScreen.tsx` | 修改 | 10/12/20→8、色板 8→6 |
+| `src/components/features/IdolSelector.tsx` / `StatsCard.tsx` / `SpendingChart.tsx` | 修改 | 卡片 12→8 |
+
+### 保留不动
+
+- `IdolReportScreen` / `YearlyReportScreen`（报告卡组刻意设计）
+- 所有圆形头像、勾选圆圈、数字徽标、进度条圆点
+
+### 验证
+
+- `npm run typecheck`
+- `npm test -- --runInBand`（6 套件 36 用例全部通过）
+
+---
+
 ## 2026-07-27 开发记录（首页页面拆分）
 
 ### 重构内容

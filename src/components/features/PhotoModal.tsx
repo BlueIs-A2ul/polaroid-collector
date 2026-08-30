@@ -112,7 +112,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
     modalImageContainer: {
       width: '90%',
       aspectRatio: 1,
-      borderRadius: 12,
+      borderRadius: 8,
       overflow: 'hidden',
     },
     modalImage: {
@@ -136,7 +136,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
       backgroundColor: colors.OVERLAY,
       paddingHorizontal: 12,
       paddingVertical: 6,
-      borderRadius: 16,
+      borderRadius: 8,
     },
     pageIndicatorText: {
       fontSize: 14,
@@ -161,7 +161,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
       backgroundColor: withOpacity(colors.WHITE, 0.2),
       paddingHorizontal: 12,
       paddingVertical: 6,
-      borderRadius: 16,
+      borderRadius: 8,
     },
     toggleButtonText: {
       fontSize: 13,
@@ -217,7 +217,7 @@ const PhotoModal: React.FC<PhotoModalProps> = ({
       backgroundColor: colors.PRIMARY,
       paddingHorizontal: 16,
       paddingVertical: 8,
-      borderRadius: 16,
+      borderRadius: 8,
       marginTop: 12,
       alignSelf: 'center',
     },

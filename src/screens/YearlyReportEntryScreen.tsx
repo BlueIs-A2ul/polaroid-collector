@@ -79,7 +79,7 @@ const YearlyReportEntryScreen: React.FC = () => {
     yearButton: {
       paddingHorizontal: 20,
       paddingVertical: 10,
-      borderRadius: 20,
+      borderRadius: 8,
       backgroundColor: colors.WHITE,
     },
     yearButtonActive: {

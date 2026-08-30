@@ -128,7 +128,7 @@ const CalendarScreen: React.FC<CalendarScreenProps> = ({ navigation }) => {
     recordCard: {
       flexDirection: 'row',
       backgroundColor: colors.WHITE,
-      borderRadius: 12,
+      borderRadius: 8,
       overflow: 'hidden',
       ...CARD_SHADOW,
     },
@@ -167,7 +167,7 @@ const CalendarScreen: React.FC<CalendarScreenProps> = ({ navigation }) => {
     },
     emptyDate: {
       backgroundColor: colors.WHITE,
-      borderRadius: 12,
+      borderRadius: 8,
       padding: 32,
       alignItems: 'center',
       ...CARD_SHADOW,
