@@ -8,7 +8,7 @@ import {
 import { StackNavigationProp } from '@react-navigation/stack'
 import { RouteProp, useFocusEffect } from '@react-navigation/native'
 import { useTheme } from '../contexts/ThemeContext'
-import { RootStackParamList } from '../navigation/AppNavigator'
+import type { RootStackParamList } from '../types/navigation'
 import { useHomeActions } from '../hooks/useHomeActions'
 import { useRecords } from '../hooks/useRecords'
 import IdolCardAnimated from '../components/features/IdolCardAnimated'

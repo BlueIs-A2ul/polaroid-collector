@@ -1,7 +1,7 @@
 import React from 'react'
 import { StackNavigationProp } from '@react-navigation/stack'
 import * as DocumentPicker from 'expo-document-picker'
-import { RootStackParamList } from '../navigation/AppNavigator'
+import type { RootStackParamList } from '../types/navigation'
 import { ActionSheetOption } from '../components/features/ActionSheetModal'
 import {
   createBackup,

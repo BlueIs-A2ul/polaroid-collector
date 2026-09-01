@@ -2,6 +2,7 @@ import React, { useMemo } from 'react'
 import { NavigationContainer } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack'
 import { useTheme } from '../contexts/ThemeContext'
+import type { RootStackParamList } from '../types/navigation'
 
 import HomeScreen from '../screens/HomeScreen'
 import UploadScreen from '../screens/UploadScreen'
@@ -13,19 +14,6 @@ import ThemeSettingsScreen from '../screens/ThemeSettingsScreen'
 import YearlyReportEntryScreen from '../screens/YearlyReportEntryScreen'
 import IdolReportScreen from '../screens/IdolReportScreen'
 import OrganizationCenterScreen from '../screens/OrganizationCenterScreen'
-
-export type RootStackParamList = {
-  Home: undefined
-  Upload: { idolName?: string }
-  Detail: { idolName: string }
-  Edit: { recordId: string }
-  Statistics: undefined
-  Calendar: undefined
-  ThemeSettings: undefined
-  YearlyReport: undefined
-  IdolReport: { idolName: string; avatarUri?: string | null }
-  OrganizationCenter: undefined
-}
 
 const Stack = createStackNavigator<RootStackParamList>()
 
