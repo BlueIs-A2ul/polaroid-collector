@@ -1,47 +1,6 @@
 import { getAllRecords } from './storageService'
 import { PolaroidRecord, ServiceResult } from '../types'
-
-export interface YearlyReport {
-  year: number
-  totalRecords: number
-  totalPhotos: number
-  totalPrice: number
-  newIdols: string[]
-  topIdols: Array<{
-    name: string
-    count: number
-    price: number
-  }>
-  topCities: Array<{
-    name: string
-    count: number
-  }>
-  topVenues: Array<{
-    name: string
-    count: number
-  }>
-  monthlyData: Array<{
-    month: number
-    records: number
-    photos: number
-    price: number
-  }>
-  firstRecord: {
-    idolName: string
-    date: string
-  } | null
-  mostExpensiveRecord: {
-    idolName: string
-    price: number
-    date: string
-  } | null
-  averagePrice: number
-  totalDays: number
-  favoriteDayOfWeek: {
-    day: string
-    count: number
-  }
-}
+import type { YearlyReport } from '../types/report'
 
 const DAY_NAMES = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
 

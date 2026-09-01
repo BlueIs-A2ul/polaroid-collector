@@ -9,7 +9,8 @@ import {
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '../contexts/ThemeContext'
-import { getYearlyReport, getAvailableYears, YearlyReport } from '../services/reportService'
+import { getYearlyReport, getAvailableYears } from '../services/reportService'
+import type { YearlyReport } from '../types/report'
 import { getAllAvatars } from '../services/avatarService'
 import YearlyReportScreen from './YearlyReportScreen'
 

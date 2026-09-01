@@ -13,7 +13,7 @@ import { useTheme } from '../contexts/ThemeContext'
 import { REPORT_CARD_SHADOW } from '../constants/themes'
 import { withOpacity } from '../utils/colorUtils'
 import { useNavigation } from '@react-navigation/native'
-import { YearlyReport } from '../services/reportService'
+import type { YearlyReport } from '../types/report'
 import { formatDate } from '../utils/rankingUtils'
 
 const { width } = Dimensions.get('window')

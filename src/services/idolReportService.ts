@@ -1,63 +1,6 @@
 import { getRecordsByIdolName } from './storageService'
 import { PolaroidRecord, ServiceResult } from '../types'
-
-export interface IdolReport {
-  idolName: string
-  totalRecords: number
-  totalPhotos: number
-  totalPrice: number
-  averagePrice: number
-  firstRecord: {
-    date: string
-    price?: number
-  } | null
-  latestRecord: {
-    date: string
-  } | null
-  mostExpensiveRecord: {
-    date: string
-    price: number
-    photoCount: number
-  } | null
-  cheapestRecord: {
-    date: string
-    price: number
-    photoCount: number
-  } | null
-  topCities: Array<{
-    name: string
-    count: number
-  }>
-  topVenues: Array<{
-    name: string
-    count: number
-  }>
-  topGroups: Array<{
-    name: string
-    count: number
-  }>
-  monthlyData: Array<{
-    month: string
-    photos: number
-    price: number
-  }>
-  favoriteDayOfWeek: {
-    day: string
-    count: number
-  }
-  favoriteMonth: {
-    month: string
-    count: number
-  }
-  polaroidTypes: Array<{
-    type: string
-    count: number
-  }>
-  daysSinceFirst: number
-  daysSinceLast: number
-  averageDaysBetween: number
-  totalDaysWithRecords: number
-}
+import type { IdolReport } from '../types/report'
 
 const DAY_NAMES = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
 const MONTH_NAMES = ['1月', '2月', '3月', '4月', '5月', '6月', '7月', '8月', '9月', '10月', '11月', '12月']
