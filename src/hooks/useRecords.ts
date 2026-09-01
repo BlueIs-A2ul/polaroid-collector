@@ -2,8 +2,8 @@ import { useState, useEffect, useCallback } from 'react'
 import {
   getRanking,
   getIdolDetail,
-  getStatistics,
-} from '../services/recordService'
+} from '../services/recordQueryService'
+import { getStatistics } from '../services/recordStatsService'
 import { RankingItem, IdolDetail, Statistics } from '../types'
 
 export const useRecords = () => {

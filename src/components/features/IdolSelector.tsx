@@ -10,7 +10,7 @@ import {
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '../../contexts/ThemeContext'
 import { withOpacity } from '../../utils/colorUtils'
-import { getIdolListWithCount } from '../../services/recordService'
+import { getIdolListWithCount } from '../../services/recordQueryService'
 import { Dialog } from '../../services/dialogService'
 import AnimatedBottomSheet from '../common/AnimatedBottomSheet'
 

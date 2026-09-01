@@ -23,7 +23,7 @@ import DetailBatchEditModal, { BatchEditState } from '../components/features/Det
 import ShareModal from '../components/features/ShareModal'
 import { PolaroidRecord } from '../types'
 import { getAvatar, pickAndSetAvatar, removeAvatar } from '../services/avatarService'
-import { updateRecordData } from '../services/recordService'
+import { updateRecordData } from '../services/recordCommandService'
 import { deleteRecordsByIdolNames } from '../services/recordCommandService'
 import { getIdolGroupBinding, setIdolGroupBinding, removeIdolGroupBinding } from '../services/idolBindingService'
 import { Dialog } from '../services/dialogService'
