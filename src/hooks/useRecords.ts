@@ -37,10 +37,10 @@ export const useRecords = () => {
       if (success) {
         setStatistics(data)
       } else {
-        console.error('获取统计数据失败:', err)
+        setError(err)
       }
     } catch (err) {
-      console.error('获取统计数据失败:', err)
+      setError(err instanceof Error ? err.message : String(err))
     }
   }, [])
 
