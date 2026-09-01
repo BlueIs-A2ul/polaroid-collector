@@ -4,6 +4,8 @@ import {
   getRecordById,
   updateRecord,
   deleteRecord as storageDeleteRecord,
+  deleteRecordsByIdolNames as storageDeleteRecordsByIdolNames,
+  updateRecordsByIdolNames as storageUpdateRecordsByIdolNames,
 } from './storageService'
 import { generateId } from '../utils/rankingUtils'
 import {
@@ -360,4 +362,17 @@ export const createMultipleRecords = async (
       error: error instanceof Error ? error.message : String(error),
     }
   }
+}
+
+export const deleteRecordsByIdolNames = async (
+  idolNames: string[],
+): Promise<ServiceResult<number>> => {
+  return storageDeleteRecordsByIdolNames(idolNames)
+}
+
+export const updateRecordsByIdolNames = async (
+  idolNames: string[],
+  updates: Partial<PolaroidRecord>,
+): Promise<ServiceResult<number>> => {
+  return storageUpdateRecordsByIdolNames(idolNames, updates)
 }

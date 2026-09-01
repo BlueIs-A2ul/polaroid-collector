@@ -1,5 +1,6 @@
 import {
-  getAllRecords,
+  getAllRecords as storageGetAllRecords,
+  getRecordById as storageGetRecordById,
   getRecordsByIdolName,
 } from './storageService'
 import {
@@ -8,14 +9,27 @@ import {
 } from '../utils/rankingUtils'
 import {
   IdolDetail,
+  PolaroidRecord,
   ServiceResult,
 } from '../types'
+
+export const getAllRecords = async (): Promise<
+  ServiceResult<PolaroidRecord[]>
+> => {
+  return storageGetAllRecords()
+}
+
+export const getRecordById = async (
+  id: string,
+): Promise<ServiceResult<PolaroidRecord>> => {
+  return storageGetRecordById(id)
+}
 
 export const getRanking = async (): Promise<
   ServiceResult<ReturnType<typeof calculateRanking>>
 > => {
   try {
-    const { success, data: records, error } = await getAllRecords()
+    const { success, data: records, error } = await storageGetAllRecords()
 
     if (!success || !records) {
       return {
@@ -99,7 +113,7 @@ export const getIdolDetail = async (
 
 export const getAllIdolNames = async (): Promise<ServiceResult<string[]>> => {
   try {
-    const { success, data: records, error } = await getAllRecords()
+    const { success, data: records, error } = await storageGetAllRecords()
 
     if (!success || !records) {
       return {
@@ -129,7 +143,7 @@ export const getIdolListWithCount = async (): Promise<
   ServiceResult<{ name: string; count: number }[]>
 > => {
   try {
-    const { success, data: records, error } = await getAllRecords()
+    const { success, data: records, error } = await storageGetAllRecords()
 
     if (!success || !records) {
       return {

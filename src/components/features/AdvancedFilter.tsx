@@ -9,7 +9,7 @@ import {
 } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
 import { useTheme } from '../../contexts/ThemeContext'
-import { getAllRecords } from '../../services/storageService'
+import { getAllRecords } from '../../services/recordQueryService'
 import { PolaroidRecord } from '../../types'
 import {
   DEFAULT_FILTER_OPTIONS,

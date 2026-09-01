@@ -23,7 +23,7 @@ import ActionSheetModal from '../components/features/ActionSheetModal'
 import AdvancedFilter from '../components/features/AdvancedFilter'
 import { getAllAvatars, removeAvatar } from '../services/avatarService'
 import { Dialog } from '../services/dialogService'
-import { deleteRecordsByIdolNames, updateRecordsByIdolNames } from '../services/storageService'
+import { deleteRecordsByIdolNames, updateRecordsByIdolNames } from '../services/recordCommandService'
 import { RankingItem } from '../types'
 import {
   DEFAULT_FILTER_OPTIONS,
