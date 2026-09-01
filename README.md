@@ -1,148 +1,63 @@
 # 电子切盒
 
-一个基于 React Native 和 Expo 开发的拍立得收藏管理应用，专注于记录和管理偶像拍立得收藏。
-
-## 项目简介
-
-电子切盒是一个现代化的移动应用，帮助用户记录和管理偶像拍立得收藏。支持多照片上传、花费记录、统计分析、年度报告等功能，使用 Expo 框架构建，支持 iOS、Android 和 Web 平台。
-
-## 技术栈
-
-- React Native 0.83.6
-- React 19.2.0
-- Expo SDK 55
-- TypeScript 5.9.3
-- React Navigation 7.x
-- AsyncStorage (本地存储)
-- expo-image-picker (图片选择)
-- expo-image (图片缓存)
-- Jest (测试)
+基于 React Native + Expo 的拍立得收藏管理应用，帮助记录和管理偶像拍立得收藏，支持 iOS、Android 与 Web 平台。
 
 ## 功能特性
 
-### 核心功能
-- 偶像拍立得记录管理（上传、编辑、删除）
-- 多照片批量上传
-- 照片备注、背签照片支持
-- 花费记录与统计
+### 记录管理
+- 拍立得记录的上传、编辑、删除
+- 单张/多张照片批量上传（可合并为一条记录或保持独立）
+- 背签照片、照片备注、EXIF 自动读取拍摄日期
+- 价格记录与历史价格智能推荐
 
 ### 拍立得属性
-- 团体、城市、场馆信息
-- 拍立得类型（无签、带签、主题、宿题）
-- 拍立得人数（单人、双人、团切）
-- 价格记录与智能推荐
+- 团体、城市、场馆、拍立得类型（无签/带签/主题/宿题）、人数（单人/双人/团切）
+- 扩展字段历史记录快速选择、偶像团体绑定
 
-### 统计分析
-- 偶像排行（数量/花费）
-- 团体、城市、场馆统计
-- 月度花费趋势图表
-- 拍摄日历视图
+### 查找与整理
+- 首页搜索（全部/偶像/团体/城市/场馆）与高级筛选（价格区间、背签、备注等）
+- 排行榜排序（日期/数量/花费）、批量删除与批量编辑
+- 整理中心：疑似重复检测、待补信息提醒
 
-### 特色功能
-- 年度报告（类似网易云年度报告风格）
-- 偶像个人报告
-- 分享卡片生成
-- CSV 数据导入导出
-- 数据备份与恢复（含照片）
+### 统计与报告
+- 偶像排行（数量/花费）、团体/城市/场馆统计、月度花费趋势、拍摄日历
+- 年度报告与偶像个人报告（滑动卡片风格）、分享卡片生成
+
+### 数据管理
+- JSON/CSV 导出、CSV 导入
+- 完整备份与恢复（含照片）、合并同日记录
 
 ### 个性化
-- 6 套预设主题（经典棕、海洋蓝、樱花粉、森林绿、薰衣草、日落橙）
-- 主题自定义调整（色相、饱和度、亮度）
-- 偶像头像设置
-- 偶像团体绑定
+- 6 套预设主题 + 自定义调整（色相/饱和度/亮度）
+- 暗色模式、偶像头像设置
 
-### 高级功能
-- 高级筛选（团体、城市、场馆、类型）
-- 批量操作（批量删除、批量编辑）
-- 偶像列表排序（日期、数量、花费）
-- 字段历史记录快速选择
+## 技术栈
 
-## 安装和运行
+| 类别 | 依赖 |
+|------|------|
+| 框架 | React Native 0.83.6、React 19.2.0、Expo SDK 55、TypeScript 5.9.3 |
+| 导航 | React Navigation 7（native + stack） |
+| 存储 | AsyncStorage、expo-file-system |
+| 媒体 | expo-image-picker、expo-image、expo-image-manipulator、expo-media-library、expo-sharing、react-native-view-shot |
+| 交互 | expo-haptics、@react-native-community/datetimepicker、@react-native-community/slider |
+| 测试 | Jest + ts-jest |
+
+## 快速开始
 
 ### 环境要求
 
 - Node.js
-- npm 或 yarn
-- Expo Go 应用（推荐）
+- npm
+- Expo Go 应用（推荐，手机应用商店下载）
 
-### 安装依赖
-
-```bash
-npm install
-```
-
-### 运行项目
+### 安装与运行
 
 ```bash
-npm start              # 启动 Expo 开发服务器
-npm run android        # 启动 Android 开发
-npm run ios            # 启动 iOS 开发
-npm run web            # 启动 Web 开发
-```
-
-### 使用 Expo Go
-
-1. 在手机上下载 Expo Go 应用
-2. 运行 `npm start`
-3. 使用 Expo Go 扫描终端显示的 QR 码
-
-## 项目结构
-
-```
-src/
-├── components/          # 可复用组件
-│   ├── common/          # 通用组件
-│   │   ├── CachedImage.tsx
-│   │   ├── LoadingSpinner.tsx
-│   │   ├── Skeleton.tsx
-│   │   └── OptionsSelector.tsx
-│   └── features/        # 功能组件
-│       ├── IdolSelector.tsx
-│       ├── FieldHistorySelector.tsx
-│       ├── Calendar.tsx
-│       ├── AdvancedFilter.tsx
-│       └── ...
-├── screens/             # 页面组件
-│   ├── HomeScreen.tsx
-│   ├── UploadScreen.tsx
-│   ├── DetailScreen.tsx
-│   ├── EditScreen.tsx
-│   ├── StatisticsScreen.tsx
-│   ├── CalendarScreen.tsx
-│   ├── ThemeSettingsScreen.tsx
-│   ├── YearlyReportScreen.tsx
-│   ├── IdolReportScreen.tsx
-│   ├── YearlyReportEntryScreen.tsx
-│   └── OrganizationCenterScreen.tsx
-├── services/            # 业务逻辑服务
-│   ├── storageService.ts
-│   ├── recordService.ts
-│   ├── photoService.ts
-│   ├── exportService.ts
-│   ├── themeService.ts
-│   ├── idolBindingService.ts
-│   ├── priceStatsService.ts
-│   └── ...
-├── hooks/               # 自定义 Hooks
-│   ├── useRecords.ts
-│   ├── useHomeActions.ts
-│   └── ...
-├── contexts/            # React Context
-│   └── ThemeContext.tsx
-├── utils/               # 工具函数
-│   ├── rankingUtils.ts
-│   ├── colorUtils.ts
-│   └── ...
-├── constants/           # 常量定义
-│   ├── storageKeys.ts
-│   ├── polaroidOptions.ts
-│   ├── themes.ts
-│   └── radius.ts
-├── navigation/          # 导航配置
-│   └ AppNavigator.tsx
-└── types/               # TypeScript 类型定义
-    ├── index.ts
-    └── theme.ts
+npm install        # 安装依赖
+npm start          # 启动 Expo 开发服务器，用 Expo Go 扫描二维码预览
+npm run android    # 启动 Android 开发
+npm run ios        # 启动 iOS 开发
+npm run web        # 启动 Web 开发
 ```
 
 ## 脚本命令
@@ -150,12 +65,31 @@ src/
 | 命令 | 说明 |
 |------|------|
 | `npm start` | 启动 Expo 开发服务器 |
-| `npm run android` | 在 Android 上运行 |
-| `npm run ios` | 在 iOS 上运行 |
-| `npm run web` | 在 Web 浏览器中运行 |
+| `npm run android` / `ios` / `web` | 启动对应平台开发 |
 | `npm run typecheck` | TypeScript 类型检查 |
 | `npm test` | 运行所有测试 |
 | `npm run test:coverage` | 运行测试并生成覆盖率报告 |
+
+## 项目结构
+
+```
+src/
+├── components/          # 可复用组件
+│   ├── common/          # 通用组件（CachedImage、Skeleton、Toast、ConfirmDialog、EmptyState 等）
+│   ├── features/        # 功能组件（IdolCardAnimated、Calendar、AdvancedFilter、PhotoModal 等）
+│   │   ├── edit/        # 编辑页子组件
+│   │   └── upload/      # 上传页子组件
+├── screens/             # 页面组件（Home/Upload/Detail/Edit/Statistics/Calendar/ThemeSettings/年度报告/偶像报告/整理中心）
+├── services/            # 业务逻辑（记录按 command/query/stats 拆分；存储、照片、备份、导出、合并、分享等）
+├── hooks/               # 自定义 Hooks（useRecords、useHomeActions、useUploadPhotos 等）
+├── utils/               # 工具函数（排序、筛选、整理算法、颜色、触觉反馈）
+├── constants/           # 常量（存储键、预设选项、主题、圆角刻度）
+├── contexts/            # React Context（ThemeContext）
+├── navigation/          # 导航配置（AppNavigator）
+└── types/               # 类型定义（领域类型、主题、导航参数、报告）
+```
+
+完整结构说明见 [AGENTS.md](./AGENTS.md)。
 
 ## 数据结构
 
@@ -181,18 +115,13 @@ interface PolaroidRecord {
 }
 ```
 
-## 开发指南
+## 文档导航
 
-详见 [AGENTS.md](./AGENTS.md)，包含：
-- Build/Lint/Test 命令
-- 代码风格指南
-- 项目结构详解
-- Git Commit 规范
-- Pre-commit 检查清单
-
-## 工作日志
-
-详见 [WORKLOG.md](./WORKLOG.md)，记录项目开发进度和重要变更。
+| 文档 | 说明 |
+|------|------|
+| [AGENTS.md](./AGENTS.md) | 开发规范：命令、代码风格、Git 提交约定 |
+| [WORKLOG.md](./WORKLOG.md) | 工作日志：开发进度与重要变更 |
+| [docs/用户手册.md](./docs/用户手册.md) | 用户手册：功能使用说明 |
 
 ## 许可证
 
