@@ -1,5 +1,35 @@
 # 工作日志
 
+## 2026-08-30 开发记录（P0 代码结构优化）
+
+### 背景
+
+代码结构审查发现两个影响维护与扩展的问题：导航类型循环依赖、页面直接调用存储层（分层泄漏）。
+
+### 改动内容
+
+1. **导航类型解耦**：`RootStackParamList` 从 `AppNavigator.tsx` 提取到新建 `src/types/navigation.ts`，8 个消费方（7 个页面 + useHomeActions）改用 `import type`，消除 navigation ↔ screens 的运行时循环依赖
+2. **分层泄漏修复**：`recordQueryService` 新增 `getAllRecords`/`getRecordById` 转发，`recordCommandService` 新增 `deleteRecordsByIdolNames`/`updateRecordsByIdolNames` 转发；6 个页面/组件（HomeScreen、DetailScreen、EditScreen、CalendarScreen、OrganizationCenterScreen、AdvancedFilter）改从服务层导入，不再直接引用 `storageService`
+
+### 文件变更
+
+| 文件 | 变更类型 | 说明 |
+|------|----------|------|
+| `src/types/navigation.ts` | 新增 | 导航参数类型唯一出处 |
+| `src/navigation/AppNavigator.tsx` | 修改 | 类型定义移出，改 import type |
+| 8 个页面/hook | 修改 | 导航类型改 `import type` |
+| `src/services/recordQueryService.ts` | 修改 | 新增查询转发函数 |
+| `src/services/recordCommandService.ts` | 修改 | 新增批量命令转发函数 |
+| 6 个页面/组件 | 修改 | storageService 导入切换为服务层 |
+| `src/__tests__/recordServiceBoundaries.test.ts` | 修改 | 新增 2 个转发行为测试 |
+
+### 验证
+
+- `npm run typecheck`
+- `npm test -- --runInBand`（7 套件 43 用例全部通过）
+
+---
+
 ## 2026-08-30 开发记录（文档精简）
 
 ### 背景
