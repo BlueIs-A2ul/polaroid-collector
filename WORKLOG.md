@@ -1,5 +1,33 @@
 # 工作日志
 
+## 2026-08-30 开发记录（UX 体验优化）
+
+### 改动内容
+
+1. **图片加载失败占位**：`CachedImage` 增加失败状态，URI 失效时显示灰色占位 + 图片图标（覆盖恢复备份后照片路径失效场景），URI 变化自动重置
+2. **加载失败重试入口**：`EmptyState` 新增可选 `actionText`/`onAction` 渲染重试按钮；首页、详情页、整理中心 3 个加载失败页接入
+3. **无障碍标签**：7 个纯图标按钮补充 `accessibilityLabel`（首页导出/更多/添加/退出选择、编辑页返回/删除、上传页返回），VoiceOver/TalkBack 可读
+4. **触觉反馈**：新增 `expo-haptics` 依赖与 `src/utils/haptics.ts` 封装，接入 6 个节点（长按进入选择模式、批量删除成功、详情/编辑删除成功、上传保存成功×2）
+
+### 文件变更
+
+| 文件 | 变更类型 | 说明 |
+|------|----------|------|
+| `src/components/common/CachedImage.tsx` | 修改 | 失败占位 |
+| `src/components/common/EmptyState.tsx` | 修改 | 重试按钮 |
+| `src/screens/HomeScreen.tsx`、`DetailScreen.tsx`、`OrganizationCenterScreen.tsx` | 修改 | 失败页接入重试 |
+| `src/components/features/HomeHeader.tsx`、`EditScreen.tsx`、`UploadScreen.tsx` | 修改 | 无障碍标签 |
+| `package.json` | 修改 | 添加 expo-haptics |
+| `src/utils/haptics.ts` | 新增 | 触觉反馈封装 |
+| 4 个屏幕 | 修改 | 触觉反馈接入 |
+
+### 验证
+
+- `npm run typecheck`
+- `npm test -- --runInBand`（7 套件 43 用例全部通过）
+
+---
+
 ## 2026-08-30 开发记录（P1/P2 代码结构优化）
 
 ### 改动内容
