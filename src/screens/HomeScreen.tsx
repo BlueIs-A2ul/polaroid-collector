@@ -261,6 +261,8 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
         icon='alert-circle-outline'
         title='加载失败'
         message={error}
+        actionText='重试'
+        onAction={refreshAll}
       />
     )
   }

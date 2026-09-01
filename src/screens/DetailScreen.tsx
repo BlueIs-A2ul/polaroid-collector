@@ -402,6 +402,8 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
         icon='alert-circle-outline'
         title='加载失败'
         message={error || '偶像不存在'}
+        actionText='重试'
+        onAction={refreshDetail}
       />
     )
   }
