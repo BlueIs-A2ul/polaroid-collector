@@ -1,5 +1,36 @@
 # 工作日志
 
+## 2026-08-30 开发记录（P1/P2 代码结构优化）
+
+### 改动内容
+
+1. **报告类型解耦**：`YearlyReport`/`IdolReport` 从服务文件移至新建 `src/types/report.ts`，页面改 `import type`，类型与运行时分离
+2. **useRecords 错误处理统一**：统计加载失败不再静默 console.error，与排行一致写入 error state（首页会展示加载失败提示）
+3. **移除 recordService 兼容层**：6 个消费方直连 `recordCommandService`/`recordQueryService`/`recordStatsService`，删除 `recordService.ts`
+4. **ServiceResult 去 any**：移除 `T = any` 默认类型参数（已核实全部 75 处使用均显式传类型）
+5. **导航动画抽常量**：转场动画 `slideFadeInterpolator` 提为模块级常量
+6. **latestPhoto 类型统一**：`IdolDetail.latestPhoto` 与 `RankingItem` 一致为 `string | null`
+
+### 文件变更
+
+| 文件 | 变更类型 | 说明 |
+|------|----------|------|
+| `src/types/report.ts` | 新增 | 报告类型唯一出处 |
+| `src/services/reportService.ts`、`idolReportService.ts` | 修改 | 类型定义移出 |
+| 3 个报告页面 | 修改 | 类型改 `import type` |
+| `src/hooks/useRecords.ts` | 修改 | 错误处理统一 |
+| `src/services/recordService.ts` | 删除 | 兼容层移除 |
+| 6 个消费方 | 修改 | 直连分拆服务 |
+| `src/types/index.ts` | 修改 | ServiceResult 去 any、latestPhoto 统一 |
+| `src/navigation/AppNavigator.tsx` | 修改 | 动画抽常量 |
+
+### 验证
+
+- `npm run typecheck`
+- `npm test -- --runInBand`（7 套件 43 用例全部通过）
+
+---
+
 ## 2026-08-30 开发记录（P0 代码结构优化）
 
 ### 背景
