@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react'
 import { NavigationContainer } from '@react-navigation/native'
 import { createStackNavigator } from '@react-navigation/stack'
+import type { StackCardStyleInterpolator } from '@react-navigation/stack'
 import { useTheme } from '../contexts/ThemeContext'
 import type { RootStackParamList } from '../types/navigation'
 
@@ -16,6 +17,23 @@ import IdolReportScreen from '../screens/IdolReportScreen'
 import OrganizationCenterScreen from '../screens/OrganizationCenterScreen'
 
 const Stack = createStackNavigator<RootStackParamList>()
+
+const slideFadeInterpolator: StackCardStyleInterpolator = ({ current, layouts }) => ({
+  cardStyle: {
+    transform: [
+      {
+        translateX: current.progress.interpolate({
+          inputRange: [0, 1],
+          outputRange: [layouts.screen.width, 0],
+        }),
+      },
+    ],
+    opacity: current.progress.interpolate({
+      inputRange: [0, 1],
+      outputRange: [0.5, 1],
+    }),
+  },
+})
 
 const AppNavigator = () => {
   const { colors } = useTheme()
@@ -33,22 +51,7 @@ const AppNavigator = () => {
             fontWeight: 'bold',
           },
           headerTitleAlign: 'center',
-          cardStyleInterpolator: ({ current, layouts }) => ({
-            cardStyle: {
-              transform: [
-                {
-                  translateX: current.progress.interpolate({
-                    inputRange: [0, 1],
-                    outputRange: [layouts.screen.width, 0],
-                  }),
-                },
-              ],
-              opacity: current.progress.interpolate({
-                inputRange: [0, 1],
-                outputRange: [0.5, 1],
-              }),
-            },
-          }),
+          cardStyleInterpolator: slideFadeInterpolator,
           gestureEnabled: true,
           gestureDirection: 'horizontal',
         }}
