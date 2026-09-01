@@ -272,6 +272,7 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation, route }) => {
         <TouchableOpacity
           style={styles.backButton}
           onPress={() => navigation.goBack()}
+          accessibilityLabel='返回'
         >
           <Ionicons name='arrow-back' size={24} color={colors.ON_PRIMARY} />
         </TouchableOpacity>

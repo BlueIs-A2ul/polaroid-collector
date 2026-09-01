@@ -64,7 +64,7 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
   if (selectionMode) {
     return (
       <View style={styles.header}>
-        <TouchableOpacity onPress={onExitSelection} style={styles.iconButton}>
+        <TouchableOpacity onPress={onExitSelection} style={styles.iconButton} accessibilityLabel='退出选择模式'>
           <Ionicons name='close' size={24} color={colors.ON_PRIMARY} />
         </TouchableOpacity>
         <Text style={styles.title}>已选择 {selectedCount} 个</Text>
@@ -82,15 +82,17 @@ const HomeHeader: React.FC<HomeHeaderProps> = ({
         <TouchableOpacity
           style={styles.iconButton}
           onPress={onShowExportOptions}
+          accessibilityLabel='导出数据'
         >
           <Ionicons name='download-outline' size={24} color={colors.ON_PRIMARY} />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.iconButton} onPress={onShowMoreOptions}>
+        <TouchableOpacity style={styles.iconButton} onPress={onShowMoreOptions} accessibilityLabel='更多选项'>
           <Ionicons name='settings-outline' size={24} color={colors.ON_PRIMARY} />
         </TouchableOpacity>
         <TouchableOpacity
           style={styles.addButton}
           onPress={onNavigateToUpload}
+          accessibilityLabel='添加记录'
         >
           <Ionicons name='add' size={24} color={colors.ON_PRIMARY} />
         </TouchableOpacity>

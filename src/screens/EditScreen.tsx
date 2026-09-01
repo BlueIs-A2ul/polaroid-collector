@@ -390,11 +390,11 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
       >
         <ScrollView style={styles.container} keyboardShouldPersistTaps='handled'>
         <View style={styles.header}>
-          <TouchableOpacity style={styles.backButton} onPress={handleCancel}>
+          <TouchableOpacity style={styles.backButton} onPress={handleCancel} accessibilityLabel='返回'>
             <Ionicons name='arrow-back' size={24} color={colors.ON_PRIMARY} />
           </TouchableOpacity>
           <Text style={styles.title}>编辑拍立得</Text>
-          <TouchableOpacity style={styles.deleteButton} onPress={handleDelete}>
+          <TouchableOpacity style={styles.deleteButton} onPress={handleDelete} accessibilityLabel='删除记录'>
             <Ionicons name='trash' size={24} color={colors.ERROR} />
           </TouchableOpacity>
         </View>
