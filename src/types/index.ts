@@ -33,7 +33,7 @@ export interface IdolDetail {
   totalCount: number
   totalPrice: number
   records: PolaroidRecord[]
-  latestPhoto: string
+  latestPhoto: string | null
   totalRecords: number
 }
 
@@ -52,7 +52,7 @@ export interface FieldStat {
   count: number
 }
 
-export interface ServiceResult<T = any> {
+export interface ServiceResult<T> {
   success: boolean
   data: T | null
   error: string | null
