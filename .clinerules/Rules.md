@@ -80,7 +80,7 @@ polaroid-app/
 │   │   │   ├── LoadingSpinner.tsx
 │   │   │   └── EmptyState.tsx
 │   │   └── features/        # 功能组件
-│   │       ├── IdolCard.tsx
+│   │       ├── IdolCardAnimated.tsx
 │   │       └── IdolSelector.tsx
 │   ├── screens/             # 页面组件
 │   │   ├── HomeScreen.tsx   # 首页（排行榜）
@@ -95,7 +95,7 @@ polaroid-app/
 │   │   └── rankingUtils.ts  # 排行榜相关工具
 │   ├── constants/           # 常量
 │   │   ├── storageKeys.ts   # 存储键
-│   │   └── themeColors.ts   # 主题颜色
+│   │   └── themes.ts        # 主题颜色
 │   ├── hooks/               # 自定义 Hooks
 │   │   └── useRecords.ts    # 记录管理 Hook
 │   ├── navigation/          # 导航配置
@@ -370,7 +370,6 @@ npm run web            # 运行 Web
 
 ```bash
 npm run typecheck      # TypeScript 类型检查
-npm run tsc            # TypeScript 编译检查
 ```
 
 ### Git
@@ -416,6 +415,6 @@ git status             # 查看状态
 
 ---
 
-**最后更新**: 2026-03-19
+**最后更新**: 2026-08-30
 
 **版本**: 1.0.0

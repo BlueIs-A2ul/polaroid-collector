@@ -4,7 +4,7 @@ Polaroid App - 拍立得记录管理应用，基于 React Native + Expo 开发�
 
 > **重要提示**: 每次开始工作时，请先阅读 `WORKLOG.md` 了解项目当前状态和最近的开发进度。
 
-## Build/Lint/Test Commands
+## Build/Test Commands
 
 ```bash
 # Development
@@ -32,7 +32,7 @@ npx jest -t "test name pattern"  # 按名称匹配运行测试
 - **无调试代码**: 提交前移除 `console.log` 和 `debugger`（`console.error` 在服务层可保留用于错误日志）
 
 ### Naming Conventions
-- **组件**: PascalCase（如 `IdolCard.tsx`）
+- **组件**: PascalCase（如 `IdolCardAnimated.tsx`）
 - **函数/变量**: camelCase（如 `saveRecord`）
 - **常量**: UPPER_SNAKE_CASE（如 `STORAGE_KEY`）
 - **类型/接口**: PascalCase（如 `PolaroidRecord`）
@@ -42,7 +42,7 @@ npx jest -t "test name pattern"  # 按名称匹配运行测试
 - 所有新代码必须使用 TypeScript
 - 启用 TypeScript 严格模式
 - 所有函数必须有明确的类型定义
-- 类型定义统一放在 `src/types/index.ts`
+- 类型定义统一放在 `src/types/`（`index.ts` 为主，主题类型在 `theme.ts`）
 
 ### Imports
 ```typescript
@@ -50,7 +50,7 @@ npx jest -t "test name pattern"  # 按名称匹配运行测试
 import React, { useState, useEffect } from 'react'
 import { View, Text, StyleSheet } from 'react-native'
 import { Ionicons } from '@expo/vector-icons'
-import { COLORS } from '../../constants/themeColors'
+import { RADIUS_MD } from '../../constants/radius'
 import { PolaroidRecord } from '../types'
 ```
 
@@ -90,12 +90,12 @@ const Component: React.FC<ComponentProps> = ({ visible, onClose }) => {
 src/
 ├── components/       # 可复用组件
 │   ├── common/       # 通用组件 (LoadingSpinner, EmptyState)
-│   └── features/     # 功能组件 (IdolCard, IdolSelector)
+│   └── features/     # 功能组件 (IdolCardAnimated, IdolSelector)
 ├── screens/          # 页面组件 (HomeScreen, UploadScreen, DetailScreen, EditScreen)
 ├── services/         # 业务逻辑 (storageService, photoService, recordService)
 ├── hooks/            # 自定义 Hooks (useRecords)
 ├── utils/            # 工具函数 (rankingUtils)
-├── constants/        # 常量 (storageKeys, themeColors)
+├── constants/        # 常量 (storageKeys, themes, radius)
 ├── navigation/       # 导航配置 (AppNavigator)
 └── types/            # TypeScript 类型定义
 ```
@@ -127,7 +127,7 @@ src/
 
 ## Tech Stack
 
-- React Native 0.83.2
+- React Native 0.83.6
 - React 19.2.0
 - Expo SDK 55
 - TypeScript 5.9.3

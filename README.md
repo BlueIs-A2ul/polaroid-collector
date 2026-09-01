@@ -8,7 +8,7 @@
 
 ## 技术栈
 
-- React Native 0.83.2
+- React Native 0.83.6
 - React 19.2.0
 - Expo SDK 55
 - TypeScript 5.9.3
@@ -111,7 +111,9 @@ src/
 │   ├── CalendarScreen.tsx
 │   ├── ThemeSettingsScreen.tsx
 │   ├── YearlyReportScreen.tsx
-│   └── IdolReportScreen.tsx
+│   ├── IdolReportScreen.tsx
+│   ├── YearlyReportEntryScreen.tsx
+│   └── OrganizationCenterScreen.tsx
 ├── services/            # 业务逻辑服务
 │   ├── storageService.ts
 │   ├── recordService.ts
@@ -122,21 +124,25 @@ src/
 │   ├── priceStatsService.ts
 │   └── ...
 ├── hooks/               # 自定义 Hooks
-│   └── useRecords.ts
+│   ├── useRecords.ts
+│   ├── useHomeActions.ts
+│   └── ...
 ├── contexts/            # React Context
-│   └ ThemeContext.tsx
+│   └── ThemeContext.tsx
 ├── utils/               # 工具函数
 │   ├── rankingUtils.ts
-│   └ colorUtils.ts
+│   ├── colorUtils.ts
+│   └── ...
 ├── constants/           # 常量定义
 │   ├── storageKeys.ts
 │   ├── polaroidOptions.ts
-│   └ themes.ts
+│   ├── themes.ts
+│   └── radius.ts
 ├── navigation/          # 导航配置
 │   └ AppNavigator.tsx
 └── types/               # TypeScript 类型定义
-    └ index.ts
-    └ theme.ts
+    ├── index.ts
+    └── theme.ts
 ```
 
 ## 脚本命令
@@ -161,6 +167,8 @@ interface PolaroidRecord {
   photoDate: string
   photoUri: string
   backPhotoUri?: string
+  additionalPhotoUris?: string[]
+  additionalBackPhotoUris?: string[]
   price?: number
   note?: string
   groupName?: string

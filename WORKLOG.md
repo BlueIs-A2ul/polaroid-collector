@@ -1,5 +1,39 @@
 # 工作日志
 
+## 2026-08-30 开发记录（文档精简）
+
+### 背景
+
+整理项目文档：删除已完成的计划文档与重复/过时规范，修正版本号等过时内容，降低文档维护负担。
+
+### 改动内容
+
+1. 删除已完成的计划文档：`plan.md`、`docs/upload-fields-plan.md`、`docs/superpowers/` 下 3 个文件（全部条目均已实现）
+2. 删除 `RULES.md`（与 `.clinerules/Rules.md` 内容重复）
+3. 删除 `conventions.md`（内容被 `AGENTS.md` 覆盖，且含自相矛盾的示例、虚构规范和不存在文件的引用）
+4. 修正 `AGENTS.md`：标题去掉不存在的 lint 命令、React Native 版本号 0.83.2→0.83.6、结构示例中的已删除文件
+5. 修正 `README.md`：版本号、结构树补齐新页面与常量、`PolaroidRecord` 补充附加照片字段
+6. 修正 `.clinerules/Rules.md`：移除已删除文件和不存在命令的引用
+7. 修正 `WORKLOG.md`：删除中间插入的孤立说明段落
+
+### 文件变更
+
+| 文件 | 变更类型 | 说明 |
+|------|----------|------|
+| `plan.md` | 删除 | 全部条目已实现 |
+| `docs/upload-fields-plan.md` | 删除 | 功能已上线 |
+| `docs/superpowers/plans/*.md`、`docs/superpowers/specs/*.md` | 删除 | 功能已上线 |
+| `RULES.md` | 删除 | 与 `.clinerules/Rules.md` 重复 |
+| `conventions.md` | 删除 | 被 AGENTS.md 覆盖且含错误内容 |
+| `AGENTS.md` | 修改 | 标题、版本号、结构示例修正 |
+| `README.md` | 修改 | 版本号、结构树、数据结构修正 |
+| `.clinerules/Rules.md` | 修改 | 移除已删除文件和不存在命令 |
+| `WORKLOG.md` | 修改 | 删除孤立段落、新增本条记录 |
+
+纯文档变更，不涉及代码，无需运行类型检查与测试。
+
+---
+
 ## 2026-08-30 开发记录（UI 去 AI 感：精简重复性文案）
 
 ### 背景
@@ -159,10 +193,6 @@
 - `npm.cmd run typecheck`
 - `npm.cmd test -- --runInBand`
 - `npm.cmd run test:coverage -- --runInBand`
-
----
-
-本文档记录项目的开发进度和重要变更，供 AI 助手在每次开始工作时阅读，了解项目当前状态。
 
 ## 2026-07-13 开发记录（用户手册同步）
 
