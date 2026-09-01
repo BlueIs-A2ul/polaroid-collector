@@ -20,6 +20,7 @@ import LoadingSpinner from '../components/common/LoadingSpinner'
 import IdolSelector from '../components/features/IdolSelector'
 import FieldHistorySelector from '../components/features/FieldHistorySelector'
 import { Dialog } from '../services/dialogService'
+import { hapticSuccess } from '../utils/haptics'
 import { createUploadScreenStyles } from './uploadScreenStyles'
 import UploadPhotoList from '../components/features/upload/UploadPhotoList'
 import UploadCommonFields from '../components/features/upload/UploadCommonFields'
@@ -194,6 +195,7 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation, route }) => {
       err = result.error
 
       if (success) {
+        hapticSuccess()
         const backPhotoMsg = backPhotoCount > 0 ? `，其中 ${backPhotoCount} 张有背签` : ''
         const mergeButtonIndex = await Dialog.confirm({
           title: '成功',
@@ -231,6 +233,7 @@ const UploadScreen: React.FC<UploadScreenProps> = ({ navigation, route }) => {
       err = result.error
 
       if (success) {
+        hapticSuccess()
         const backPhotoMsg = getBackPhotoCount() > 0 ? `，其中 ${getBackPhotoCount()} 张有背签` : ''
         const buttonIndex = await Dialog.confirm({
           title: '成功',

@@ -23,6 +23,7 @@ import ActionSheetModal from '../components/features/ActionSheetModal'
 import AdvancedFilter from '../components/features/AdvancedFilter'
 import { getAllAvatars, removeAvatar } from '../services/avatarService'
 import { Dialog } from '../services/dialogService'
+import { hapticSelect, hapticSuccess } from '../utils/haptics'
 import { deleteRecordsByIdolNames, updateRecordsByIdolNames } from '../services/recordCommandService'
 import { RankingItem } from '../types'
 import {
@@ -127,6 +128,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
   }, [])
 
   const enterSelectionMode = React.useCallback((idolName: string) => {
+    hapticSelect()
     setSelectionMode(true)
     setSelectedIdols(new Set([idolName]))
   }, [])
@@ -157,6 +159,7 @@ const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
       }
       const { success, data: deletedCount } = await deleteRecordsByIdolNames(idolNames)
       if (success) {
+        hapticSuccess()
         Dialog.toast(`已删除 ${deletedCount} 条记录`, 'success')
         exitSelectionMode()
         refreshAll()

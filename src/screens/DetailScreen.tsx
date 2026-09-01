@@ -27,6 +27,7 @@ import { updateRecordData } from '../services/recordCommandService'
 import { deleteRecordsByIdolNames } from '../services/recordCommandService'
 import { getIdolGroupBinding, setIdolGroupBinding, removeIdolGroupBinding } from '../services/idolBindingService'
 import { Dialog } from '../services/dialogService'
+import { hapticWarning } from '../utils/haptics'
 import FieldHistorySelector from '../components/features/FieldHistorySelector'
 
 type DetailScreenNavigationProp = StackNavigationProp<RootStackParamList, 'Detail'>
@@ -157,6 +158,7 @@ const DetailScreen: React.FC<DetailScreenProps> = ({ route, navigation }) => {
       await removeIdolGroupBinding(idolName)
       const { success } = await deleteRecordsByIdolNames([idolName])
       if (success) {
+        hapticWarning()
         navigation.goBack()
       } else {
         Dialog.toast('删除失败，请稍后重试', 'error')

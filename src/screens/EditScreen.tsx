@@ -13,6 +13,7 @@ import { StackNavigationProp } from '@react-navigation/stack'
 import { RouteProp } from '@react-navigation/native'
 import { useTheme } from '../contexts/ThemeContext'
 import { Dialog } from '../services/dialogService'
+import { hapticWarning } from '../utils/haptics'
 import type { RootStackParamList } from '../types/navigation'
 import { pickPhoto } from '../services/photoService'
 import { getRecordById } from '../services/recordQueryService'
@@ -317,6 +318,7 @@ const EditScreen: React.FC<EditScreenProps> = ({ route, navigation }) => {
       setSaving(false)
 
       if (success) {
+        hapticWarning()
         Dialog.toast('记录已删除', 'success')
         navigation.goBack()
       } else {
